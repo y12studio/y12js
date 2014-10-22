@@ -1,0 +1,42 @@
+body {
+  padding-top: 60px;
+}
+.nav,
+.pagination,
+.carousel,
+.panel-title a {
+  cursor: pointer;
+}
+
+.color-unpick {
+  color: #DADADA;
+}
+
+.color-pick {
+  color: white;
+  background-color:blue;
+}
+
+.color-pick-90A {
+  color: white;
+  background-color:blue;
+}
+
+.color-pick-90B {
+  color: white;
+  background-color:red;
+}
+
+.color-pick-70A {
+  color: white;
+  background-color:green;
+}
+
+span.col {
+  border: 1px solid gray;
+  padding: 2px;
+  display: inline-block;
+  width: 50px;
+  cursor: pointer;
+  text-align: center;
+}
