@@ -1,5 +1,5 @@
 <!doctype html>
-<html ng-app="fooApp" lang="zh">
+<html ng-app="fooApp" class="full" lang="zh">
 
 <head>
   <meta charset="utf-8">
@@ -12,7 +12,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min.js"></script>
   <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.11.2.js"></script>
-  <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="app.css">
   <script src="app.js"></script>
@@ -48,9 +47,9 @@
     <div class="jumbotron">
       <h2>Pick Array 2D</h2>
       <p>pick {{radioModel || 'null'}}
-        <span class="col glyphicon glyphicon-ok-circle {{'color-pick-'+radioModel}}"></span>
+        <span class="col glyphicon glyphicon-ok-circle" ng-class="'color-pick-'+radioModel"></span>
       </p>
-      <p>MouseEnter:{{mouseEnterEnable}}</p>
+      <p>MouseEnter:{{mouseEnterEnable}}<span class="glyphicon" ng-class=" mouseEnterEnable ? 'glyphicon-play' : 'glyphicon-stop'"></span></p>
       <div class="btn-group">
         <label class="btn" ng-model="radioModel" btn-radio="'90A'">90A</label>
         <label class="btn" ng-model="radioModel" btn-radio="'90B'">90B</label>

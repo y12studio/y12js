@@ -1,10 +1,16 @@
 ## node-static server
 
-terminal
+http static server (nodejs)
 
 ```
 npm install -g node-static
 static
+```
+
+python
+
+```
+python -m SimpleHTTPServer
 ```
 
 atom editor
