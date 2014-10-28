@@ -1,0 +1,87 @@
+<!doctype html>
+<html ng-app="fooApp" class="full" lang="zh">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Angular static</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-resource.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular-route.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min.js"></script>
+  <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.11.2.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="app.js"></script>
+</head>
+
+<body ng-controller="MainCtrl">
+  <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Project name</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="/">Home</a>
+          </li>
+          <li><a href="#about">About</a>
+          </li>
+          <li><a href="#contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+      <!--/.nav-collapse -->
+    </div>
+  </div>
+  <div class="container">
+    <tabset>
+      <tab>
+        <tab-heading>
+          <span class='glyphicon glyphicon-ok-circle'></span><em>PickArray2D</em>
+        </tab-heading>
+        <h2>Pick Array 2D</h2>
+        <p>pick {{radioModel || 'null'}}
+          <span class="col glyphicon glyphicon-ok-circle" ng-class="'color-pick-'+radioModel"></span>
+        </p>
+        <p>MouseEnter:{{mouseEnterEnable}}<span class="glyphicon" ng-class=" mouseEnterEnable ? 'glyphicon-play' : 'glyphicon-stop'"></span>
+        </p>
+        <div class="btn-group">
+          <label class="btn" ng-model="radioModel" btn-radio="'90A'">90A</label>
+          <label class="btn" ng-model="radioModel" btn-radio="'90B'">90B</label>
+          <label class="btn" ng-model="radioModel" btn-radio="'70A'">70A</label>
+        </div>
+        <div>
+          <div>
+            <span class="col" style="background:#CCDDCC;">A/B</span>
+            <span class="col" style="background:#CCDDCC;" ng-repeat="x in root.xaxis">{{x}}</span>
+          </div>
+          <div ng-repeat="arr in root.arr">
+            <span style="background:#CCDDCC;" class="col">{{root.yaxis[$index]}}</span>
+            <span popover="{{root.objs[id]}}" popover-trigger="mouseenter" ng-mouseenter="mouseenter(id)" class="col glyphicon" ng-class="root.objs[id].class" ng-repeat="id in arr" ng-click="pick(id)"></span>
+          </div>
+
+        </div>
+      </tab>
+      <tab>
+        <tab-heading>
+          <span class='glyphicon glyphicon-ok-circle'></span><em>JSON</em>
+        </tab-heading>
+        <h2>JSON</h2>
+      </tab>
+      <tab heading="Foo">Foo</tab>
+    </tabset>
+  </div>
+  <!-- /.container -->
+
+</body>
+
+</html>

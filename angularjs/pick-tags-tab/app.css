@@ -1,0 +1,52 @@
+body {
+  padding-top: 80px;
+  background: none;
+}
+
+.nav,
+.pagination,
+.carousel,
+.panel-title a {
+  cursor: pointer;
+}
+
+.full {
+  background: url('http://placehold.it/1920x1080') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.color-unpick {
+  color: #DADADA;
+}
+
+.color-pick {
+  color: white;
+  background-color:blue;
+}
+
+.color-pick-90A {
+  color: white;
+  background-color:blue;
+}
+
+.color-pick-90B {
+  color: white;
+  background-color:red;
+}
+
+.color-pick-70A {
+  color: white;
+  background-color:green;
+}
+
+span.col {
+  border: 1px solid gray;
+  padding: 2px;
+  display: inline-block;
+  width: 50px;
+  cursor: pointer;
+  text-align: center;
+}
