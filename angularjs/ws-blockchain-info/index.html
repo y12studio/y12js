@@ -43,20 +43,20 @@
 
   <div class="container">
     <div class="jumbotron">
-      <div class="row">
+      <div class="row mainRow">
           <div class="col-sm-3">
               <h4>Unconfirmed transactions <BR/>Inputs[{{inputSize}}] total values</h4>
           </div>
         <div class="col-sm-6">
-          <h4 style="font-size:6em;" class="animated" ng-class="cssBig"><span class="label label-success">{{targetIn}}</span></h4>
+          <span class="mainValue animated label label-success" ng-class="cssBig">{{targetIn}}</span>
         </div>
       </div>
-      <div style="margin-top:30px;" class="row">
+      <div class="row mainRow">
           <div class="col-sm-3">
               <h4>Unconfirmed transactions <BR/>Out[{{outSize}}] total values</h4>
           </div>
         <div class="col-sm-6">
-          <h4 style="font-size:6em;" class="animated"><span class="label label-danger">{{targetOut}}</span></h4>
+          <span class="mainValue animated label label-danger" ng-class="cssBig">{{targetOut}}</span>
         </div>
       </div>
       <div style="margin-top:50px;" class="row">
