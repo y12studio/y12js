@@ -1,0 +1,75 @@
+<!doctype html>
+<html ng-app="fooApp" class="full" lang="zh">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Coffee And Bitcoin</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min.js"></script>
+  <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.11.2.js"></script>
+  <!-- Firebase -->
+  <script src="https://cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+  <!-- AngularFire -->
+  <script src="https://cdn.firebase.com/libs/angularfire/0.8.2/angularfire.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link href="http://cdn.bootcss.com/animate.css/3.2.0/animate.css" rel="stylesheet">
+  <link rel="stylesheet" href="coffee.css">
+  <script src="coffee.js"></script>
+</head>
+
+<body ng-controller="MainCtrl">
+  <div class="container">
+    <div style="text-align:center;" class="jumbotron">
+      <h2><span class="label label-info">BITCOIN COFFEE</span></h2>
+      <div class="row mainRow">
+        <div class="col-sm-6">
+          <div class="animated" ng-class="cssCount">
+            <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg"><img class="coffee" src="https://openclipart.org/people/jerk-leg/johnny_coffee_2.svg" />
+            </a>
+            <BR/><span class="price label label-danger">{{coffee}} ฿</span>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg"><img class="coffee" src="https://openclipart.org/people/jerk-leg/johnny_coffee_2.svg" />
+          </a>
+          <BR/><span class="price label label-primary">{{NTD}} NTD</span>
+        </div>
+      </div>
+      <div style="margin-top:50px;" class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-2">
+          <h4>last <span class="label label-danger">${{data.last}}</span></h4>
+          <h4>bid <span class="label label-default">${{data.bid}}</span></h4>
+          <h4>ask <span class="label label-info">${{data.ask}}</span></h4>
+        </div>
+        <div class="col-sm-6">
+          <h4>count: {{count}}</h4> {{data._updated}}<BR/>
+          <input text="text" class="form-control" ng-model="NTD" ng-change="updateCoffee()">
+        </div>
+      </div>
+    </div>
+
+    <div class="jumbotron">
+      <div style="margin-top:30px;" class="row">
+        <div class="col-sm-2">
+        </div>
+        <div class="col-sm-10">
+          <p><span class="glyphicon glyphicon-star"></span>
+              <a href="https://github.com/y12studio/y12js/tree/master/angularjs/firebase-bitcoin">y12js/angularjs/firebase-bitcoin at master · y12studio/y12js</a>
+            <BR/>
+            <span class="glyphicon glyphicon-star"></span><a href="https://www.firebase.com/docs/open-data/">Open Data Sets - Firebase</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.container -->
+
+
+</body>
+
+</html>

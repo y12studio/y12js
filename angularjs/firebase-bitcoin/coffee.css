@@ -1,0 +1,37 @@
+body {
+  padding-top: 30px;
+  background: none;
+}
+
+.nav,
+.pagination,
+.carousel,
+.panel-title a {
+  cursor: pointer;
+}
+
+img {
+    max-width:100%;
+    }
+
+img.coffee{
+    width:10vw;
+    margin:3vw 0vw;
+}
+
+.mainRow{
+    margin: 10px 5px;
+    padding:30px 5px;
+}
+
+.price{
+    font-size: 4vw;
+}
+
+.full {
+  background: url('http://placehold.it/1920x1080') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
