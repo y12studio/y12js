@@ -16,12 +16,15 @@ angular.module('fooApp', ['ui.bootstrap', 'firebase'])
     $scope.count = 0;
     $scope.prelast = 0;
     $scope.NTD = 89;
+    $scope.BTC = 0.009;
     $scope.coffee = '';
     $scope.cssCount = '';
 
     $scope.updateCoffee = function() {
       var cbtc = $scope.NTD / (bitcoin.last * 30);
       $scope.coffee = _.sprintf("%.8f", cbtc);
+      var cntd = $scope.BTC *  (bitcoin.last * 30);
+      $scope.coffeeNTD = _.sprintf("%.2f", cntd);
     }
 
      bitcoin.$loaded().then(function() {

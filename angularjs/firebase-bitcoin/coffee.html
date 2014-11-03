@@ -23,7 +23,14 @@
 <body ng-controller="MainCtrl">
   <div class="container">
     <div style="text-align:center;" class="jumbotron">
-      <h2><span class="label label-info">BITCOIN COFFEE</span></h2>
+      <div class="row">
+        <div class="col-sm-3">
+          <span class="price label label-info">Fixed NTD</span>
+        </div>
+        <div class="col-sm-3">
+          <input text="text" class="form-control" ng-model="NTD" ng-change="updateCoffee()">
+        </div>
+      </div>
       <div class="row mainRow">
         <div class="col-sm-6">
           <div class="animated" ng-class="cssCount">
@@ -38,17 +45,45 @@
           <BR/><span class="price label label-primary">{{NTD}} NTD</span>
         </div>
       </div>
-      <div style="margin-top:50px;" class="row">
+
+    </div>
+    <div style="text-align:center;" class="jumbotron">
+      <div class="row">
         <div class="col-sm-2">
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-4">
           <h4>last <span class="label label-danger">${{data.last}}</span></h4>
           <h4>bid <span class="label label-default">${{data.bid}}</span></h4>
           <h4>ask <span class="label label-info">${{data.ask}}</span></h4>
         </div>
         <div class="col-sm-6">
-          <h4>count: {{count}}</h4> {{data._updated}}<BR/>
-          <input text="text" class="form-control" ng-model="NTD" ng-change="updateCoffee()">
+          <h4>count: {{count}}</h4> {{data._updated}}
+          <BR/>
+
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;" class="jumbotron">
+      <div class="row">
+        <div class="col-sm-3">
+          <span class="price label label-info">Fixed BTC</span>
+        </div>
+        <div class="col-sm-3">
+          <input text="text" class="form-control" ng-model="BTC" ng-change="updateCoffee()">
+        </div>
+      </div>
+      <div class="row mainRow">
+        <div class="col-sm-6">
+          <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg"><img class="coffee" src="https://openclipart.org/people/jerk-leg/johnny_coffee_2.svg" />
+          </a>
+          <BR/><span class="price label label-primary">{{BTC}} ฿</span>
+        </div>
+        <div class="col-sm-6">
+          <div class="animated" ng-class="cssCount">
+            <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg"><img class="coffee" src="https://openclipart.org/people/jerk-leg/johnny_coffee_2.svg" />
+            </a>
+            <BR/><span class="price label label-danger">{{coffeeNTD}} NTD</span>
+          </div>
         </div>
       </div>
     </div>
@@ -59,7 +94,7 @@
         </div>
         <div class="col-sm-10">
           <p><span class="glyphicon glyphicon-star"></span>
-              <a href="https://github.com/y12studio/y12js/tree/master/angularjs/firebase-bitcoin">y12js/angularjs/firebase-bitcoin at master · y12studio/y12js</a>
+            <a href="https://github.com/y12studio/y12js/tree/master/angularjs/firebase-bitcoin">y12js/angularjs/firebase-bitcoin at master · y12studio/y12js</a>
             <BR/>
             <span class="glyphicon glyphicon-star"></span><a href="https://www.firebase.com/docs/open-data/">Open Data Sets - Firebase</a>
           </p>

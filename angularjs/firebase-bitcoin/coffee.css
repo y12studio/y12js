@@ -10,22 +10,26 @@ body {
   cursor: pointer;
 }
 
+.form-control{
+    max-width:150px;
+}
+
 img {
     max-width:100%;
     }
 
 img.coffee{
-    width:10vw;
-    margin:3vw 0vw;
+    width:6vw;
+    margin:1vw 0vw;
 }
 
 .mainRow{
-    margin: 10px 5px;
-    padding:30px 5px;
+    margin: 5px 5px;
+    padding : 5px 5px;
 }
 
 .price{
-    font-size: 4vw;
+    font-size: 2vw;
 }
 
 .full {
