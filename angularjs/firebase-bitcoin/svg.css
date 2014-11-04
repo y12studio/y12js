@@ -16,8 +16,9 @@ body {
 }
 
 div.svg {
-  width: 20vw;
-  margin: 1vw 0vw;
+  float: none;
+  margin: 0 auto;
+  width: 30vw;
 }
 
 .price{
