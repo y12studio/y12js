@@ -15,6 +15,7 @@
   <!-- AngularFire -->
   <script src="https://cdn.firebase.com/libs/angularfire/0.8.2/angularfire.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <link href='http://fonts.googleapis.com/css?family=Alegreya+Sans+SC:400,500italic' rel='stylesheet' type='text/css'>
   <link href="http://cdn.bootcss.com/animate.css/3.2.0/animate.css" rel="stylesheet">
   <link rel="stylesheet" href="coffee.css">
   <script src="coffee.js"></script>
@@ -22,27 +23,28 @@
 
 <body ng-controller="MainCtrl">
   <div class="container">
-    <div style="text-align:center;" class="jumbotron">
+    <div class="jumbotron">
       <div class="row">
-        <div class="col-sm-3">
-          <span class="price label label-info">Fixed NTD</span>
-        </div>
-        <div class="col-sm-3">
-          <input text="text" class="form-control" ng-model="NTD" ng-change="updateCoffee()">
+        <div class="col-sm-offset-4 col-sm-4">
+          <div class="input-group">
+            <span class="input-group-addon">Fixed NTD</span>
+            <input text="text" class="form-control" ng-model="NTD" ng-change="updateCoffee()">
+          </div>
         </div>
       </div>
       <div class="row mainRow">
         <div class="col-sm-6">
           <div class="animated" ng-class="cssCount">
-            <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg"><img class="coffee" src="https://openclipart.org/people/jerk-leg/johnny_coffee_2.svg" />
-            </a>
-            <BR/><span class="price label label-danger">{{coffee}} ฿</span>
+            <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg">
+              <span class="coffee" ng-include="'johnny_coffee_2.svg'"></span>
+              <BR/><span class="price label label-danger">{{coffee}} ฿</span>
           </div>
         </div>
         <div class="col-sm-6">
-          <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg"><img class="coffee" src="https://openclipart.org/people/jerk-leg/johnny_coffee_2.svg" />
+          <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg">
+            <span class="coffee" ng-include="'johnny_coffee_2.svg'"></span>
           </a>
-          <BR/><span class="price label label-primary">{{NTD}} NTD</span>
+          <BR/><span style="font-family: 'Alegreya Sans SC';" class="price label label-primary">{{NTD}} NTD</span>
         </div>
       </div>
 
@@ -59,17 +61,16 @@
         <div class="col-sm-6">
           <h4>count: {{count}}</h4> {{data._updated}}
           <BR/>
-
         </div>
       </div>
     </div>
-    <div style="text-align:center;" class="jumbotron">
+    <div class="jumbotron">
       <div class="row">
-        <div class="col-sm-3">
-          <span class="price label label-info">Fixed BTC</span>
-        </div>
-        <div class="col-sm-3">
-          <input text="text" class="form-control" ng-model="BTC" ng-change="updateCoffee()">
+        <div class="col-sm-4 col-sm-offset-4">
+          <div class="input-group">
+            <span class="input-group-addon">Fixed BTC</span>
+            <input text="text" class="form-control" ng-model="BTC" ng-change="updateCoffee()">
+          </div>
         </div>
       </div>
       <div class="row mainRow">
@@ -82,7 +83,7 @@
           <div class="animated" ng-class="cssCount">
             <a href="https://openclipart.org/detail/65569/johnny-coffee-2-by-jerk-leg"><img class="coffee" src="https://openclipart.org/people/jerk-leg/johnny_coffee_2.svg" />
             </a>
-            <BR/><span class="price label label-danger">{{coffeeNTD}} NTD</span>
+            <BR/><span style="font-family: 'Alegreya Sans SC';" class="price label label-danger">{{coffeeNTD}} NTD</span>
           </div>
         </div>
       </div>
