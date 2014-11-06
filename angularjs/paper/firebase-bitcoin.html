@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.css">
+  <style>
+    .doc-content {
+      max-width: 864px;
+      margin: auto;
+    }
+    section {
+      background: #f7f7f7;
+      border-radius: 3px;
+      text-align: center;
+      margin: 1em;
+      position: relative !important;
+      padding-bottom: 10px;
+    }
+    section md-button:not(.md-fab) {
+      width: 10em;
+    }
+    section md-button {
+      display: block;
+      margin: 1em;
+      line-height: 25px;
+    }
+  </style>
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">Bitcoin</span>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <img src="http://placehold.it/800x120" class="md-card-image" alt="Washed Out">
+      <h2>Bitcoin Price</h2>
+      <section layout="vertical" layout-sm="horizontal" layout-align="center center">
+        <md-button class="md-raised">Last {{data.last}}</md-button>
+        <md-button class="md-raised md-primary">Ask {{data.ask}}</md-button>
+        <md-button class="md-raised md-warn">Bid {{data.bid}}</md-button>
+      </section>
+      <p>
+        <a href="https://www.firebase.com/docs/open-data/cryptocurrencies.html">Cryptocurrencies Open Data Sets - Firebase</a>
+      </p>
+    </md-card>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-animate.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
+  <!-- Firebase -->
+  <script src="//cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+  <!-- AngularFire -->
+  <script src="//cdn.firebase.com/libs/angularfire/0.8.2/angularfire.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+
+    angular.module('YourApp', ['ngMaterial', 'firebase'])
+      .controller("YourController", ['$scope', '$firebase', '$timeout', function($scope, $firebase, $timeout) {
+        var ref = new Firebase("https://publicdata-cryptocurrency.firebaseio.com/bitcoin");
+        // create an AngularFire reference to the data
+        var sync = $firebase(ref);
+        // download the data into a local object
+        $scope.data = sync.$asObject();
+        $scope.FOO = 'Haha';
+      }]);
+  </script>
+
+</body>
+
+</html>

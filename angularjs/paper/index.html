@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.css">
+  <style>
+    .doc-content {
+      max-width: 864px;
+      margin: auto;
+    }
+    section {
+      background: #f7f7f7;
+      border-radius: 3px;
+      text-align: center;
+      margin: 1em;
+      position: relative !important;
+      padding-bottom: 10px;
+    }
+    section md-button:not(.md-fab) {
+      width: 10em;
+    }
+    section md-button {
+      display: block;
+      margin: 1em;
+      line-height: 25px;
+    }
+  </style>
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">Angular Material</span>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <img src="http://placehold.it/800x120" class="md-card-image" alt="Washed Out">
+      <h2>Paracosm</h2>
+      <p>
+        The titles of Washed Out's breakthrough song and the first single from Paracosm share the two most important words in Ernest Greene's musical language: feel it. It's a simple request, as well...
+      </p>
+
+      <section layout="vertical" layout-sm="horizontal" layout-align="center center">
+        <md-button class="md-raised" ng-click="go('firebase-bitcoin.html')">Bitcoin</md-button>
+        <md-button class="md-raised md-primary">Primary</md-button>
+        <md-button class="md-raised md-warn">{{FOO}}</md-button>
+      </section>
+
+    </md-card>
+    <md-content class="md-padding">
+      <section layout="vertical" layout-sm="horizontal" layout-align="center center">
+        <md-button class="md-raised">Button</md-button>
+        <md-button class="md-raised md-primary">Primary</md-button>
+        <md-button class="md-raised md-warn">{{FOO}}</md-button>
+      </section>
+    </md-content>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-animate.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+
+    angular.module('YourApp', ['ngMaterial'])
+      .controller("YourController", ['$scope', '$timeout', function($scope, $timeout) {
+        $scope.FOO = 'Haha';
+        $scope.go = function(path) {
+          location.href = path;
+        };
+      }]);
+  </script>
+
+</body>
+
+</html>
