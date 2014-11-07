@@ -20,6 +20,11 @@
     section md-button:not(.md-fab) {
       width: 10em;
     }
+    md-button.md-fab {
+      width: 48px;
+      height: 48px;
+    }
+
     section md-button {
       display: block;
       margin: 1em;
@@ -33,7 +38,11 @@
   <div class="doc-content" ng-controller="YourController">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <span class="md-flex">Bitcoin</span>
+        <span class="md-flex">Bitcoin Firebase</span>
+        <span flex></span>
+        <md-button class="md-fab" aria-label="Comment" ng-click="go('index.html')">
+            <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
+        </md-button>
       </div>
     </md-toolbar>
     <md-card>
@@ -69,6 +78,9 @@
         var sync = $firebase(ref);
         // download the data into a local object
         $scope.data = sync.$asObject();
+        $scope.go = function(path) {
+          location.href = path;
+        };
         $scope.FOO = 'Haha';
       }]);
   </script>
