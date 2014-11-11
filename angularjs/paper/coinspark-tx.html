@@ -35,7 +35,7 @@
       margin-right: 8px;
     }
     md-input-group.long > input {
-      width: 466px;
+      width: 566px;
     }
     section {
       background: #f7f7f7;
@@ -57,6 +57,10 @@
       margin: 1em;
       line-height: 25px;
     }
+    textarea {
+      display: block;
+      margin: 1em auto;
+    }
   </style>
 </head>
 
@@ -65,7 +69,7 @@
   <div class="doc-content" ng-controller="YourController">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <span class="md-flex">CoinSpark Genesis AssertRef</span>
+        <span class="md-flex">CoinSpark transactions meta</span>
         <span flex></span>
         <md-button class="md-fab" aria-label="home" ng-click="go('index.html')">
           <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
@@ -73,26 +77,23 @@
       </div>
     </md-toolbar>
     <md-card>
-      <img src="http://placehold.it/800x50" class="md-card-image" alt="Washed Out">
-
       <md-content>
         <form style="padding: 20px;">
           <div class="row">
-            <md-text-float label="CoinSpark AssetRef" ng-model="assetref" class="long"> </md-text-float>
+            <md-text-float label="CoinSpark Tx" ng-model="txhash" class="long"> </md-text-float>
             <span flex></span>
             <md-button class="md-raised md-warn" ng-click="search()">Search</md-button>
           </div>
           <div class="row">
             <md-text-float label="Genesis OP_RETURN Hex" ng-model="ophex" class="long"> </md-text-float>
           </div>
-          <div class="row">
-            <md-text-float label="Genesis Tx" ng-model="transaction_hash" class="long"> </md-text-float>
-          </div>
-          <div class="row">
-            <md-text-float label="AssetUrl" ng-model="asseturl" class="long"> </md-text-float>
-          </div>
         </form>
+        <textarea rows="10" cols="80">
+          {{result}}
+        </textarea>
       </md-content>
+      <a href="http://imgur.com/oiXDOKj"><img class="md-card-image" src="http://i.imgur.com/oiXDOKj.jpg?1" title="source: imgur.com" />
+      </a>
     </md-card>
     <md-card>
       <h2>CoinSpark and Chain Api</h2>
@@ -122,62 +123,33 @@
 
     angular.module('YourApp', ['ngMaterial', 'ngResource'])
       .controller("YourController", ['$scope', '$timeout', '$resource', function($scope, $timeout, $resource) {
-        // -------------
-        // helloblock issue
-        // limit max 100
-        //var hbTx = $resource('https://mainnet.helloblock.io/v1/blocks/:blockHeight/transactions?limit=100&offset=100');
-        // ----------
-        // blockchain api issue
-        // https://blockchain.info/block-height/328629?format=json
-        // No 'Access-Control-Allow-Origin'
-        // var biTx = $resource('https://blockchain.info/:blockHeight/328629?format=json');
+
+        $scope.txhash = '8512a2cfa0ca642adf347c44e969d829f7bbffd11a45d88655c50e78b95cde65';
         // --------------
         // chain api OK
-
-        var chOp = $resource('https://api.chain.com/v2/bitcoin/blocks/:blockHeight/op-returns?api-key-id=DEMO-4a5e1e4');
+        var chOpTx = $resource('https://api.chain.com/v2/bitcoin/transactions/:txhash/op-return?api-key-id=DEMO-4a5e1e4');
         $scope.go = function(path) {
           location.href = path;
         };
+
         $scope.search = function() {
-          console.log('search ' + $scope.assetref);
-          var assetRef = new CoinSparkAssetRef();
-          if (assetRef.decode($scope.assetref)) {
-            console.log("Block number: " + assetRef.blockNum);
-            console.log("Byte offset: " + assetRef.txOffset);
-            console.log("TxID prefix: " + assetRef.txIDPrefix);
-            console.log(assetRef.toString());
-            var p = {
-              blockHeight: assetRef.blockNum
-            };
-            // hbTx only return max 100 items
-            chOp.query(p, function(v) {
-              console.log(v);
-              var x = _.find(v, function(item) {
-                return _(item.transaction_hash.toUpperCase()).startsWith(assetRef.txIDPrefix);
-              });
-              $scope.ophex = x.hex;
-              $scope.transaction_hash = x.transaction_hash;
-              var scriptPubKey = $scope.ophex;
-              var metadata = CoinSparkHexToUint8Array(scriptPubKey);
-              console.log(metadata);
-              var genesis = new CoinSparkGenesis();
-              if (genesis.decode(metadata)) {
-                $scope.genesis = genesis;
-                $scope.asseturl = 'http://' + genesis.domainName + '/coinspark/' + genesis.pagePath + '/';
-                console.log(genesis);
-                console.log(genesis.toString());
-              }
-            });
-
-          } else {
-            console.log("Asset reference could not be read!");
-          }
+          var p = {
+            txhash: $scope.txhash
+          };
+          chOpTx.get(p, function(v) {
+            console.log(v);
+            $scope.ophex = v.hex;
+            var scriptPubKey = $scope.ophex;
+            var metadata = CoinSparkHexToUint8Array(scriptPubKey);
+            var transferList = new CoinSparkTransferList();
+            if (transferList.decode(metadata, 1, 1)) {
+              $scope.result = transferList.toString();
+              console.log($scope.result);
+            }
+          });
         };
-        $scope.assetref = '328629-53978-60165';
         $scope.ophex = '';
-        $scope.transaction_hash = '';
-        $scope.genesis = {};
-
+        $scope.result = ':)';
       }]);
   </script>
 

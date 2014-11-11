@@ -94,7 +94,7 @@
         // ------
         // coinbase issue
         // Access-Control-Allow-Origin
-        var coinbaseEx = $resource('https://api.coinbase.com/v1/currencies/exchange_rates');
+        // var coinbaseEx = $resource('https://api.coinbase.com/v1/currencies/exchange_rates');
         var bavg = $resource('https://api.bitcoinaverage.com/ticker/global/all');
         $scope.usd_to_twd = 30.0;
         $scope.usd_to_twd_s ='30.0';
@@ -123,13 +123,9 @@
           //console.log($scope.data);
           $scope.update();
         });
-
-
-
         $scope.go = function(path) {
           location.href = path;
         };
-        $scope.FOO = 'Haha';
       }]);
   </script>
 
