@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.css">
+  <style>
+    .doc-content {
+      max-width: 864px;
+      margin: auto;
+    }
+    section {
+      background: #f7f7f7;
+      border-radius: 3px;
+      text-align: center;
+      margin: 1em;
+      position: relative !important;
+      padding-bottom: 10px;
+    }
+    section md-button:not(.md-fab) {
+      width: 10em;
+    }
+    md-button.md-fab {
+      width: 48px;
+      height: 48px;
+    }
+    section md-button {
+      display: block;
+      margin: 1em;
+      line-height: 25px;
+    }
+    md-card .md-card-image-small {
+      display: block;
+      width: 50%;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">Bitcoin TWD</span>
+        <span flex></span>
+        <md-button class="md-fab" aria-label="Comment" ng-click="go('index.html')">
+          <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <a href="http://imgur.com/gallery/u5XFwvw">
+          <img src="http://i.imgur.com/u5XFwvw.gif" class="md-card-image-small" title="source: imgur.com" ></a>
+      <h2>TWD/BTC</h2>
+      <p>TWD/USD={{usd_to_twd_s}}</p>
+      <section layout="vertical" layout-sm="horizontal" layout-align="center center">
+        <md-button class="md-raised md-warn">TWD {{twdlast}}</md-button>
+      </section>
+      <h2>USD/BTC</h2>
+      <section layout="vertical" layout-sm="horizontal" layout-align="center center">
+        <md-button class="md-raised">Last {{data.last}}</md-button>
+        <md-button class="md-raised md-primary">Ask {{data.ask}}</md-button>
+        <md-button class="md-raised md-warn">Bid {{data.bid}}</md-button>
+      </section>
+      <p><a href="https://bitcoinaverage.com/api">API reference | BitcoinAverage - Bitcoin Price Index</a><BR/>
+        <a href="https://www.firebase.com/docs/open-data/cryptocurrencies.html">Cryptocurrencies Open Data Sets - Firebase</a>
+      </p>
+    </md-card>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-animate.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-resource.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
+  <!-- Firebase -->
+  <script src="//cdn.firebase.com/js/client/1.0.21/firebase.js"></script>
+  <!-- AngularFire -->
+  <script src="//cdn.firebase.com/libs/angularfire/0.8.2/angularfire.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.string/2.3.3/underscore.string.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+    _.mixin(_.str.exports());
+    angular.module('YourApp', ['ngMaterial', 'firebase', 'ngResource'])
+      .controller("YourController", ['$scope', '$firebase', '$timeout', '$resource', function($scope, $firebase, $timeout, $resource) {
+        var ref = new Firebase("https://publicdata-cryptocurrency.firebaseio.com/bitcoin");
+        // create an AngularFire reference to the data
+        var sync = $firebase(ref);
+        // download the data into a local object
+        var bitcoin = sync.$asObject();
+        // ------
+        // coinbase issue
+        // Access-Control-Allow-Origin
+        var coinbaseEx = $resource('https://api.coinbase.com/v1/currencies/exchange_rates');
+        var bavg = $resource('https://api.bitcoinaverage.com/ticker/global/all');
+        $scope.usd_to_twd = 30.0;
+        $scope.usd_to_twd_s ='30.0';
+        $scope.twdlast = 0;
+
+        $scope.data = bitcoin;
+
+        $scope.update = function() {
+          // Math.round(2.5);
+          // _.numberFormat(1000, 2)
+          //$scope.twdlast = Math.round(bitcoin.last*usd_to_twd);
+          $scope.twdlast = _.numberFormat(bitcoin.last * $scope.usd_to_twd, 0);
+        };
+
+        bitcoin.$loaded().then(function() {
+          bavg.get(function(v){
+              $scope.usd_to_twd = v.TWD.last/ v.USD.last;
+              $scope.usd_to_twd_s = _.numberFormat($scope.usd_to_twd,2);
+              console.log(v);
+          });
+
+          $scope.update();
+        });
+
+        var unwatch = bitcoin.$watch(function() {
+          //console.log($scope.data);
+          $scope.update();
+        });
+
+
+
+        $scope.go = function(path) {
+          location.href = path;
+        };
+        $scope.FOO = 'Haha';
+      }]);
+  </script>
+
+</body>
+
+</html>
