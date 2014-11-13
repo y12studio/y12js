@@ -108,10 +108,10 @@
     </md-card>
   </div>
 
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-aria.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-animate.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.1/angular-resource.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-animate.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-resource.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
   <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
   <script src="//0.y12.tw/js/coinspark/1.0.3/coinspark.js"></script>
@@ -125,6 +125,8 @@
       .controller("YourController", ['$scope', '$timeout', '$resource', function($scope, $timeout, $resource) {
 
         $scope.txhash = '8512a2cfa0ca642adf347c44e969d829f7bbffd11a45d88655c50e78b95cde65';
+        $scope.ophex = '';
+        $scope.result = ':)';
         // --------------
         // chain api OK
         var chOpTx = $resource('https://api.chain.com/v2/bitcoin/transactions/:txhash/op-return?api-key-id=DEMO-4a5e1e4');
@@ -132,24 +134,27 @@
           location.href = path;
         };
 
-        $scope.search = function() {
-          var p = {
-            txhash: $scope.txhash
-          };
-          chOpTx.get(p, function(v) {
-            console.log(v);
-            $scope.ophex = v.hex;
-            var scriptPubKey = $scope.ophex;
-            var metadata = CoinSparkHexToUint8Array(scriptPubKey);
-            var transferList = new CoinSparkTransferList();
-            if (transferList.decode(metadata, 1, 1)) {
-              $scope.result = transferList.toString();
-              console.log($scope.result);
-            }
-          });
+        var parse = function(v) {
+          console.log(v);
+          $scope.ophex = v.hex;
+          var scriptPubKey = $scope.ophex;
+          var metadata = CoinSparkHexToUint8Array(scriptPubKey);
+          var transferList = new CoinSparkTransferList();
+          if (transferList.decode(metadata, 1, 1)) {
+            $scope.result = transferList.toString();
+            console.log($scope.result);
+          }
+          var paymentRef = new CoinSparkPaymentRef();
+          if (paymentRef.decode(metadata)) {
+            console.log(paymentRef.toString());
+          }
         };
-        $scope.ophex = '';
-        $scope.result = ':)';
+
+        $scope.search = function() {
+          chOpTx.get({
+            txhash: $scope.txhash
+          }, parse);
+        }
       }]);
   </script>
 

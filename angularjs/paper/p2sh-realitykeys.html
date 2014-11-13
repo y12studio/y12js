@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.css">
+  <style>
+    .doc-content {
+      max-width: 864px;
+      margin: auto;
+    }
+    form .row {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -moz-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      -moz-align-items: center;
+      align-items: center;
+      -webkit-box-direction: normal;
+      -webkit-box-orient: horizontal;
+      -webkit-flex-direction: row;
+      -moz-flex-direction: row;
+      -ms-flex-direction: row;
+      flex-direction: row;
+      margin-left: -8px;
+    }
+    form .row > * {
+      font-size: inherit;
+      margin-left: 8px;
+      margin-right: 8px;
+    }
+    md-input-group.long > input {
+      width: 566px;
+    }
+    section {
+      background: #f7f7f7;
+      border-radius: 3px;
+      text-align: center;
+      margin: 1em;
+      position: relative !important;
+      padding-bottom: 10px;
+    }
+    section md-button:not(.md-fab) {
+      width: 10em;
+    }
+    md-button.md-fab {
+      width: 48px;
+      height: 48px;
+    }
+    section md-button {
+      display: block;
+      margin: 1em;
+      line-height: 25px;
+    }
+    textarea {
+      display: block;
+      margin: 1em auto;
+    }
+  </style>
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">RealityKey</span>
+        <span flex></span>
+        <md-button class="md-fab" aria-label="home" ng-click="go('index.html')">
+          <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <img src="http://placehold.it/800x30" class="md-card-image" alt="Washed Out">
+
+      <md-content>
+        <form style="padding: 20px;">
+          <h2>Reality Key</h2>
+          <div class="row">
+            <md-text-float label="RealityKeys Exchange Rates ID" ng-model="rkexid"> </md-text-float>
+            <md-button class="md-raised md-warn" ng-click="fetch()">Get Key</md-button>
+          </div>
+          <md-text-float label="Yes Pubkey" ng-model="rkpubyes" class="long"></md-text-float>
+          <md-text-float label="No Pubkey" ng-model="rkpubno" class="long"></md-text-float>
+          <h2>Alice</h2>
+          <md-text-float label="Alice Pubkey" ng-model="pubalice" class="long"></md-text-float>
+          <md-text-float label="Alice WIF" ng-model="wifalice" class="long"></md-text-float>
+          <md-text-float label="2/3 addr(Alice Yes Bob)" ng-model="addr23alice" class="long"></md-text-float>
+          <h4>RedeemScript</h4>
+          <textarea rows="6" cols="60">{{alice_redeemScript}}</textarea>
+          <h2>Bob</h2>
+          <md-text-float label="Bob Pubkey" ng-model="pubbob" class="long"></md-text-float>
+          <md-text-float label="Bob WIF" ng-model="wifbob" class="long"></md-text-float>
+          <md-text-float label="2/3 addr(Bob No Alice)" ng-model="addr23bob" class="long"></md-text-float>
+          <h4>RedeemScript</h4>
+          <textarea rows="6" cols="60">{{bob_redeemScript}}</textarea>
+        </form>
+      </md-content>
+      <md-content class="md-padding">
+        <p>
+          <a href="https://www.realitykeys.com/exchange/761/">Reality Keys - 1 Bitcoin to be at least 400 US Dollar on Nov. 20, 2014</a>
+          <BR/>
+          <a href="http://coinb.in/multisig/">Bitcoin Multi Signature Address</a>
+          <BR/>
+          <a href="https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/p2sh.js">bitcoinjs-lib/p2sh.js</a>
+        </p>
+      </md-content>
+    </md-card>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-animate.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-resource.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
+  <script src="//0.y12.tw/js/bitcoinjs/1.2.0/bitcoinjs.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+
+    angular.module('YourApp', ['ngMaterial', 'ngResource'])
+      .controller("YourController", ['$scope', '$timeout', '$resource', function($scope, $timeout, $resource) {
+        var rkex = $resource('https://www.realitykeys.com/api/v1/exchange/:RKEXID/?accept_terms_of_service=current');
+        $scope.rkexid = 761;
+        $scope.keyalice = bitcoin.ECKey.makeRandom();
+        $scope.keybob = bitcoin.ECKey.makeRandom();
+        $scope.rkpubyes = '';
+        $scope.rkpubno = '';
+        $scope.pubalice = $scope.keyalice.pub.toHex();
+        $scope.pubbob = $scope.keybob.pub.toHex();
+        $scope.wifalice = $scope.keyalice.toWIF();
+        $scope.wifbob = $scope.keybob.toWIF();
+
+        var get23 = function(pubKeys) {
+          var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys); // 2 of 3
+          var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash());
+          var multisigAddress = bitcoin.Address.fromOutputScript(scriptPubKey).toString();
+          var r = {
+            'redeemScript': redeemScript,
+            'scriptPubKey': scriptPubKey,
+            'multisigAddress': multisigAddress
+          };
+          return r;
+        };
+
+        $scope.go = function(path) {
+          location.href = path;
+        };
+
+        $scope.fetch = function() {
+          rkex.get({
+            RKEXID: $scope.rkexid
+          }, function(v) {
+            console.log(v);
+            $scope.rkpubyes = v.yes_pubkey;
+            $scope.rkpubno = v.no_pubkey;
+            var pkYes = bitcoin.ECPubKey.fromHex($scope.rkpubyes);
+            var pkNo = bitcoin.ECPubKey.fromHex($scope.rkpubno);
+            console.log(pkYes);
+            console.log(pkNo);
+            var r23alice = get23([$scope.keyalice.pub, $scope.keybob.pub, pkYes]);
+            var r23bob = get23([$scope.keyalice.pub, $scope.keybob.pub, pkNo]);
+            console.log(r23alice);
+            console.log(r23bob);
+            //multisigAddress
+            $scope.addr23alice = r23alice.multisigAddress;
+            $scope.addr23bob = r23bob.multisigAddress;
+            $scope.alice_redeemScript = r23alice.redeemScript.toHex();
+            $scope.bob_redeemScript = r23bob.redeemScript.toHex();
+          });
+        };
+
+        $scope.FOO = 'Haha';
+        $scope.addrv = {};
+        $scope.addr = '1GuCsMZuxUpyAkkGFQHQB3nwcs6nKVwqjA';
+
+      }]);
+  </script>
+
+</body>
+
+</html>
