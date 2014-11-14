@@ -61,11 +61,6 @@
       display: block;
       margin: 1em auto;
     }
-    md-card .md-card-image-small {
-      display: block;
-      width: 50%;
-      margin: auto;
-    }
   </style>
 </head>
 
@@ -74,7 +69,7 @@
   <div class="doc-content" ng-controller="YourController">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <span class="md-flex">Reality Keys</span>
+        <span class="md-flex">Multisig 2/3</span>
         <span flex></span>
         <md-button class="md-fab" aria-label="home" ng-click="go('index.html')">
           <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
@@ -82,33 +77,34 @@
       </div>
     </md-toolbar>
     <md-card>
-
       <md-content>
         <form style="padding: 20px;">
-          <h2>Reality Keys</h2>
-          <div class="row">
-            <md-text-float label="RealityKeys Exchange Rates ID" ng-model="rkexid"> </md-text-float>
-            <md-button class="md-raised md-warn" ng-click="fetch()">Get Key</md-button>
-          </div>
-          <md-text-float label="Yes Pubkey" ng-model="rkpubyes" class="long"></md-text-float>
-          <md-text-float label="No Pubkey" ng-model="rkpubno" class="long"></md-text-float>
-          <a href="http://imgur.com/9g6wfci"><img src="http://i.imgur.com/9g6wfci.jpg" class="md-card-image-small" title="source: imgur.com" />
-          </a>
           <h2>Alice</h2>
           <md-text-float label="Alice Pubkey" ng-model="pubalice" class="long"></md-text-float>
           <md-text-float label="Alice WIF" ng-model="wifalice" class="long"></md-text-float>
-          <md-text-float label="2/2 addr(Alice Yes)" ng-model="addr22alice" class="long"></md-text-float>
-          <h4>RedeemScript</h4>
-          <textarea rows="6" cols="60">{{alice_redeemScript}}</textarea>
           <h2>Bob</h2>
           <md-text-float label="Bob Pubkey" ng-model="pubbob" class="long"></md-text-float>
           <md-text-float label="Bob WIF" ng-model="wifbob" class="long"></md-text-float>
-          <md-text-float label="2/2 addr(Bob No)" ng-model="addr22bob" class="long"></md-text-float>
+          <h2>Foo</h2>
+          <md-text-float label="Foo Pubkey" ng-model="pubfoo" class="long"></md-text-float>
+          <md-text-float label="Foo WIF" ng-model="wiffoo" class="long"></md-text-float>
+          <h2>Multisig Address</h2>
+          <md-text-float label="2/3 addr(Alice Bob Foo)" ng-model="addr23" class="long"></md-text-float>
           <h4>RedeemScript</h4>
-          <textarea rows="6" cols="60">{{bob_redeemScript}}</textarea>
+          <textarea rows="6" cols="60">{{redeemScriptHex}}</textarea>
+          <h2>Multisig Address Tx</h2>
+          <md-text-float label="Tx Hex(Unspent)*" ng-model="addr23txHash" class="long"></md-text-float>
+          <md-text-float label="Tx Spend(value)*" type="number" ng-model="addr23txSpend"></md-text-float>
+          <md-text-float label="Tx Output index*" type="number" ng-model="addr23txIndex"></md-text-float>
+          <md-text-float label="Target Address*" ng-model="addrtarget" class="long"></md-text-float>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised md-warn" ng-click="sign()">Sign</md-button>
+          </div>
+          <h4>Sign RedeemScript</h4>
+          <textarea rows="12" cols="60">{{txSignHex}}</textarea>
         </form>
       </md-content>
-
       <md-content class="md-padding">
         <p>
           <a href="https://www.realitykeys.com/exchange/761/">Reality Keys - 1 Bitcoin to be at least 400 US Dollar on Nov. 20, 2014</a>
@@ -137,15 +133,22 @@
         $scope.rkexid = 761;
         $scope.keyalice = bitcoin.ECKey.makeRandom();
         $scope.keybob = bitcoin.ECKey.makeRandom();
+        $scope.keyfoo = bitcoin.ECKey.makeRandom();
+        $scope.keytarget = bitcoin.ECKey.makeRandom();
         $scope.rkpubyes = '';
         $scope.rkpubno = '';
         $scope.pubalice = $scope.keyalice.pub.toHex();
         $scope.pubbob = $scope.keybob.pub.toHex();
+        $scope.pubfoo = $scope.keyfoo.pub.toHex();
+        $scope.pubtarget = $scope.keytarget.pub.toHex();
+        $scope.addrtarget = $scope.keytarget.pub.getAddress();
         $scope.wifalice = $scope.keyalice.toWIF();
         $scope.wifbob = $scope.keybob.toWIF();
+        $scope.wiffoo = $scope.keyfoo.toWIF();
 
-        var get22 = function(pubKeys) {
-          var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys); // 2 of what?
+
+        var get23 = function(pubKeys) {
+          var redeemScript = bitcoin.scripts.multisigOutput(2, pubKeys); // 2 of 3
           var scriptPubKey = bitcoin.scripts.scriptHashOutput(redeemScript.getHash());
           var multisigAddress = bitcoin.Address.fromOutputScript(scriptPubKey).toString();
           var r = {
@@ -155,32 +158,37 @@
           };
           return r;
         };
+        var privKeys = [$scope.keyalice, $scope.keybob, $scope.keyfoo];
+        var pubKeys = privKeys.map(function(eck) {
+          return eck.pub
+        })
+
+        var r23 = get23(pubKeys);
+        $scope.addr23 = r23.multisigAddress;
+        $scope.redeemScriptHex = r23.redeemScript.toHex();
+
+        $scope.addr23txHash = '14aefea8b894110db3570aeb19a4f97621f41f06dcfdb89f026cfbc361e02c54';
+        $scope.addr23txSpend = 1681234;
+        $scope.addr23txIndex = 0; // tx output index
+
+        $scope.sign = function() {
+          var txb = new bitcoin.TransactionBuilder();
+          txb.addInput($scope.addr23txHash, $scope.addr23txIndex);
+          txb.addOutput($scope.addrtarget, $scope.addr23txSpend);
+
+
+          privKeys.forEach(function(privKey) {
+            txb.sign(0, privKey, r23.redeemScript);
+          });
+
+          $scope.txSignHex = txb.build().toHex();
+          console.log(txb);
+          console.log(r23.redeemScript);
+        };
+
 
         $scope.go = function(path) {
           location.href = path;
-        };
-
-        $scope.fetch = function() {
-          rkex.get({
-            RKEXID: $scope.rkexid
-          }, function(v) {
-            console.log(v);
-            $scope.rkpubyes = v.yes_pubkey;
-            $scope.rkpubno = v.no_pubkey;
-            var pkYes = bitcoin.ECPubKey.fromHex($scope.rkpubyes);
-            var pkNo = bitcoin.ECPubKey.fromHex($scope.rkpubno);
-            console.log(pkYes);
-            console.log(pkNo);
-            var r22alice = get22([$scope.keyalice.pub, pkYes]);
-            var r22bob = get22([$scope.keybob.pub, pkNo]);
-            console.log(r22alice);
-            console.log(r22bob);
-            //multisigAddress
-            $scope.addr22alice = r22alice.multisigAddress;
-            $scope.addr22bob = r22bob.multisigAddress;
-            $scope.alice_redeemScript = r22alice.redeemScript.toHex();
-            $scope.bob_redeemScript = r22bob.redeemScript.toHex();
-          });
         };
 
       }]);
