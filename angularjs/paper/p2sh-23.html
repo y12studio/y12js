@@ -90,20 +90,36 @@
           <md-text-float label="Foo WIF" ng-model="wiffoo" class="long"></md-text-float>
           <h2>Multisig Address</h2>
           <md-text-float label="2/3 addr(Alice Bob Foo)" ng-model="addr23" class="long"></md-text-float>
+          <p>pay small bitcoin for test</p>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised md-warn" ng-click="gohello()">Helloblock.io</md-button>
+            <md-button class="md-raised" ng-click="goqr()">QRcode-Blockchain</md-button>
+          </div>
           <h4>RedeemScript</h4>
           <textarea rows="6" cols="60">{{redeemScriptHex}}</textarea>
           <h2>Multisig Address Tx</h2>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised md-warn" ng-click="gettx()">Get Tx</md-button>
+          </div>
           <md-text-float label="Tx Hex(Unspent)*" ng-model="addr23txHash" class="long"></md-text-float>
-          <md-text-float label="Tx Spend(value)*" type="number" ng-model="addr23txSpend"></md-text-float>
-          <md-text-float label="Tx Output index*" type="number" ng-model="addr23txIndex"></md-text-float>
+          <div class="row">
+            <md-text-float label="Tx UnSpent(value)" type="number" ng-model="addr23txSpend"></md-text-float>
+            <md-text-float label="Tx Output index" type="number" ng-model="addr23txIndex"></md-text-float>
+            <md-text-float label="Tx Fee*" type="number" ng-model="addr23txFee"></md-text-float>
+          </div>
           <md-text-float label="Target Address*" ng-model="addrtarget" class="long"></md-text-float>
           <div class="row">
             <span flex></span>
+            <md-button class="md-raised md-primay" ng-click="gohellotarget()">Helloblock.io</md-button>
             <md-button class="md-raised md-warn" ng-click="sign()">Sign</md-button>
           </div>
-          <h4>Sign RedeemScript</h4>
-          <textarea rows="12" cols="60">{{txSignHex}}</textarea>
         </form>
+      </md-content>
+      <md-content ng-repeat="s in signs">
+        <h4>Sign RedeemScript {{s.title}}</h4>
+        <textarea rows="12" cols="60">{{s.hex}}</textarea>
       </md-content>
       <md-content class="md-padding">
         <p>
@@ -134,14 +150,14 @@
         $scope.keyalice = bitcoin.ECKey.makeRandom();
         $scope.keybob = bitcoin.ECKey.makeRandom();
         $scope.keyfoo = bitcoin.ECKey.makeRandom();
-        $scope.keytarget = bitcoin.ECKey.makeRandom();
+
         $scope.rkpubyes = '';
         $scope.rkpubno = '';
         $scope.pubalice = $scope.keyalice.pub.toHex();
         $scope.pubbob = $scope.keybob.pub.toHex();
         $scope.pubfoo = $scope.keyfoo.pub.toHex();
-        $scope.pubtarget = $scope.keytarget.pub.toHex();
-        $scope.addrtarget = $scope.keytarget.pub.getAddress();
+
+        $scope.addrtarget = '1KV5jcfCWrFxRMnJW8cCVws9E2ZqVCvZ3h';
         $scope.wifalice = $scope.keyalice.toWIF();
         $scope.wifbob = $scope.keybob.toWIF();
         $scope.wiffoo = $scope.keyfoo.toWIF();
@@ -167,28 +183,86 @@
         $scope.addr23 = r23.multisigAddress;
         $scope.redeemScriptHex = r23.redeemScript.toHex();
 
-        $scope.addr23txHash = '14aefea8b894110db3570aeb19a4f97621f41f06dcfdb89f026cfbc361e02c54';
-        $scope.addr23txSpend = 1681234;
+        $scope.addr23txHash = '67e692f3b18f3224d6a242b78502672cd43c9a838b32abde83b7c24f5038a1ac';
+        $scope.addr23txSpend = 21000;
         $scope.addr23txIndex = 0; // tx output index
+        $scope.addr23txFee = 1000; // tx output index
 
-        $scope.sign = function() {
+        $scope.signs = [{
+          'title': 'Alice+Bob',
+          'hex': '',
+          'keys': [$scope.keyalice, $scope.keybob]
+        }, {
+          'title': 'Alice+Foo',
+          'hex': '',
+          'keys': [$scope.keyalice, $scope.keyfoo]
+        }, {
+          'title': 'Bob+Foo',
+          'hex': '',
+          'keys': [$scope.keybob, $scope.keyfoo]
+        }];
+
+        var signtx = function(keys) {
           var txb = new bitcoin.TransactionBuilder();
           txb.addInput($scope.addr23txHash, $scope.addr23txIndex);
-          txb.addOutput($scope.addrtarget, $scope.addr23txSpend);
+          txb.addOutput($scope.addrtarget, $scope.addr23txSpend - $scope.addr23txFee);
 
-
-          privKeys.forEach(function(privKey) {
+          keys.forEach(function(privKey) {
             txb.sign(0, privKey, r23.redeemScript);
           });
 
-          $scope.txSignHex = txb.build().toHex();
+          var tx = txb.build();
+          return tx.toHex();
           console.log(txb);
           console.log(r23.redeemScript);
+          //var fee = bitcoin.networks.bitcoin.estimateFee(tx);
+          //console.log(fee);
         };
 
+        $scope.sign = function() {
+          $scope.signs.forEach(function(o) {
+            o.hex = signtx(o.keys);
+          });
+        };
+
+        var reshb = $resource('https://mainnet.helloblock.io/v1/addresses/:addr/unspents');
+        $scope.gettx = function() {
+          console.log('get unspent tx from address : ' + $scope.addr23);
+          reshb.get({
+            'addr': $scope.addr23
+          }, function(v) {
+            console.log(v);
+            if (v.data.unspents.length > 0) {
+              usp0 = v.data.unspents[0];
+              console.log(usp0);
+              $scope.addr23txSpend = usp0.value;
+              $scope.addr23txHash = usp0.txHash;
+              $scope.addr23txIndex = usp0.index;
+            } else {
+              $scope.addr23txSpend = 0;
+              $scope.addr23txHash = 'NODATA';
+              $scope.addr23txIndex = 0;
+            }
+          });
+        };
 
         $scope.go = function(path) {
           location.href = path;
+        };
+
+        $scope.goqr = function() {
+          var url = 'https://blockchain.info/address/' + $scope.addr23;
+          window.open(url, '_blank');
+        };
+
+        $scope.gohello = function() {
+          var url = 'https://helloblock.io/addresses/' + $scope.addr23;
+          window.open(url, '_blank');
+        };
+
+        $scope.gohellotarget = function() {
+          var url = 'https://helloblock.io/addresses/' + $scope.addrtarget;
+          window.open(url, '_blank');
         };
 
       }]);
