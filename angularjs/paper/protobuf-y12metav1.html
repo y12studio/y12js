@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.css">
+  <style>
+    .doc-content {
+      max-width: 864px;
+      margin: auto;
+    }
+    form .row {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -moz-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      -moz-align-items: center;
+      align-items: center;
+      -webkit-box-direction: normal;
+      -webkit-box-orient: horizontal;
+      -webkit-flex-direction: row;
+      -moz-flex-direction: row;
+      -ms-flex-direction: row;
+      flex-direction: row;
+      margin-left: -8px;
+    }
+    form .row > * {
+      font-size: inherit;
+      margin-left: 8px;
+      margin-right: 8px;
+    }
+    md-input-group.long > input {
+      width: 566px;
+    }
+    section {
+      background: #f7f7f7;
+      border-radius: 3px;
+      text-align: center;
+      margin: 1em;
+      position: relative !important;
+      padding-bottom: 10px;
+    }
+    section md-button:not(.md-fab) {
+      width: 10em;
+    }
+    md-button.md-fab {
+      width: 48px;
+      height: 48px;
+    }
+    section md-button {
+      display: block;
+      margin: 1em;
+      line-height: 25px;
+    }
+    textarea {
+      display: block;
+      margin: 1em auto;
+    }
+  </style>
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">Y12 Meta v1(Genesis)</span>
+        <span flex></span>
+        <md-button class="md-fab" aria-label="home" ng-click="go('index.html')">
+          <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <md-content>
+        <form style="padding: 20px;">
+          <h2>Genesis</h2>
+          <div class="row">
+            <md-text-float label="Name" ng-model="genName"></md-text-float>
+            <md-text-float label="Domain" ng-model="genDomain"></md-text-float>
+            <md-text-float label="Quanity" type="number" ng-model="genQty"></md-text-float>
+          </div>
+          <div class="row">
+            <md-button class="md-raised md-warn" ng-click="gen()">Generate</md-button>
+            <span flex></span>
+            <md-text-float label="Hex Size" ng-model="genHexSize"></md-text-float>
+          </div>
+          <md-text-float label="OP_RETURN hex" ng-model="genHex" class="long"></md-text-float>
+          <md-text-float label="Asset Hash Url" ng-model="genHexUrl" class="long"></md-text-float>
+          <h2>Bitcoin Address</h2>
+          <md-text-float label="Private Key WIF" ng-model="wif" class="long"></md-text-float>
+          <md-text-float label="Bitcoin Address" ng-model="addr" class="long"></md-text-float>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised" ng-click="addrFromWif()">Address</md-button>
+            <md-button class="md-raised" ng-click="addrRandom()">Random</md-button>
+            <md-button class="md-raised md-warn" ng-click="gohello()">Helloblock</md-button>
+            <md-button class="md-raised" ng-click="goqr()">QR</md-button>
+          </div>
+          <md-text-float label="Tx Hex(Unspent)*" ng-model="addrtxHash" class="long"></md-text-float>
+          <div class="row">
+            <md-text-float label="Tx UnSpent(value)" type="number" ng-model="addrtxSpend"></md-text-float>
+            <md-text-float label="Tx Output index" type="number" ng-model="addrtxIndex"></md-text-float>
+            <md-text-float label="Tx Fee*" type="number" ng-model="addrtxFee"></md-text-float>
+          </div>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised md-primary" ng-click="getAddrUnspent()">UnSpent</md-button>
+            <md-button class="md-raised" ng-click="buildTx()">Build Tx</md-button>
+          </div>
+          <h4>TxScript</h4>
+          <textarea rows="6" cols="60">{{rtxHex}}</textarea>
+        </form>
+      </md-content>
+      <md-content class="md-padding">
+        <p>
+            <a href="http://coinsecrets.org/?to=330499.000000">Coin Secrets - OP_RETURN metadata in the Bitcoin Blockchain</a>
+        <BR/>
+          <a href="https://github.com/dcodeIO/ProtoBuf.js/wiki/Getting-started">Getting started dcodeIO/ProtoBuf.js Wiki</a>
+          <BR/>
+          <a href="https://helloblock.io/propagate">Hello, block! | Bitcoin API</a>
+          <BR/>
+          <a href="https://github.com/williamcotton/bitcoinjs-lib/blob/inttests/test/integration/helloblock.js">bitcoinjs-lib/helloblock.js</a>
+        </p>
+      </md-content>
+    </md-card>
+    <md-card>
+      <md-content class="md-padding">
+        <h2>y12coin-v1.proto</h2>
+        <pre>
+        package y12.tw;
+
+        message Y12Meta {
+
+          enum Type {
+            GENESIS     = 1;
+            TRANSCATION = 2;
+          }
+
+          message Genesis {
+            required string name = 1;
+            required string domain = 2;
+            required int32 qty = 3;
+          }
+
+          message Transcation {
+            required string number = 1;
+          }
+
+          required Type type = 1 [default = TRANSCATION];
+          optional Genesis genesis = 2;
+          optional Transcation transcation = 3;
+        }
+    </pre>
+      </md-content>
+    </md-card>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-animate.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-resource.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
+  <script src="//0.y12.tw/js/bitcoinjs/1.2.0/bitcoinjs.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/Long/2.2.3/Long.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/ByteBuffer/3.5.4/ByteBufferAB.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/ProtoBuf/3.8.1/ProtoBuf.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+
+    angular.module('YourApp', ['ngMaterial', 'ngResource'])
+      .controller("YourController", ['$scope', '$timeout', '$resource', function($scope, $timeout, $resource) {
+        var reshb = $resource('https://mainnet.helloblock.io/v1/addresses/:addr/unspents');
+        var ProtoBuf = dcodeIO.ProtoBuf;
+        var prefixHexY12 = '59';
+        var y12 = ProtoBuf.loadProtoFile("y12coin-v1.proto").build('y12'),
+          y12meta = y12.tw.Y12Meta,
+          y12metatype = y12.tw.Y12Meta.Type,
+          y12genesis = y12.tw.Y12Meta.Genesis;
+        $scope.genName = 'BlueGuava';
+        $scope.genDomain = '0.y12.tw';
+        $scope.genQty = 210123;
+        $scope.wif = '';
+        $scope.addrtxFee = 1000;
+        $scope.key;
+
+        var printSize = function(v) {
+          console.log(v);
+          console.log(v.toHex());
+          console.log('hex size = ' + v.toHex().length);
+          console.log('byte size = ' + v.calculate());
+          console.log('result hex = ' + prefixHexY12 + v.toHex());
+        }
+
+        var handleGenesis = function() {
+          v = new y12meta(y12metatype.GENESIS, new y12genesis($scope.genName, $scope.genDomain, $scope.genQty));
+          printSize(v);
+          $scope.genHex = prefixHexY12 + v.toHex();
+          $scope.genHexSize = $scope.genHex.length / 2;
+          $scope.genHexUrl = ('http://' + $scope.genDomain + '/y12coins/' + $scope.genName + '.json').replace(/ /g, '').toLowerCase();
+        };
+
+        handleGenesis();
+
+        var handlePerson = function() {
+          var Person = ProtoBuf.loadProtoFile("person.proto").build("Person");
+          console.log(Person);
+          var p1 = new Person('Y12STUDIO Haha', 10998, 'go@em.cc');
+          var PhoneNumber = Person.PhoneNumber,
+            PhoneType = Person.PhoneType;
+          pn1 = new PhoneNumber('0911', PhoneType.WORK);
+          pn2 = new PhoneNumber('0900', PhoneType.MOBILE);
+          p1.phone.push(pn1);
+          p1.phone.push(pn2);
+          printSize(p1);
+        };
+
+        handlePerson();
+
+        $scope.addrRandom = function() {
+          key = bitcoin.ECKey.makeRandom();
+          $scope.wif = key.toWIF();
+          $scope.addr = key.pub.getAddress();
+          $scope.key = key;
+        };
+
+        $scope.addrFromWif = function() {
+          $scope.addr = 'NO DATA';
+          var key = bitcoin.ECKey.fromWIF($scope.wif);
+          $scope.addr = key.pub.getAddress();
+          $scope.key = key;
+        };
+
+        $scope.buildTx = function() {
+          var txb = new bitcoin.TransactionBuilder();
+
+          txb.addInput($scope.addrtxHash, $scope.addrtxIndex);
+
+          txb.addOutput($scope.addr, $scope.addrtxSpend - $scope.addrtxFee);
+
+          // 1. export Buffer approach.
+          // var data = new Buffer($scope.genHex,'hex');
+          // 2. fork and modify approach.
+          //var dataScript = bitcoin.scripts.dataOpReturnHex($scope.genHex);
+          // 3. fromASM (Best)
+          var dataScript = bitcoin.Script.fromASM('OP_RETURN ' + $scope.genHex);
+
+          txb.addOutput(dataScript, 0);
+          txb.sign(0, $scope.key);
+          var tx = txb.build();
+          $scope.rtxHex = tx.toHex();
+          console.log(tx);
+        };
+
+        $scope.getAddrUnspent = function() {
+          console.log('get unspent tx from address : ' + $scope.addr);
+          reshb.get({
+            'addr': $scope.addr
+          }, function(v) {
+            console.log(v);
+            if (v.data.unspents.length > 0) {
+              usp0 = v.data.unspents[0];
+              console.log(usp0);
+              $scope.addrtxSpend = usp0.value;
+              $scope.addrtxHash = usp0.txHash;
+              $scope.addrtxIndex = usp0.index;
+            } else {
+              $scope.addrtxSpend = 0;
+              $scope.addrtxHash = 'NODATA';
+              $scope.addrtxIndex = 0;
+            }
+          });
+        };
+
+        $scope.go = function(path) {
+          location.href = path;
+        };
+
+        $scope.gen = function() {
+          handleGensis();
+        };
+
+        $scope.goqr = function() {
+          var url = 'https://blockchain.info/address/' + $scope.addr;
+          window.open(url, '_blank');
+        };
+
+        $scope.gohello = function() {
+          var url = 'https://helloblock.io/addresses/' + $scope.addr;
+          window.open(url, '_blank');
+        };
+
+      }]);
+  </script>
+
+</body>
+
+</html>

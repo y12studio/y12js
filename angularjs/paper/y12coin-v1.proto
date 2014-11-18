@@ -1,0 +1,23 @@
+package y12.tw;
+
+message Y12Meta {
+
+  enum Type {
+    GENESIS     = 1;
+    TRANSCATION = 2;
+  }
+
+  message Genesis {
+    required string name = 1;
+    required string domain = 2;
+    required int32 qty = 3;
+  }
+
+  message Transcation {
+    required string number = 1;
+  }
+
+  required Type type = 1 [default = TRANSCATION];
+  optional Genesis genesis = 2;
+  optional Transcation transcation = 3;
+}
