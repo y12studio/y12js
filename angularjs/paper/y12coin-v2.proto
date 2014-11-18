@@ -1,0 +1,30 @@
+package y12.tw;
+
+message Y12Meta {
+
+  enum Type {
+    FILE_EXIST = 1;
+    ASSET_GENESIS     = 2;
+    ASSET_TRANSCATION = 3;
+  }
+
+  message FileExist {
+    required string title = 1;
+    required bytes hash = 2;
+  }
+
+  message AssetGenesis {
+    required string name = 1;
+    required string domain = 2;
+    required int32 qty = 3;
+  }
+
+  message AssetTranscation {
+    required string number = 1;
+  }
+
+  required Type type = 1;
+  optional FileExist fileExist = 2;
+  optional AssetGenesis assetGenesis = 3;
+  optional AssetTranscation assetTranscation = 4;
+}
