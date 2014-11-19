@@ -82,18 +82,13 @@
           <h2>File Exist</h2>
           <p>hash160(file) a/k/a ripemd160(sha256(file))</p>
           <input type="file" ng-file-select="onFileSelect($files)">
+          <md-text-float label="hash160(file)" ng-model="fileHash160" class="long"></md-text-float>
           <div class="row">
-            <md-text-float label="Name" ng-model="genName"></md-text-float>
-            <md-text-float label="Domain" ng-model="genDomain"></md-text-float>
-            <md-text-float label="Quanity" type="number" ng-model="genQty"></md-text-float>
-          </div>
-          <div class="row">
-            <md-button class="md-raised md-warn" ng-click="gen()">Generate</md-button>
+            <md-text-float label="Title" ng-model="fileTitle"></md-text-float>
             <span flex></span>
-            <md-text-float label="Hex Size" ng-model="genHexSize"></md-text-float>
+            <md-button class="md-raised md-warn" ng-click="gen()">Generate</md-button>
           </div>
-          <md-text-float label="OP_RETURN hex" ng-model="genHex" class="long"></md-text-float>
-          <md-text-float label="Asset Hash Url" ng-model="genHexUrl" class="long"></md-text-float>
+          <md-text-float label="OP_RETURN hex" ng-model="ymeta.orhash" class="long"></md-text-float>
           <h2>Bitcoin Address</h2>
           <md-text-float label="Private Key WIF" ng-model="wif" class="long"></md-text-float>
           <md-text-float label="Bitcoin Address" ng-model="addr" class="long"></md-text-float>
@@ -167,7 +162,8 @@ xx
       .controller("YourController", ['$scope', '$timeout', '$resource', '$upload', function($scope, $timeout, $resource, $upload) {
         var reshb = $resource('https://mainnet.helloblock.io/v1/addresses/:addr/unspents');
         var ProtoBuf = dcodeIO.ProtoBuf;
-        var prefixHexY12 = '59';
+        var y12HexStart = '59';
+        var y12HexEnd = '0c';
         var y12 = ProtoBuf.loadProtoFile("y12coin-v2.proto").build('y12'),
           y12meta = y12.tw.Y12Meta,
           y12type = y12meta.Type,
@@ -178,6 +174,8 @@ xx
         $scope.wif = '';
         $scope.addrtxFee = 1000;
         $scope.key;
+        $scope.fileHash160 = 'TODO';
+        $scope.fileTitle = 'SideChainWtf';
 
         $scope.fileReaderSupported = window.FileReader != null && (window.FileAPI == null || FileAPI.html5 != false);
 
@@ -185,27 +183,40 @@ xx
           if ($scope.fileReaderSupported) {
             var file = $files[0];
             var fr = new FileReader();
-            // TODO
-            // http://stackoverflow.com/questions/10942642/javascript-get-data-out-of-arraybuffer
-            //
+            fr.onload = function(e){
+                //console.log(e);
+                var contentBuf = dcodeIO.ByteBuffer.wrap(e.target.result);
+                //console.log(contentBuf);
+                $scope.fileHash160 = toHash160Hex(contentBuf.toHex());
+                $scope.$digest();
+            }
+            fr.readAsArrayBuffer(file);
           }
-
         };
 
         var printSize = function(v) {
           console.log(v);
+          console.log('hash160hex='+v.hash160hex);
           console.log('hex=' + v.toHex());
-          var r = prefixHexY12 + v.toHex();
           console.log('calculate size = ' + v.calculate());
-          console.log('result hex = ' + r);
-          console.log('result size = ' + r.length / 2);
+          console.log('result hex = ' + v.orhash);
+          console.log('result size = ' + v.orhash.length / 2);
         }
 
-        var createFileExist = function(title, hex) {
-          var hashBuf = dcodeIO.ByteBuffer.fromHex(hex);
-          foo = new y12meta(y12type.FILE_EXIST, new y12FileExist(title, hashBuf));
-          printSize(foo);
-          return foo;
+        var createFileExist = function(title, hash160hex) {
+          var hashBuf = dcodeIO.ByteBuffer.fromHex(hash160hex);
+          var r = new y12meta(y12type.FILE_EXIST, new y12FileExist(title, hashBuf));
+          r.hash160hex = hash160hex;
+          r.orhash = y12HexStart + r.toHex() + y12HexEnd;
+          printSize(r);
+          return r;
+        }
+
+        var toHash160Hex = function(contentHex){
+            hash160buf = bitcoin.Script.fromHex(contentHex).getHash();
+            // console.log(hash160buf);
+            rhex = hash160buf.toString('hex');
+            return rhex;
         }
 
         var handleFoo = function() {
@@ -225,9 +236,7 @@ xx
           // sha256 = 767b0c8977412c70eafd0c491c99664fadc7b8ee9672b29ecf0330e7d583c4ec
           // http://www.fileformat.info/tool/hash.htm?hex=767b0c8977412c70eafd0c491c99664fadc7b8ee9672b29ecf0330e7d583c4ec
           // ripemd160 = 025c5eb280b0268229cdf02c4318dcb10cff3414
-          hash160buf = bitcoin.Script.fromHex(dBuf.toHex()).getHash();
-          console.log(hash160buf);
-          rhex = hash160buf.toString('hex');
+          rhex = toHash160Hex(dBuf.toHex());
           console.log(rhex);
           console.log('Assert True ? ' + (rhex == '025c5eb280b0268229cdf02c4318dcb10cff3414'));
           var foo160 = createFileExist('T2345678901', rhex);
@@ -295,7 +304,7 @@ xx
         };
 
         $scope.gen = function() {
-          handleGensis();
+          $scope.ymeta = createFileExist($scope.fileTitle,$scope.fileHash160);
         };
 
         $scope.goqr = function() {
