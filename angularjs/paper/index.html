@@ -17,10 +17,10 @@
       position: relative !important;
       padding-bottom: 10px;
     }
-    section md-button:not(.md-fab) {
+    section .md-button:not(.md-fab) {
       width: 10em;
     }
-    section md-button {
+    section .md-button {
       display: block;
       margin: 1em;
       line-height: 25px;
@@ -43,24 +43,22 @@
     </md-toolbar>
     <md-card>
       <h2>Angular Material and Bitcoin</h2>
-      <p>
-        api...
-      </p>
-
       <section layout="vertical" layout-sm="horizontal" layout-align="center center">
         <md-button class="md-raised" ng-click="go('firebase-bitcoin.html')">Firebase</md-button>
         <md-button class="md-raised md-warn" ng-click="go('firebase-bitcoin-twd.html')">TWD</md-button>
         <md-button class="md-raised md-primary" ng-click="go('helloblock.html')">HelloBlock</md-button>
       </section>
+    </md-card>
+    <md-card>
+      <h2>P2SH / MultiSig / Reality Keys</h2>
       <section layout="vertical" layout-sm="horizontal" layout-align="center center">
         <md-button class="md-raised md-primary" ng-click="go('p2sh-23.html')">MultiSig 2/3</md-button>
         <md-button class="md-raised md-warn" ng-click="go('p2sh-realitykeys.html')">RealityKey</md-button>
+        <md-button class="md-raised" ng-click="go('p2sh-realitykeys-coffee.html')">ReKey Coffee</md-button>
       </section>
-
     </md-card>
     <md-card>
       <h2>Y12 Meta Protocol/OP_RETURN/ProtoBuf.js</h2>
-
       <section layout="vertical" layout-sm="horizontal" layout-align="center center">
         <md-button class="md-raised" ng-click="go('protobuf-y12metav1.html')">v1 genesis</md-button>
         <md-button class="md-raised md-primary" ng-click="go('protobuf-y12metav2.html')">v2 file</md-button>
@@ -74,13 +72,12 @@
         <md-button class="md-raised" ng-click="go('coinspark-addr.html')">Address</md-button>
         <md-button class="md-raised md-primary" ng-click="go('coinspark-tx.html')">Tx</md-button>
       </section>
-      <a href="http://imgur.com/gallery/qsPr9rh"><img src="http://i.imgur.com/qsPr9rh.jpg" class="md-card-image-small" alt="Washed Out">
-      </a>
+      <img src="http://lorempixel.com/600/200/abstract/" class="md-card-image" alt="Washed Out">
     </md-card>
   </div>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-aria.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.2/angular-animate.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-animate.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
   <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
   <script>
