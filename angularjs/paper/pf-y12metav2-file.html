@@ -89,29 +89,7 @@
             <md-button class="md-raised md-warn" ng-click="gen()">Generate</md-button>
           </div>
           <md-text-float label="OP_RETURN hex" ng-model="ymeta.orhash" class="long"></md-text-float>
-          <h2>Bitcoin Address</h2>
-          <md-text-float label="Private Key WIF" ng-model="wif" class="long"></md-text-float>
-          <md-text-float label="Bitcoin Address" ng-model="addr" class="long"></md-text-float>
-          <div class="row">
-            <span flex></span>
-            <md-button class="md-raised" ng-click="addrFromWif()">Address</md-button>
-            <md-button class="md-raised" ng-click="addrRandom()">Random</md-button>
-            <md-button class="md-raised md-warn" ng-click="gohello()">Helloblock</md-button>
-            <md-button class="md-raised" ng-click="goqr()">QR</md-button>
-          </div>
-          <md-text-float label="Tx Hex(Unspent)*" ng-model="addrtxHash" class="long"></md-text-float>
-          <div class="row">
-            <md-text-float label="Tx UnSpent(value)" type="number" ng-model="addrtxSpend"></md-text-float>
-            <md-text-float label="Tx Output index" type="number" ng-model="addrtxIndex"></md-text-float>
-            <md-text-float label="Tx Fee*" type="number" ng-model="addrtxFee"></md-text-float>
-          </div>
-          <div class="row">
-            <span flex></span>
-            <md-button class="md-raised md-primary" ng-click="getAddrUnspent()">UnSpent</md-button>
-            <md-button class="md-raised" ng-click="buildTx()">Build Tx</md-button>
-          </div>
-          <h4>TxScript</h4>
-          <textarea rows="6" cols="60">{{rtxHex}}</textarea>
+          <md-text-float label="OP_RETURN size" ng-model="ymeta.orsize"></md-text-float>
         </form>
       </md-content>
       <md-content class="md-padding">
@@ -135,7 +113,54 @@
         <h2>y12coin-v2.proto</h2>
         <pre>
 package y12.tw;
-xx
+
+message Y12Meta {
+
+  enum Type {
+    COMMON_STRING = 1;
+    COMMON_INT_STRING = 2;
+    COMMON_INT_BYTES = 3;
+    COMMON_ARRAY_INT = 11;
+    COMMON_ARRAY_STRING = 12;
+    COMMON_ARRAY_STRING_INT = 13;
+    FILE_EXIST = 41;
+    ASSET_GENESIS     = 51;
+    ASSET_TRANSCATION = 52;
+  }
+
+  message CommonString {
+    required string content = 1;
+  }
+
+  message CommonIntString {
+    required string content = 1;
+    required int32 num = 2;
+  }
+
+  message FileExist {
+    required bytes hash = 1;
+    optional string title = 2;
+    optional int32 size = 3;
+  }
+
+  message AssetGenesis {
+    required string name = 1;
+    required string domain = 2;
+    required int32 qty = 3;
+  }
+
+  message AssetTranscation {
+    required string number = 1;
+  }
+
+  required Type type = 1;
+  optional CommonString commonString = 2;
+  optional CommonIntString commonIntString = 3;
+  optional FileExist fileExist = 4;
+  optional AssetGenesis assetGenesis = 5;
+  optional AssetTranscation assetTranscation = 6;
+
+}
     </pre>
       </md-content>
     </md-card>
@@ -168,14 +193,8 @@ xx
           y12meta = y12.tw.Y12Meta,
           y12type = y12meta.Type,
           y12FileExist = y12meta.FileExist;
-        $scope.genName = 'BlueGuava';
-        $scope.genDomain = '0.y12.tw';
-        $scope.genQty = 210123;
-        $scope.wif = '';
-        $scope.addrtxFee = 1000;
-        $scope.key;
         $scope.fileHash160 = 'TODO';
-        $scope.fileTitle = 'SideChainWtf';
+        $scope.fileTitle = 'S234567890';
 
         $scope.fileReaderSupported = window.FileReader != null && (window.FileAPI == null || FileAPI.html5 != false);
 
@@ -200,14 +219,16 @@ xx
           console.log('hex=' + v.toHex());
           console.log('calculate size = ' + v.calculate());
           console.log('result hex = ' + v.orhash);
-          console.log('result size = ' + v.orhash.length / 2);
+          console.log('result size = ' + v.orsize);
         }
 
         var createFileExist = function(title, hash160hex) {
           var hashBuf = dcodeIO.ByteBuffer.fromHex(hash160hex);
-          var r = new y12meta(y12type.FILE_EXIST, new y12FileExist(title, hashBuf));
+          var r = new y12meta(y12type.FILE_EXIST);
+          r.fileExist = new y12FileExist(hashBuf,title);
           r.hash160hex = hash160hex;
           r.orhash = y12HexStart + r.toHex() + y12HexEnd;
+          r.orsize = r.orhash.length/2;
           printSize(r);
           return r;
         }
@@ -244,77 +265,12 @@ xx
 
         handleFoo();
 
-        $scope.addrRandom = function() {
-          key = bitcoin.ECKey.makeRandom();
-          $scope.wif = key.toWIF();
-          $scope.addr = key.pub.getAddress();
-          $scope.key = key;
-        };
-
-        $scope.addrFromWif = function() {
-          $scope.addr = 'NO DATA';
-          var key = bitcoin.ECKey.fromWIF($scope.wif);
-          $scope.addr = key.pub.getAddress();
-          $scope.key = key;
-        };
-
-        $scope.buildTx = function() {
-          var txb = new bitcoin.TransactionBuilder();
-
-          txb.addInput($scope.addrtxHash, $scope.addrtxIndex);
-
-          txb.addOutput($scope.addr, $scope.addrtxSpend - $scope.addrtxFee);
-
-          // 1. export Buffer approach.
-          // var data = new Buffer($scope.genHex,'hex');
-          // 2. fork and modify approach.
-          //var dataScript = bitcoin.scripts.dataOpReturnHex($scope.genHex);
-          // 3. fromASM (Best)
-          var dataScript = bitcoin.Script.fromASM('OP_RETURN ' + $scope.genHex);
-
-          txb.addOutput(dataScript, 0);
-          txb.sign(0, $scope.key);
-          var tx = txb.build();
-          $scope.rtxHex = tx.toHex();
-          console.log(tx);
-        };
-
-        $scope.getAddrUnspent = function() {
-          console.log('get unspent tx from address : ' + $scope.addr);
-          reshb.get({
-            'addr': $scope.addr
-          }, function(v) {
-            console.log(v);
-            if (v.data.unspents.length > 0) {
-              usp0 = v.data.unspents[0];
-              console.log(usp0);
-              $scope.addrtxSpend = usp0.value;
-              $scope.addrtxHash = usp0.txHash;
-              $scope.addrtxIndex = usp0.index;
-            } else {
-              $scope.addrtxSpend = 0;
-              $scope.addrtxHash = 'NODATA';
-              $scope.addrtxIndex = 0;
-            }
-          });
-        };
-
         $scope.go = function(path) {
           location.href = path;
         };
 
         $scope.gen = function() {
           $scope.ymeta = createFileExist($scope.fileTitle,$scope.fileHash160);
-        };
-
-        $scope.goqr = function() {
-          var url = 'https://blockchain.info/address/' + $scope.addr;
-          window.open(url, '_blank');
-        };
-
-        $scope.gohello = function() {
-          var url = 'https://helloblock.io/addresses/' + $scope.addr;
-          window.open(url, '_blank');
         };
 
       }]);
