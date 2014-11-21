@@ -2,6 +2,7 @@
 <html>
 
 <head>
+  <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.css">
   <style>
@@ -63,10 +64,13 @@
     <md-card>
       <h2>Y12 Meta Protocol/OP_RETURN/ProtoBuf.js</h2>
       <section layout="vertical" layout-sm="horizontal" layout-align="center center">
-        <md-button class="md-raised" ng-click="go('pf-y12meta-sign.html')">Sign</md-button>
+        <md-button class="md-raised md-warn" ng-click="go('pf-y12meta-sign.html')">Sign</md-button>
         <md-button class="md-raised" ng-click="go('protobuf-y12metav1.html')">v1 genesis</md-button>
         <md-button class="md-raised md-primary" ng-click="go('pf-y12metav2-file.html')">v2 file</md-button>
-        <md-button class="md-raised md-warn" ng-click="go('pf-y12metav3-common.html')">v3 common</md-button>
+      </section>
+      <section layout="vertical" layout-sm="horizontal" layout-align="center center">
+        <md-button class="md-raised" ng-click="go('pf-y12metav3-common.html')">v3 common</md-button>
+        <md-button class="md-raised md-warn" ng-click="go('pf-y12metav4-common.html')">v4 common</md-button>
       </section>
 
     </md-card>

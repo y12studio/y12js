@@ -70,7 +70,7 @@
   <div class="doc-content" ng-controller="YourController">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <span class="md-flex">Y12 Meta v3(Common)</span>
+        <span class="md-flex">Y12 Meta v4(Common)</span>
         <span flex></span>
         <md-button class="md-fab" aria-label="home" ng-click="go('index.html')">
           <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
@@ -80,20 +80,29 @@
     <md-card>
       <md-content>
         <form style="padding: 20px;">
-          <h2>Parse(Common Int String)</h2>
+          <h2>Parse(Y12Meta.Common) from blockchain/tx</h2>
           <md-text-float label="blockchain tx hex" ng-model="findtx" class="long"></md-text-float>
+          <md-text-float label="OP_RETURN hex" ng-model="fr.orhex" class="long"></md-text-float>
           <div class="row">
             <md-text-float label="Parse String" ng-model="fr.content"></md-text-float>
-            <md-text-float label="Parse Number" type="number" ng-model="fr.num"></md-text-float>
-            <span flex></span>
-            <md-button class="md-raised md-primary" ng-click="parseOpReturnTx()">Parse</md-button>
+            <md-text-float label="Parse Int32" type="number" ng-model="fr.num"></md-text-float>
+            <md-text-float label="Parse Bytes" ng-model="fr.bytes"></md-text-float>
           </div>
-          <h2>Build(Common Int String)</h2>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised md-primary" ng-click="parseOpReturnTx()">Get/Parse</md-button>
+            <md-button class="md-raised" ng-click="goHelloTx(findtx)">HelloTx</md-button>
+          </div>
+          <h2>Build(Y12Meta.Common) and Sign</h2>
           <div class="row">
             <md-text-float label="Target String" ng-model="v.content"></md-text-float>
             <md-text-float label="Target Number" type="number" ng-model="v.num"></md-text-float>
+            <md-text-float label="Target Bytes(hex)" ng-model="v.bytes"></md-text-float>
+          </div>
+          <div class="row">
             <span flex></span>
-            <md-button class="md-raised md-warn" ng-click="gen()">Build</md-button>
+            <md-button class="md-raised" ng-click="gen()">Build</md-button>
+            <md-button class="md-raised md-warn" ng-click="go('pf-y12meta-sign.html')">Sign</md-button>
           </div>
           <md-text-float label="OP_RETURN hex" ng-model="ymeta.orhex" class="long"></md-text-float>
           <md-text-float label="OP_RETURN size" ng-model="ymeta.orsize"></md-text-float>
@@ -101,41 +110,38 @@
       </md-content>
       <md-content class="md-padding">
         <p>
-          <a href="http://coinsecrets.org/?to=330499.000000">Coin Secrets - OP_RETURN metadata in the Bitcoin Blockchain</a>
+          <a href="http://coinsecrets.org/?to=330929.000000">Coin Secrets - OP_RETURN metadata in the Bitcoin Blockchain</a>
           <BR/>
           <a href="https://github.com/dcodeIO/ProtoBuf.js/wiki/Getting-started">dcodeIO/ProtoBuf.js Wiki</a>
-          <BR/>
-          <a href="https://helloblock.io/propagate">Helloblock | Propagate Page</a>
         </p>
       </md-content>
     </md-card>
     <md-card>
       <md-content class="md-padding">
-        <h2>y12coin-v3.proto</h2>
+        <h2>y12coin-v4.proto</h2>
         <pre>
 package y12.tw;
-// v3
+// v4
 message Y12Meta {
 
   enum Type {
-    COMMON_STRING = 1;
-    COMMON_INT_STRING = 2;
-    COMMON_INT_BYTES = 3;
-    COMMON_ARRAY_INT = 11;
-    COMMON_ARRAY_STRING = 12;
-    COMMON_ARRAY_STRING_INT = 13;
-    FILE_EXIST = 41;
-    ASSET_GENESIS     = 51;
-    ASSET_TRANSCATION = 52;
+    COMMON = 1;
+    COMMON_ARRAY = 11;
+    FILE_EXIST = 21;
+    ASSET_GENESIS     = 31;
+    ASSET_TRANSCATION = 32;
   }
 
-  message CommonString {
-    required string content = 1;
+  message Common {
+    optional string valueString = 1;
+    optional int32 valueInt32 = 2;
+    optional bytes valueBytes = 3;
   }
 
-  message CommonIntString {
-    required string content = 1;
-    required int32 num = 2;
+  message CommonArray {
+    repeated string arrString = 1 [packed=true];
+    repeated int32 arrInt32 = 2 [packed=true];
+    repeated bytes arrBytes = 3 [packed=true];
   }
 
   message FileExist {
@@ -155,8 +161,8 @@ message Y12Meta {
   }
 
   required Type type = 1;
-  optional CommonString commonString = 2;
-  optional CommonIntString commonIntString = 3;
+  optional Common common = 2;
+  optional CommonArray commonArray = 3;
   optional FileExist fileExist = 4;
   optional AssetGenesis assetGenesis = 5;
   optional AssetTranscation assetTranscation = 6;
@@ -181,24 +187,26 @@ message Y12Meta {
 
     angular.module('YourApp', ['ngMaterial', 'ngResource'])
       .controller("YourController", ['$scope', '$timeout', '$resource', function($scope, $timeout, $resource) {
-        var reshb = $resource('https://mainnet.helloblock.io/v1/addresses/:addr/unspents');
+
         var reshbTx = $resource('https://mainnet.helloblock.io/v1/transactions/:tx');
 
         var ProtoBuf = dcodeIO.ProtoBuf;
         var y12HexStart = '59';
         var y12HexEnd = '0c';
-        var y12 = ProtoBuf.loadProtoFile("y12coin-v3.proto").build('y12'),
+        var y12 = ProtoBuf.loadProtoFile("y12coin-v4.proto").build('y12'),
           y12meta = y12.tw.Y12Meta,
           y12type = y12meta.Type,
-          y12CommonIntString = y12meta.CommonIntString;
+          y12Common = y12meta.Common;
 
-        $scope.findtx = '0462bdbe5f5db0c0195c463fd858be95679749d61f5ab04e11ee2bb6f9aca0e7';
+        $scope.findtx = '50cdf767950bc10d90dd5986c5c1570c0e2df305e973d0fa358c3c7c92d2d20a';
         $scope.fr = {};
         $scope.fr.content = 'NODATA';
+        $scope.fr.orhex = 'NODATA';
         $scope.fr.num = 0;
         $scope.v = {};
-        $scope.v.content = 'y12夢幻泡影如露如電';
+        $scope.v.content = 'Y12StudioBest十二義';
         $scope.v.num = 2014;
+        $scope.v.bytes = 'a8b8c8d8';
 
         var printSize = function(v) {
           console.log(v);
@@ -208,9 +216,10 @@ message Y12Meta {
           console.log('result size = ' + v.orsize);
         }
 
-        var createOpReturnCommon = function(content, num) {
-          var r = new y12meta(y12type.COMMON_INT_STRING);
-          r.commonIntString = new y12CommonIntString(content, num);
+        var createOpReturnCommon = function(content, num, bytes) {
+          var r = new y12meta(y12type.COMMON);
+          var dBuf = dcodeIO.ByteBuffer.fromHex(bytes);
+          r.common = new y12Common(content, num, dBuf);
           r.orhex = y12HexStart + r.toHex() + y12HexEnd;
           r.orsize = r.orhex.length / 2;
           printSize(r);
@@ -226,20 +235,24 @@ message Y12Meta {
             var raw = script.chunks[1].toString('hex');
             //console.log(raw);
             // 59[data]0c
-            var data = raw.substring(2, raw.length - 2);
-            //console.log(data);
-            var dBuf = dcodeIO.ByteBuffer.fromHex(data);
-            r = y12meta.decode(dBuf);
+            if (raw.indexOf('59') == 0) {
+              $scope.fr.orhex = raw;
+              var data = raw.substring(2, raw.length - 2);
+              //console.log(data);
+              var dBuf = dcodeIO.ByteBuffer.fromHex(data);
+              r = y12meta.decode(dBuf);
+            }
           }
           return r;
         }
 
         var handleY12Meta = function(obj) {
           console.log(obj);
-          if (obj.type == y12type.COMMON_INT_STRING) {
-            var v = obj.commonIntString;
-            $scope.fr.content = v.content;
-            $scope.fr.num = v.num;
+          if (obj.type == y12type.COMMON) {
+            var v = obj.common;
+            $scope.fr.content = v.valueString;
+            $scope.fr.num = v.valueInt32;
+            $scope.fr.bytes = v.valueBytes.toHex();
           }
         }
 
@@ -266,7 +279,7 @@ message Y12Meta {
         };
 
         $scope.gen = function() {
-          $scope.ymeta = createOpReturnCommon($scope.v.content, $scope.v.num);;
+          $scope.ymeta = createOpReturnCommon($scope.v.content, $scope.v.num, $scope.v.bytes);;
         };
 
         $scope.goqr = function() {
@@ -280,6 +293,11 @@ message Y12Meta {
 
         $scope.gohello = function() {
           var url = 'https://helloblock.io/addresses/' + $scope.addr;
+          window.open(url, '_blank');
+        };
+        // https://helloblock.io/transactions/50cdf767950bc10d90dd5986c5c1570c0e2df305e973d0fa358c3c7c92d2d20a
+        $scope.goHelloTx = function(tx) {
+          var url = 'https://helloblock.io/transactions/' + tx;
           window.open(url, '_blank');
         };
 
