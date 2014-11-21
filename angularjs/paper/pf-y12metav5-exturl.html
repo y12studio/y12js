@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.css">
+  <style>
+    .doc-content {
+      max-width: 864px;
+      margin: auto;
+    }
+    form .row {
+      display: -webkit-box;
+      display: -webkit-flex;
+      display: -moz-box;
+      display: -moz-flex;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-align: center;
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      -moz-align-items: center;
+      align-items: center;
+      -webkit-box-direction: normal;
+      -webkit-box-orient: horizontal;
+      -webkit-flex-direction: row;
+      -moz-flex-direction: row;
+      -ms-flex-direction: row;
+      flex-direction: row;
+      margin-left: -8px;
+    }
+    form .row > * {
+      font-size: inherit;
+      margin-left: 8px;
+      margin-right: 8px;
+    }
+    md-input-group.long > input {
+      width: 566px;
+    }
+    section {
+      background: #f7f7f7;
+      border-radius: 3px;
+      text-align: center;
+      margin: 1em;
+      position: relative !important;
+      padding-bottom: 10px;
+    }
+    section .md-button:not(.md-fab) {
+      width: 10em;
+    }
+    .md-button.md-fab {
+      width: 48px;
+      height: 48px;
+    }
+    section .md-button {
+      display: block;
+      margin: 1em;
+      line-height: 25px;
+    }
+    textarea {
+      display: block;
+      margin: 1em auto;
+    }
+  </style>
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">Y12 Meta v5(Ext/Url)</span>
+        <span flex></span>
+        <md-button class="md-fab" aria-label="home" ng-click="go('index.html')">
+          <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <md-content>
+        <form style="padding: 20px;">
+          <h2>Parse(Y12Meta.FileExist) from blockchain/tx</h2>
+          <md-text-float label="blockchain tx hex" ng-model="findtx" class="long"></md-text-float>
+          <md-text-float label="OP_RETURN hex" ng-model="fr.orhex" class="long"></md-text-float>
+          <md-text-float label="File Url" ng-model="fr.url" class="long"></md-text-float>
+          <md-text-float label="hash160(file)" ng-model="fr.hash160" class="long"></md-text-float>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised md-primary" ng-click="parseOpReturnTx()">Get/Parse</md-button>
+            <md-button class="md-raised" ng-click="goHelloTx(findtx)">HelloTx</md-button>
+          </div>
+          <h2>Build(Y12Meta.FileExist) and Sign</h2>
+          <md-text-float label="File hash160(hex)" ng-model="file.hash160hex" class="long"></md-text-float>
+          <div class="row">
+            <md-text-float label="http://goo.gl/" ng-model="file.googl"></md-text-float>
+            <md-text-float label="http://bit.ly/" ng-model="file.bitly"></md-text-float>
+            <md-text-float label="http://pastebin.com/" ng-model="file.pastebin"></md-text-float>
+          </div>
+          <div class="row">
+            <span flex></span>
+            <md-button class="md-raised" ng-click="gen()">Build</md-button>
+            <md-button class="md-raised md-warn" ng-click="go('pf-y12meta-sign.html')">Sign</md-button>
+          </div>
+          <md-text-float label="OP_RETURN hex" ng-model="ymeta.orhex" class="long"></md-text-float>
+          <md-text-float label="OP_RETURN size" ng-model="ymeta.orsize"></md-text-float>
+        </form>
+      </md-content>
+      <md-content class="md-padding">
+        <h2>URL shortening</h2>
+        <p>
+          <a href="https://bitly.com/">Bitly - The Power of the Link</a>
+          <BR/>
+          <a href="http://goo.gl/">Google URL Shortener</a>
+          <BR/>
+          <a href="http://ow.ly/url/shorten-url">Ow.ly - Shorten urls, share files and track visits - Owly</a>
+          <BR/>
+        </p>
+      </md-content>
+    </md-card>
+    <md-card>
+      <md-content class="md-padding">
+        <h2>y12coin-v5.proto</h2>
+        <pre>
+package y12.tw;
+// v5
+message Y12Meta {
+
+  enum Type {
+    COMMON = 1;
+    COMMON_ARRAY = 11;
+    FILE_EXIST = 21;
+    ASSET_GENESIS     = 31;
+    ASSET_TRANSCATION = 32;
+  }
+
+  enum ExtUrlType {
+    HTTP = 1;       // http://[path]
+    HTTPS = 2;      // https://[path]
+    GOOGL = 11;     // http://goo.gl/[path]
+    BITLY = 12;     // http://bit.ly/[path]
+    PASTEBIN = 13;  // http://pastebin.com/[path]
+    PASTIE = 14;    // http://pastie.org/[path]
+    Y12TW = 21;     // http://y12.tw/y12meta/[path].proto
+    Y12TW_0 = 22;   // http://0.y12.tw/y12meta/[path].proto
+  }
+
+  message Common {
+    optional string valueString = 1;
+    optional int32 valueInt32 = 2;
+    optional bytes valueBytes = 3;
+  }
+
+  message CommonArray {
+    repeated string arrString = 1 [packed=true];
+    repeated int32 arrInt32 = 2 [packed=true];
+    repeated bytes arrBytes = 3 [packed=true];
+  }
+
+  // over-40-bytes
+  message ExtUrl {
+    required ExtUrlType extUrlType = 1;
+    required string path = 2;
+    optional string title = 3;
+    optional int32 size = 4;
+  }
+
+  // over-40-bytes
+  message FileExist2 {
+    required bytes hash = 1;
+    repeated ExtUrl arrExt = 2;
+    optional string title = 3;
+    optional int32 size = 4;
+  }
+
+  message FileExist {
+    required bytes hash = 1; // hash160 = 20 bytes
+    optional ExtUrlType extUrlType = 2;
+    optional string path = 3;
+  }
+
+  message AssetGenesis {
+    required string name = 1;
+    required string domain = 2;
+    required int32 qty = 3;
+  }
+
+  message AssetTranscation {
+    required string number = 1;
+  }
+
+  required Type type = 1;
+  optional Common common = 2;
+  optional CommonArray commonArray = 3;
+  optional FileExist fileExist = 4;
+  optional FileExist2 fileExist2 = 5;
+  optional AssetGenesis assetGenesis = 6;
+
+}
+
+    </pre>
+      </md-content>
+    </md-card>
+  </div>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-aria.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-animate.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular-resource.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/hammer.js/1.1.3/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.5.1/angular-material.min.js"></script>
+  <script src="//0.y12.tw/js/bitcoinjs/1.2.0/bitcoinjs.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/Long/2.2.3/Long.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/ByteBuffer/3.5.4/ByteBufferAB.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/ProtoBuf/3.8.1/ProtoBuf.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+
+    angular.module('YourApp', ['ngMaterial', 'ngResource'])
+      .controller("YourController", ['$scope', '$timeout', '$resource', function($scope, $timeout, $resource) {
+
+        var reshbTx = $resource('https://mainnet.helloblock.io/v1/transactions/:tx');
+
+        var ProtoBuf = dcodeIO.ProtoBuf;
+        var y12HexStart = '59';
+        var y12HexEnd = '0c';
+        var y12 = ProtoBuf.loadProtoFile("y12coin-v5.proto").build('y12'),
+          y12meta = y12.tw.Y12Meta,
+          y12type = y12meta.Type,
+          y12Common = y12meta.Common;
+
+        $scope.file = {};
+        $scope.file.hash160hex = '8f4bdd9283a4752be1564b6eb04bfc194dad2d9c';
+        $scope.file.googl = 'p0CHrd';
+        $scope.file.bitly = '1F8WYx1';
+        $scope.file.pastebin = 'cLbWcXUN';
+
+        $scope.findtx = '9637e48e8c06da81c1e10160f58d17ef8b87c7e1f9ebd38d2a009b66f658da09';
+        $scope.fr = {};
+        $scope.fr.url = 'NODATA';
+        $scope.fr.orhex = 'NODATA';
+        $scope.fr.hash160 = 'NODATA';
+        //$scope.bitly = {};
+        //$scope.bitly.url = 'https://gist.githubusercontent.com/y12studio/c8daa97826feb04f2787/raw/y12meta-v4.proto';
+        //$scope.googl = {};
+        //$scope.googl.url = 'http://0.y12.tw/bitcoin/paper/y12coin-v4.proto';
+        //$scope.pastie.url = 'http://pastie.org/9733743';
+
+        var printSize = function(v) {
+          console.log(v);
+          console.log('hex=' + v.toHex());
+          console.log('calculate size = ' + v.calculate());
+          console.log('result hex = ' + v.orhex);
+          console.log('result size = ' + v.orsize);
+        }
+
+        var createOpReturnCommon = function(content, num, bytes) {
+          var r = new y12meta(y12type.COMMON);
+          var dBuf = dcodeIO.ByteBuffer.fromHex(bytes);
+          r.common = new y12Common(content, num, dBuf);
+          r.orhex = y12HexStart + r.toHex() + y12HexEnd;
+          r.orsize = r.orhex.length / 2;
+          printSize(r);
+          return r;
+        }
+
+        // over-40-bytes
+        var createFileExist2 = function(hash160hex) {
+          var f = new y12meta.FileExist2();
+          f.hash = dcodeIO.ByteBuffer.fromHex(hash160hex);
+          f.arrExt.push(new y12meta.ExtUrl(y12meta.ExtUrlType.GOOGL, $scope.file.googl));
+          f.arrExt.push(new y12meta.ExtUrl(y12meta.ExtUrlType.BITLY, $scope.file.bitly));
+          f.arrExt.push(new y12meta.ExtUrl(y12meta.ExtUrlType.PASTEBIN, $scope.file.pastebin));
+          var r = new y12meta(y12type.FILE_EXIST);
+          r.fileExist2 = f;
+          r.orhex = y12HexStart + r.toHex() + y12HexEnd;
+          r.orsize = r.orhex.length / 2;
+          printSize(r);
+          return r;
+        }
+
+        var createFileExist = function(hash160hex) {
+          var f = new y12meta.FileExist();
+          f.hash = dcodeIO.ByteBuffer.fromHex(hash160hex);
+          // f.ext = new y12meta.ExtUrl(y12meta.ExtUrlType.PASTEBIN,$scope.file.pastebin);
+          // 42 bytes
+          f.extUrlType = y12meta.ExtUrlType.PASTEBIN;
+          f.path = $scope.file.pastebin;
+          // 40 bytes
+          var r = new y12meta(y12type.FILE_EXIST);
+          r.fileExist = f;
+          r.orhex = y12HexStart + r.toHex() + y12HexEnd;
+          r.orsize = r.orhex.length / 2;
+          printSize(r);
+          return r;
+        }
+
+        var parseY12MetaData = function(scriptHex) {
+          var r = {};
+          var script = bitcoin.Script.fromHex(scriptHex);
+          console.log(script);
+          if (script.chunks[0] === 106) {
+            // OP_RETURN
+            var raw = script.chunks[1].toString('hex');
+            //console.log(raw);
+            // 59[data]0c
+            if (raw.indexOf('59') == 0) {
+              $scope.fr.orhex = raw;
+              var data = raw.substring(2, raw.length - 2);
+              //console.log(data);
+              var dBuf = dcodeIO.ByteBuffer.fromHex(data);
+              r = y12meta.decode(dBuf);
+            }
+          }
+          return r;
+        }
+
+        var handleY12Meta = function(obj) {
+          console.log(obj);
+          if (obj.type == y12type.COMMON) {
+            var v = obj.common;
+            $scope.fr.content = v.valueString;
+            $scope.fr.num = v.valueInt32;
+            $scope.fr.bytes = v.valueBytes.toHex();
+          } else if (obj.type == y12type.FILE_EXIST) {
+            var v = obj.fileExist;
+            if (v.extUrlType == y12meta.ExtUrlType.PASTEBIN) {
+              $scope.fr.url = 'http://pastebin.com/' + v.path;
+              $scope.fr.hash160 = v.hash.toHex();
+            }
+          }
+        }
+
+        $scope.parseOpReturnTx = function() {
+          reshbTx.get({
+            'tx': $scope.findtx
+          }, function(v) {
+            console.log(v);
+            v.data.transaction.outputs.every(function(element, index, array) {
+              console.log(element);
+              if (element.value == 0 && element.scriptPubKey.indexOf('6a') == 0) {
+                // parse OP_RETURN
+                var obj = parseY12MetaData(element.scriptPubKey);
+                handleY12Meta(obj);
+                return false;
+              }
+              return true;
+            });
+          });
+        }
+
+        $scope.go = function(path) {
+          location.href = path;
+        };
+
+        $scope.gen = function() {
+          //$scope.ymeta = createOpReturnCommon($scope.v.content, $scope.v.num, $scope.v.bytes);
+          createFileExist2($scope.file.hash160hex);
+          $scope.ymeta = createFileExist($scope.file.hash160hex);
+        };
+
+        $scope.goqr = function() {
+          var url = 'https://blockchain.info/address/' + $scope.addr;
+          window.open(url, '_blank');
+        };
+
+        $scope.goBroadcast = function() {
+          window.open('https://helloblock.io/propagate', '_blank');
+        };
+
+        $scope.gohello = function() {
+          var url = 'https://helloblock.io/addresses/' + $scope.addr;
+          window.open(url, '_blank');
+        };
+        // https://helloblock.io/transactions/50cdf767950bc10d90dd5986c5c1570c0e2df305e973d0fa358c3c7c92d2d20a
+        $scope.goHelloTx = function(tx) {
+          var url = 'https://helloblock.io/transactions/' + tx;
+          window.open(url, '_blank');
+        };
+
+        $scope.gen();
+        console.log($scope);
+      }]);
+  </script>
+
+</body>
+
+</html>

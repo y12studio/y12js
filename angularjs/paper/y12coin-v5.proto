@@ -1,0 +1,75 @@
+package y12.tw;
+// v5
+message Y12Meta {
+
+  enum Type {
+    COMMON = 1;
+    COMMON_ARRAY = 11;
+    FILE_EXIST = 21;
+    ASSET_GENESIS     = 31;
+    ASSET_TRANSCATION = 32;
+  }
+
+  enum ExtUrlType {
+    HTTP = 1;       // http://[path]
+    HTTPS = 2;      // https://[path]
+    GOOGL = 11;     // http://goo.gl/[path]
+    BITLY = 12;     // http://bit.ly/[path]
+    PASTEBIN = 13;  // http://pastebin.com/[path]
+    PASTIE = 14;    // http://pastie.org/[path]
+    Y12TW = 21;     // http://y12.tw/y12meta/[path].proto
+    Y12TW_0 = 22;   // http://0.y12.tw/y12meta/[path].proto
+  }
+
+  message Common {
+    optional string valueString = 1;
+    optional int32 valueInt32 = 2;
+    optional bytes valueBytes = 3;
+  }
+
+  message CommonArray {
+    repeated string arrString = 1 [packed=true];
+    repeated int32 arrInt32 = 2 [packed=true];
+    repeated bytes arrBytes = 3 [packed=true];
+  }
+
+  // over-40-bytes
+  message ExtUrl {
+    required ExtUrlType extUrlType = 1;
+    required string path = 2;
+    optional string title = 3;
+    optional int32 size = 4;
+  }
+
+  // over-40-bytes
+  message FileExist2 {
+    required bytes hash = 1;
+    repeated ExtUrl arrExt = 2;
+    optional string title = 3;
+    optional int32 size = 4;
+  }
+
+  message FileExist {
+    required bytes hash = 1;
+    optional ExtUrlType extUrlType = 2;
+    optional string path = 3;
+  }
+
+  message AssetGenesis {
+    required string name = 1;
+    required string domain = 2;
+    required int32 qty = 3;
+  }
+
+  message AssetTranscation {
+    required string number = 1;
+  }
+
+  required Type type = 1;
+  optional Common common = 2;
+  optional CommonArray commonArray = 3;
+  optional FileExist fileExist = 4;
+  optional FileExist2 fileExist2 = 5;
+  optional AssetGenesis assetGenesis = 6;
+
+}
