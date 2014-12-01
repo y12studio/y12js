@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.css">
+  <style>
+    .doc-content {
+      max-width: 864px;
+      margin: auto;
+    }
+    section {
+      background: #f7f7f7;
+      border-radius: 3px;
+      text-align: center;
+      margin: 1em;
+      position: relative !important;
+      padding-bottom: 10px;
+    }
+    section .md-button:not(.md-fab) {
+      width: 10em;
+    }
+    section .md-button {
+      display: block;
+      margin: 1em;
+      line-height: 25px;
+    }
+    md-card .md-card-image-small {
+      display: block;
+      width: 50%;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">0x590c a.k.a. Y12</span>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <h2>Bitcoin/OP_RETURN Y12 Protocol 590c</h2>
+      <section layout="vertical" layout-sm="horizontal" layout-align="center center">
+        <md-button class="md-raised md-warn" ng-click="ypp.NavGo('v1-common.html')">v1</md-button>
+        <md-button class="md-raised" ng-click="ypp.ExtQr('1KV5jcfCWrFxRMnJW8cCVws9E2ZqVCvZ3h')">QR</md-button>
+      </section>
+    </md-card>
+  </div>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-animate.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-route.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-aria.min.js"></script>
+  <script src="//0.y12.tw/js/hammer/2.0.4/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+    angular.module('YourApp', ['ngMaterial'])
+      .controller("YourController", ['$scope', function($scope) {
+        $scope.ypp = Ypp;
+      }]);
+  </script>
+</body>
+
+</html>
