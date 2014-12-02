@@ -1,0 +1,77 @@
+package y12.tw;
+// version : alpha2
+message Y12Meta {
+
+  enum Type {
+    COMMON = 1;
+    COMMON_ARRAY = 2;
+    CHUNK = 11;
+    FILE_EXIST = 21;
+    ASSET_GENESIS     = 31;
+    ASSET_TRANSCATION = 32;
+    WWW = 41;
+  }
+
+  enum ExtUrlType {
+    HTTP = 1;       // http://[path]
+    HTTPS = 2;      // https://[path]
+    GOOGL = 11;     // http://goo.gl/[path]
+    BITLY = 12;     // http://bit.ly/[path]
+    PASTEBIN = 13;  // http://pastebin.com/[path]
+    PASTIE = 14;    // http://pastie.org/[path]
+    Y12TW = 21;     // http://y12.tw/y12meta/[path].proto
+    Y12TW_0 = 22;   // http://0.y12.tw/y12meta/[path].proto
+  }
+
+  message Common {
+    optional string valueString = 1;
+    required int32 valueInt32 = 2;
+    optional bytes valueBytes = 3;
+  }
+
+  message Where {
+   required double lat = 1 [default = 24.1321302]; // 24.1321302
+   required double lon = 2 [default = 120.6962365]; // 120.6962365
+  }
+
+  message Www {
+    optional string who = 1;
+    optional int64 when = 2; // 1417520051 = Tue, 02 Dec 2014 11:34:11 GMT
+    optional Where where = 3;
+  }
+
+  message Chunk {
+    required int32 index = 1;
+    required bytes valueBytes = 2;
+  }
+
+  message CommonArray {
+    repeated string arrString = 1 [packed=true];
+    repeated int32 arrInt32 = 2 [packed=true];
+    repeated bytes arrBytes = 3 [packed=true];
+  }
+
+  message FileExist {
+    required bytes hash = 1;
+    optional ExtUrlType extUrlType = 2;
+    optional string path = 3;
+  }
+
+  message AssetGenesis {
+    required string name = 1;
+    required string domain = 2;
+    required int32 qty = 3;
+  }
+
+  message AssetTranscation {
+    required string number = 1;
+  }
+
+  required Type type = 1;
+  optional Common common = 2;
+  optional CommonArray commonArray = 3;
+  optional Chunk chunk = 4;
+  optional FileExist fileExist = 5;
+  optional AssetGenesis assetGenesis = 6;
+  optional Www www = 7;
+}

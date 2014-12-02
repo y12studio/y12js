@@ -27,6 +27,11 @@ Ypp.ExtHelloTx = function(tx) {
   window.open(url, '_blank');
 };
 
+Ypp.ExtBcInfoTx = function(tx) {
+    var url = 'https://blockchain.info/tx/' + tx;
+    window.open(url, '_blank');
+};
+
 Ypp.PbPrint = function(pbobj) {
   console.log(pbobj);
   console.log('hex=' + pbobj.toHex());

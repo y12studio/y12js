@@ -5,33 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.css">
-  <style>
-    .doc-content {
-      max-width: 864px;
-      margin: auto;
-    }
-    section {
-      background: #f7f7f7;
-      border-radius: 3px;
-      text-align: center;
-      margin: 1em;
-      position: relative !important;
-      padding-bottom: 10px;
-    }
-    section .md-button:not(.md-fab) {
-      width: 10em;
-    }
-    section .md-button {
-      display: block;
-      margin: 1em;
-      line-height: 25px;
-    }
-    md-card .md-card-image-small {
-      display: block;
-      width: 50%;
-      margin: auto;
-    }
-  </style>
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="app.css" rel="stylesheet">
 </head>
 
 <body ng-app="YourApp">
@@ -43,10 +18,11 @@
       </div>
     </md-toolbar>
     <md-card>
-      <h2>Bitcoin/OP_RETURN Y12 Protocol 590c</h2>
+      <h2>Bitcoin/ <i class="fa fa-btc"></i> /OP_RETURN Y12 Protocol 590c</h2>
       <section layout="vertical" layout-sm="horizontal" layout-align="center center">
-        <md-button class="md-raised md-warn" ng-click="ypp.NavGo('v1-common.html')">v1</md-button>
-        <md-button class="md-raised" ng-click="ypp.ExtQr('1KV5jcfCWrFxRMnJW8cCVws9E2ZqVCvZ3h')">QR</md-button>
+        <md-button class="md-raised md-warn" ng-click="ypp.NavGo('a1-common.html')">alpha1</md-button>
+        <md-button class="md-raised md-warn" ng-click="ypp.NavGo('a2-www.html')">alpha2</md-button>
+        <md-button class="md-raised" ng-click="ypp.ExtQr('1KV5jcfCWrFxRMnJW8cCVws9E2ZqVCvZ3h')">QR <i class="fa fa-external-link"></i></md-button>
       </section>
     </md-card>
   </div>
