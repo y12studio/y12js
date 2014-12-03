@@ -21,6 +21,10 @@ Ypp.ExtHelloAddr = function(addr) {
   var url = 'https://helloblock.io/addresses/' + addr;
   window.open(url, '_blank');
 };
+Ypp.ExtGoogleMaps = function(latlon) {
+    var url = 'https://maps.google.com/maps?q='+latlon+'&t=k';
+    window.open(url, '_blank');
+};
 
 Ypp.ExtHelloTx = function(tx) {
   var url = 'https://helloblock.io/transactions/' + tx;

@@ -1,6 +1,6 @@
 package y12.tw;
 // version : alpha2
-message Y12Meta {
+message Taichung {
 
   enum Type {
     COMMON = 1;
@@ -25,19 +25,24 @@ message Y12Meta {
 
   message Common {
     optional string valueString = 1;
-    required int32 valueInt32 = 2;
+    optional int32 valueInt32 = 2;
     optional bytes valueBytes = 3;
   }
 
-  message Where {
-   required double lat = 1 [default = 24.1321302]; // 24.1321302
-   required double lon = 2 [default = 120.6962365]; // 120.6962365
+  message TxRef {
+    required int32 blockHeight = 1;
+    required int32 txIndex = 2;
   }
 
   message Www {
-    optional string who = 1;
-    optional int64 when = 2; // 1417520051 = Tue, 02 Dec 2014 11:34:11 GMT
-    optional Where where = 3;
+    // optional Where where = 1;
+    required int64 when = 1; // 1417520051 = Tue, 02 Dec 2014 11:34:11 GMT
+    required double lat = 2; // 24.1321302
+    required double lon = 3; // 120.6962365
+    optional string whatString = 4;
+    optional int32 whatInt = 5;
+    optional ExtUrlType wahtExtUrlType = 6;
+    optional string wahtExtPath = 7;
   }
 
   message Chunk {
