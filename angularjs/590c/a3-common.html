@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.css">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="app.css" rel="stylesheet">
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">alpha3(Taichu.Common)</span>
+        <span flex></span>
+        <md-button class="md-fab" aria-label="home" ng-click="ypp.NavGo('index.html')">
+          <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <div layout="row">
+        <div class="rowhead">
+          <md-button class="md-fab md-primary" aria-label="index">1</md-button>
+        </div>
+        <div>
+          <h2>Build(Taichu.Common)</h2>
+        </div>
+      </div>
+      <form>
+        <div class="row">
+          <md-text-float label="Version" type="number" ng-model="v.ver"></md-text-float>
+          <md-text-float label="Target Number" type="number" ng-model="v.num"></md-text-float>
+          <md-text-float label="Target Bytes(hex)" ng-model="v.bytes"></md-text-float>
+        </div>
+        <md-text-float label="Target String" ng-model="v.content" class="long"></md-text-float>
+        <div class="row">
+          <span flex></span>
+          <md-button class="md-raised" ng-click="gen()">Build <i class="fa fa-gears"></i>
+          </md-button>
+        </div>
+        <md-text-float label="OP_RETURN hex" ng-model="ymeta.orhex" class="long"></md-text-float>
+        <md-text-float label="OP_RETURN size(Max 40bytes)" ng-model="ymeta.orsize"></md-text-float>
+      </form>
+
+    </md-card>
+    <md-card>
+      <div layout="row">
+        <div class="rowhead">
+          <md-button class="md-fab md-primary" aria-label="index">2</md-button>
+        </div>
+        <div>
+          <h2>Parse(Taichu.Common) from blockchain/tx</h2>
+        </div>
+      </div>
+      <form>
+        <md-text-float label="blockchain tx hex" ng-model="findtx" class="long"></md-text-float>
+        <md-text-float label="OP_RETURN hex" ng-model="fr.orhex" class="long"></md-text-float>
+        <div class="row">
+          <md-text-float label="Parse Protocol Version" type="number" ng-model="fr.ver"></md-text-float>
+          <md-text-float label="Parse Int32" type="number" ng-model="fr.num"></md-text-float>
+          <md-text-float label="Parse Bytes" ng-model="fr.bytes"></md-text-float>
+        </div>
+          <md-text-float label="Parse String" ng-model="fr.content" class="long"></md-text-float>
+        <div class="row">
+          <span flex></span>
+          <md-button class="md-raised md-primary" ng-click="parseOpReturnTx()">Get/Parse <i class="fa fa-external-link fa-rotate-180"></i>
+          </md-button>
+          <md-button class="md-raised" ng-click="ypp.ExtHelloTx(findtx)">HelloTx <i class="fa fa-external-link"></i>
+          </md-button>
+          <md-button class="md-raised md-warn" ng-click="ypp.ExtBcInfoTx(findtx)">BCINFO <i class="fa fa-external-link"></i>
+          </md-button>
+        </div>
+      </form>
+    </md-card>
+  </div>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-animate.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-route.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-aria.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-resource.min.js"></script>
+  <script src="//0.y12.tw/js/hammer/2.0.4/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.js"></script>
+  <script src="app.js"></script>
+  <script src="//0.y12.tw/js/bitcoinjs/1.2.0/bitcoinjs.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/Long/2.2.3/Long.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/ByteBuffer/3.5.4/ByteBufferAB.min.js"></script>
+  <script src="//0.y12.tw/js/dcodeIO/ProtoBuf/3.8.1/ProtoBuf.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+
+    angular.module('YourApp', ['ngMaterial', 'ngResource'])
+      .controller("YourController", ['$scope', '$resource', '$mdToast', function($scope, $resource, $mdToast) {
+        $scope.ypp = Ypp;
+
+        var reshbTx = $resource('https://mainnet.helloblock.io/v1/transactions/:tx');
+
+        var ProtoBuf = dcodeIO.ProtoBuf;
+        var y12 = ProtoBuf.loadProtoFile("590c-alpha3.proto").build('y12'),
+          taichu = y12.tw.Taichu,
+          y12type = taichu.Type,
+          y12Common = taichu.Common;
+
+        $scope.findtx = '73c40b938205e6e29a9f701e4e91ecc040f7829f2a1f7a65eb357171386aaff2';
+        $scope.fr = {};
+        $scope.v = {};
+        $scope.v.ver = 1;
+        $scope.v.content = 'Y12^_^Taichung@Taiwan';
+        $scope.v.num = null;
+        $scope.v.bytes = null;
+
+        var frInit = function() {
+          $scope.fr.content = 'NODATA';
+          $scope.fr.orhex = 'NODATA';
+          $scope.fr.num = 0;
+        }
+
+        var createOpReturnCommon = function(version, content, num, bytes) {
+          var r = new taichu(version, y12type.COMMON);
+          var common = new y12Common();
+          if (bytes != null) {
+            var dBuf = dcodeIO.ByteBuffer.fromHex(bytes);
+            common.valueBytes = dBuf;
+          }
+
+          if (num != null) {
+            common.valueInt32 = num;
+          }
+
+          if (content != null) {
+            common.valueString = content;
+          }
+          r.common = common;
+          Ypp.PbPost(r);
+          Ypp.PbPrint(r);
+          return r;
+        }
+
+        $scope.toastPosition = {
+          bottom: false,
+          top: true,
+          left: false,
+          right: true
+        };
+
+        $scope.getToastPosition = function() {
+          return Object.keys($scope.toastPosition)
+            .filter(function(pos) {
+              return $scope.toastPosition[pos];
+            })
+            .join(' ');
+        };
+
+        var showSimpleToast = function(content) {
+          $mdToast.show(
+            $mdToast.simple()
+            .content(content)
+            .position($scope.getToastPosition())
+            .hideDelay(2000)
+          );
+        };
+
+        var parseY12MetaData = function(scriptHex) {
+          var r = {};
+          var script = bitcoin.Script.fromHex(scriptHex);
+          console.log(script);
+          if (script.chunks[0] === 106) {
+            // OP_RETURN
+            var raw = script.chunks[1].toString('hex');
+            //console.log(raw);
+            // 590c[data]
+            var data = Ypp.PbParsePre(raw);
+            if (data.length > 0) {
+              $scope.fr.orhex = raw;
+              var dBuf = dcodeIO.ByteBuffer.fromHex(data);
+              r = taichu.decode(dBuf);
+            } else {
+              frInit();
+            }
+          }
+          return r;
+        }
+
+        var handleY12Meta = function(obj) {
+          console.log(obj);
+          if (obj.type == y12type.COMMON) {
+            var v = obj.common;
+            $scope.fr.ver = obj.version;
+            $scope.fr.content = v.valueString;
+            $scope.fr.num = v.valueInt32;
+            $scope.fr.bytes = v.valueBytes.toHex();
+          }
+        }
+
+        var cb = {};
+
+
+        cb.HelloSuccess = function(v) {
+          console.log(v);
+          showSimpleToast('HelloBlock.io api OK');
+          v.data.transaction.outputs.every(function(element, index, array) {
+            console.log(element);
+            if (element.value == 0 && element.scriptPubKey.indexOf('6a') == 0) {
+              // parse OP_RETURN
+              var obj = parseY12MetaData(element.scriptPubKey);
+              handleY12Meta(obj);
+              return false;
+            }
+            return true;
+          });
+        };
+
+        cb.HelloError = function(error) {
+          console.log('callback helloblock error!');
+          showSimpleToast('callback helloblock error!');
+          frInit();
+          //console.log(error);
+        };
+
+        $scope.parseOpReturnTx = function() {
+          var p = {
+            'tx': $scope.findtx
+          };
+          reshbTx.get(p, cb.HelloSuccess, cb.HelloError);
+        };
+
+        $scope.gen = function() {
+          $scope.ymeta = createOpReturnCommon($scope.v.ver, $scope.v.content, $scope.v.num, $scope.v.bytes);;
+        };
+
+        frInit();
+
+        console.log($scope);
+        //Ypp.foo = cb;
+      }]);
+  </script>
+
+</body>
+
+</html>
