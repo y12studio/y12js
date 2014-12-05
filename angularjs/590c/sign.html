@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.css">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="app.css" rel="stylesheet">
+</head>
+
+<body ng-app="YourApp">
+
+  <div class="doc-content" ng-controller="YourController">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <span class="md-flex">Sign OP_RETURN Tx</span>
+        <span flex></span>
+        <md-button class="md-fab" aria-label="home" ng-click="ypp.NavGo('index.html')">
+          <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-card>
+      <div layout="row">
+        <div class="rowhead">
+          <md-button class="md-fab md-primary" aria-label="index">1</md-button>
+        </div>
+        <div>
+          <h2>Provide the detail on op-return-inside-tx</h2>
+        </div>
+      </div>
+      <form>
+        <md-text-float label="OP_RETURN hex" ng-model="p.orhex" class="long"></md-text-float>
+        <md-text-float label="Private Key(WIF)" ng-model="p.wif" class="long"></md-text-float>
+        <md-text-float label="Target Address" ng-model="p.toAddr" class="long"></md-text-float>
+        <div class="row">
+          <md-text-float label="Target Value(satoshi)" type="number" ng-model="p.toSatoshi"></md-text-float>
+          <md-text-float label="Tx Fee(satoshi)" type="number" ng-model="p.txfee"></md-text-float>
+        </div>
+      </form>
+    </md-card>
+    <md-card>
+      <div layout="row">
+        <div class="rowhead">
+          <md-button class="md-fab md-primary" aria-label="index">2</md-button>
+        </div>
+        <div>
+          <h2>Get Unspent tx</h2>
+        </div>
+      </div>
+      <form>
+        <md-text-float label="Bitcoin Address" ng-model="tx.addr" class="long"></md-text-float>
+        <md-text-float label="Tx Hex(Unspent)*" ng-model="tx.addrtxHash" class="long"></md-text-float>
+        <div class="row">
+          <md-text-float label="Tx UnSpent(value)" type="number" ng-model="tx.addrtxSpend"></md-text-float>
+          <md-text-float label="Tx Output index" type="number" ng-model="tx.addrtxIndex"></md-text-float>
+        </div>
+        <div class="row">
+          <span flex></span>
+          <md-button class="md-raised md-primary" ng-click="getAddrUnspent()">Get Unspent<i class="fa fa-external-link fa-rotate-180"></i>
+          </md-button>
+        </div>
+      </form>
+    </md-card>
+    <md-card>
+      <div layout="row">
+        <div class="rowhead">
+          <md-button class="md-fab md-primary" aria-label="index">3</md-button>
+        </div>
+        <div>
+          <h2>Sign</h2>
+        </div>
+      </div>
+      <div layout="row">
+        <span flex></span>
+        <md-button class="md-raised md-warn" ng-click="signOpReturn()">Sign <i class="fa fa-key"></i>
+        </md-button>
+
+        <md-button class="md-raised" ng-click="ypp.ExtBroadcast()">Broadcast <i class="fa fa-external-link"></i>
+        </md-button>
+      </div>
+      <h4>Tx Script(Signed)</h4>
+      <textarea rows="6" cols="60">{{rtxHex}}</textarea>
+    </md-card>
+  </div>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-animate.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-aria.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-resource.min.js"></script>
+  <script src="//0.y12.tw/js/hammer/2.0.4/hammer.min.js"></script>
+  <script src="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.js"></script>
+  <script src="app.js"></script>
+  <script src="//0.y12.tw/js/bitcoinjs/1.2.0/bitcoinjs.min.js"></script>
+  <script>
+    // Include app dependency on ngMaterial
+
+    angular.module('YourApp', ['ngMaterial', 'ngResource'])
+      .controller("YourController", ['$scope', '$resource', '$mdToast', function($scope, $resource, $mdToast) {
+        $scope.ypp = Ypp;
+        var reshb = $resource('https://mainnet.helloblock.io/v1/addresses/:addr/unspents');
+        var reshbTx = $resource('https://mainnet.helloblock.io/v1/transactions/:tx');
+
+        var p = {};
+        p.orhex = '5908021a100a0b48656c6c6f20576f726c6410cf0f0c';
+        p.txfee = 1212;
+        p.wif = '';
+        //p.toAddr = null;
+        p.toAddr = '18129HkPNjxDvUDFFCpgGgGT2SaRnmYWyr';
+        p.toSatoshi = 0;
+
+        $scope.p = p;
+        $scope.tx = {};
+
+        var cb = {};
+
+        cb.HelloSuccess = function(v) {
+          console.log(v);
+          showSimpleToast('HelloBlock.io api OK');
+          if (v.data.unspents.length > 0) {
+            usp0 = v.data.unspents[0];
+            $scope.tx.addrtxSpend = usp0.value;
+            $scope.tx.addrtxHash = usp0.txHash;
+            $scope.tx.addrtxIndex = usp0.index;
+            console.log(usp0);
+            console.log($scope.tx);
+          } else {
+            $scope.tx.addrtxSpend = 0;
+            $scope.tx.addrtxHash = 'NODATA';
+            $scope.tx.addrtxIndex = 0;
+          }
+        };
+
+        cb.HelloError = function(error) {
+          console.log('callback helloblock error!');
+          showSimpleToast('callback helloblock error!');
+        };
+
+
+        $scope.getAddrUnspent = function() {
+          var key = bitcoin.ECKey.fromWIF($scope.p.wif);
+          $scope.p.key = key;
+          console.log($scope.p);
+          var addr = key.pub.getAddress();
+          $scope.tx.addr = addr;
+          console.log('get unspent tx from address : ' + addr);
+
+          var p = {
+            'addr': addr
+          };
+
+          reshb.get(p, cb.HelloSuccess, cb.HelloError);
+        };
+
+        $scope.signOpReturn = function() {
+
+          var p = $scope.p;
+
+          var stx = $scope.tx;
+          var txb = new bitcoin.TransactionBuilder();
+
+          txb.addInput(stx.addrtxHash, stx.addrtxIndex);
+
+          if (p.toAddr != null && p.toSatoshi > 0) {
+            //
+            txb.addOutput(p.toAddr, p.toSatoshi);
+            txb.addOutput(stx.addr, stx.addrtxSpend -p.toSatoshi - p.txfee);
+          } else {
+            // change back
+            txb.addOutput(stx.addr, stx.addrtxSpend - p.txfee);
+          }
+
+          var dataScript = bitcoin.Script.fromASM('OP_RETURN ' + p.orhex);
+
+          txb.addOutput(dataScript, 0);
+          txb.sign(0, p.key);
+          var tx = txb.build();
+          $scope.rtxHex = tx.toHex();
+          console.log(tx);
+        };
+
+
+        $scope.toastPosition = {
+          bottom: false,
+          top: true,
+          left: false,
+          right: true
+        };
+
+        $scope.getToastPosition = function() {
+          return Object.keys($scope.toastPosition)
+            .filter(function(pos) {
+              return $scope.toastPosition[pos];
+            })
+            .join(' ');
+        };
+
+        var showSimpleToast = function(content) {
+          $mdToast.show(
+            $mdToast.simple()
+            .content(content)
+            .position($scope.getToastPosition())
+            .hideDelay(2000)
+          );
+        };
+
+        console.log($scope);
+        //Ypp.foo = cb;
+      }]);
+  </script>
+
+</body>
+
+</html>

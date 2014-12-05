@@ -1,0 +1,83 @@
+package y12.tw;
+// version : alpha4
+message OpReturn {
+
+  enum Type {
+    COMMON = 1;
+    COMMON_ARRAY = 2;
+    CHUNK = 11;
+    FILE_EXIST = 21;
+    ASSET_GENESIS     = 31;
+    ASSET_TRANSCATION = 32;
+    WWW = 41;
+  }
+
+  enum ExtType {
+    HTTP = 1;       // http://[eid]
+    HTTPS = 2;      // https://[eid]
+    GOOGL = 11;     // http://goo.gl/[eid]
+    BITLY = 12;     // http://bit.ly/[eid]
+    PASTEBIN = 13;  // http://pastebin.com/[eid]
+    PASTIE = 14;    // http://pastie.org/[eid]
+    Y12TW = 91;     // http://y12.tw/y12meta/[eid]
+  }
+
+  message Common {
+    optional string valueString = 1;
+    optional int32 valueInt32 = 2;
+    optional bytes valueBytes = 3;
+  }
+
+  message TxRef {
+    required int32 blockHeight = 1;
+    required int32 txIndex = 2;
+  }
+
+  message Www {
+    // optional Where where = 1;
+    required int64 when = 1; // 1417520051 = Tue, 02 Dec 2014 11:34:11 GMT
+    required double lat = 2; // 24.1321302
+    required double lon = 3; // 120.6962365
+    optional string whatString = 4;
+    optional int32 whatInt = 5;
+    optional ExtType wahtExtType = 6;
+    optional string wahtExtId = 7;
+  }
+
+  message Chunk {
+    required int32 index = 1;
+    required bytes valueBytes = 2;
+  }
+
+  message CommonArray {
+    repeated string arrString = 1 [packed=true];
+    repeated int32 arrInt32 = 2 [packed=true];
+    repeated bytes arrBytes = 3 [packed=true];
+  }
+
+  message FileExist {
+    required bytes hash = 1;
+    optional ExtType extType = 2;
+    optional string eid = 3;
+    optional string fileString = 4;
+    optional int32 fileInt = 5;
+  }
+
+  message AssetGenesis {
+    required string name = 1;
+    required string domain = 2;
+    required int32 qty = 3;
+  }
+
+  message AssetTranscation {
+    required string number = 1;
+  }
+
+  required Type type = 1;
+  optional Common common = 2;
+  optional Www www = 3;
+  optional FileExist fileExist = 4;
+  optional CommonArray commonArray = 5;
+  optional Chunk chunk = 6;
+  optional AssetGenesis assetGenesis = 7;
+}

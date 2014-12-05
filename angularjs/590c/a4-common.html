@@ -14,7 +14,7 @@
   <div class="doc-content" ng-controller="YourController">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <span class="md-flex">alpha3(Taichu.Common)</span>
+        <span class="md-flex">alpha4(OpReturn.Common)</span>
         <span flex></span>
         <md-button class="md-fab" aria-label="home" ng-click="ypp.NavGo('index.html')">
           <md-icon icon="home.svg" style="width: 24px; height: 24px;"></md-icon>
@@ -27,16 +27,15 @@
           <md-button class="md-fab md-primary" aria-label="index">1</md-button>
         </div>
         <div>
-          <h2>Build(Taichu.Common)</h2>
+          <h2>Build(OpReturn.Common)</h2>
         </div>
       </div>
       <form>
+        <md-text-float label="Target String" ng-model="v.content" class="long"></md-text-float>
         <div class="row">
-          <md-text-float label="Version" type="number" ng-model="v.ver"></md-text-float>
           <md-text-float label="Target Number" type="number" ng-model="v.num"></md-text-float>
           <md-text-float label="Target Bytes(hex)" ng-model="v.bytes"></md-text-float>
         </div>
-        <md-text-float label="Target String" ng-model="v.content" class="long"></md-text-float>
         <div class="row">
           <span flex></span>
           <md-button class="md-raised" ng-click="gen()">Build <i class="fa fa-gears"></i>
@@ -53,18 +52,17 @@
           <md-button class="md-fab md-primary" aria-label="index">2</md-button>
         </div>
         <div>
-          <h2>Parse(Taichu.Common) from blockchain/tx</h2>
+          <h2>Parse(OpReturn.Common) from blockchain/tx</h2>
         </div>
       </div>
       <form>
         <md-text-float label="blockchain tx hex" ng-model="findtx" class="long"></md-text-float>
         <md-text-float label="OP_RETURN hex" ng-model="fr.orhex" class="long"></md-text-float>
         <div class="row">
-          <md-text-float label="Parse Protocol Version" type="number" ng-model="fr.ver"></md-text-float>
           <md-text-float label="Parse Int32" type="number" ng-model="fr.num"></md-text-float>
           <md-text-float label="Parse Bytes" ng-model="fr.bytes"></md-text-float>
         </div>
-          <md-text-float label="Parse String" ng-model="fr.content" class="long"></md-text-float>
+        <md-text-float label="Parse String" ng-model="fr.content" class="long"></md-text-float>
         <div class="row">
           <span flex></span>
           <md-button class="md-raised md-primary" ng-click="parseOpReturnTx()">Get/Parse <i class="fa fa-external-link fa-rotate-180"></i>
@@ -77,11 +75,11 @@
       </form>
     </md-card>
   </div>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-animate.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-route.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-aria.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular-resource.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-animate.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-aria.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-resource.min.js"></script>
   <script src="//0.y12.tw/js/hammer/2.0.4/hammer.min.js"></script>
   <script src="//0.y12.tw/js/angular-material/0.6.0/angular-material.min.js"></script>
   <script src="app.js"></script>
@@ -99,15 +97,13 @@
         var reshbTx = $resource('https://mainnet.helloblock.io/v1/transactions/:tx');
 
         var ProtoBuf = dcodeIO.ProtoBuf;
-        var y12 = ProtoBuf.loadProtoFile("590c-alpha3.proto").build('y12'),
-          taichu = y12.tw.Taichu,
-          y12type = taichu.Type,
-          y12Common = taichu.Common;
+        var y12 = ProtoBuf.loadProtoFile("590c-alpha4.proto").build('y12'),
+          OpReturn = y12.tw.OpReturn;
 
-        $scope.findtx = '73c40b938205e6e29a9f701e4e91ecc040f7829f2a1f7a65eb357171386aaff2';
+        $scope.findtx = 'dcb069d1dadb9d7f2160f800cbcc8034f259fdf62047b35ce7d1f37a3112cf3e';
         $scope.fr = {};
         $scope.v = {};
-        $scope.v.ver = 1;
+
         $scope.v.content = 'Y12^_^Taichung@Taiwan';
         $scope.v.num = null;
         $scope.v.bytes = null;
@@ -118,9 +114,9 @@
           $scope.fr.num = 0;
         }
 
-        var createOpReturnCommon = function(version, content, num, bytes) {
-          var r = new taichu(version, y12type.COMMON);
-          var common = new y12Common();
+        var createOpReturnCommon = function(content, num, bytes) {
+          var r = new OpReturn(OpReturn.Type.COMMON);
+          var common = new OpReturn.Common();
           if (bytes != null) {
             var dBuf = dcodeIO.ByteBuffer.fromHex(bytes);
             common.valueBytes = dBuf;
@@ -176,7 +172,7 @@
             if (data.length > 0) {
               $scope.fr.orhex = raw;
               var dBuf = dcodeIO.ByteBuffer.fromHex(data);
-              r = taichu.decode(dBuf);
+              r = OpReturn.decode(dBuf);
             } else {
               frInit();
             }
@@ -186,12 +182,13 @@
 
         var handleY12Meta = function(obj) {
           console.log(obj);
-          if (obj.type == y12type.COMMON) {
+          if (obj.type == OpReturn.Type.COMMON) {
             var v = obj.common;
-            $scope.fr.ver = obj.version;
             $scope.fr.content = v.valueString;
             $scope.fr.num = v.valueInt32;
-            $scope.fr.bytes = v.valueBytes.toHex();
+            if (v.valueBytes) {
+              $scope.fr.bytes = v.valueBytes.toHex();
+            }
           }
         }
 
@@ -228,7 +225,7 @@
         };
 
         $scope.gen = function() {
-          $scope.ymeta = createOpReturnCommon($scope.v.ver, $scope.v.content, $scope.v.num, $scope.v.bytes);
+          $scope.ymeta = createOpReturnCommon($scope.v.content, $scope.v.num, $scope.v.bytes);
         };
 
         frInit();

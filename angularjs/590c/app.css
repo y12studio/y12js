@@ -50,6 +50,11 @@ section .md-button {
     margin: 1em;
     line-height: 25px;
 }
+
+div .md-button {
+    margin-left: 8px;
+}
+
 textarea {
     display: block;
     margin: 1em auto;

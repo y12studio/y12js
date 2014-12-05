@@ -14,7 +14,7 @@ Ypp.ExtQr = function(addr) {
 };
 
 Ypp.ExtBroadcast = function() {
-  window.open('https://helloblock.io/propagate', '_blank');
+   Ypp.ExtGo('https://helloblock.io/propagate');
 };
 
 Ypp.ExtHelloAddr = function(addr) {
