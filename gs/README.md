@@ -6,6 +6,9 @@ googlefinance()
 
 [BTC_QRCODE_TWD_MENU](https://docs.google.com/spreadsheets/d/1BSZVuxeCj6_Xf1TMT7JtXuf_-mkBh5mkZVGuCdxLwcs/)
 
+
+[BTC_QR_MENU/阿發商店 - Google 試算表](https://docs.google.com/spreadsheets/d/1YwBZMW6Vc3EeJ7Omf8FuBZJ8eLY5Krw3e7FgBnRbm08/)
+
 importdata()
 ------------
 
