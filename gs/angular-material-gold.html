@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>黃金菜單 AngularMaterial and google sheets</title>
+    <!-- Angulars Material CSS using RawGit to load directly from `bower-material/master` -->
+    <link rel="stylesheet" href="https://rawgit.com/angular/bower-material/master/angular-material.css">
+    <link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700,400' rel='stylesheet' type='text/css'>
+    <style>
+    .price{
+        margin-left:2em;
+        font-size:2em;
+        font-family: 'Yanone Kaffeesatz', sans-serif;
+    }
+    </style>
+</head>
+<body>
+    <div ng-app="myApp" ng-controller="myCtrl">
+        <md-toolbar class="md-theme-light">
+            <h2 class="md-toolbar-tools">
+                <span>千分之一盎司黃金換新台幣 {{goldtwd}}</span>
+            </h2>
+        </md-toolbar>
+        <md-content style="padding-left:3em;">
+            <div>
+                <a href="https://docs.google.com/spreadsheets/d/1R50wUho3P99RnxRhWF3RuUzLcw6X_F8FPMM9d4SHHQs/">黃金菜單API - Google 試算表</a>
+            </div>
+            <md-list style="margin-left:1em;">
+                <md-list-item class="md-3-line" ng-repeat="item in menus">
+                    <img ng-src="{{item.img}}" class="md-avatar" alt="{{item.name}}" />
+                    <div class="md-list-item-text">
+                        <h3>{{ item.name }}</h3>
+                        <h4>黃金(千分之一盎司) <span class="price">{{ item.gold }}</span></h4>
+                        <p>NT$ {{ item.twd }}</p>
+                    </div>
+                </md-list-item>
+            </md-list>
+        </md-content>
+    </div>
+    <!-- Angular Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
+    <!-- Angular Material Javascript using RawGit to load directly from `bower-material/master` -->
+   <script src="https://rawgit.com/angular/bower-material/master/angular-material.js"></script>
+    <!-- MyApp Script  -->
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function($scope, $http) {
+            $scope.name = "John";
+            var responsePromise = $http.get("https://spreadsheets.google.com/feeds/cells/1R50wUho3P99RnxRhWF3RuUzLcw6X_F8FPMM9d4SHHQs/od6/public/basic?alt=json");
+            responsePromise.success(function(data, status, headers, config) {
+                var entry = data.feed["entry"];
+                $scope.menus = [];
+                var cols = 4;
+                $scope.goldtwd = entry[3 * cols + 2].content["$t"];
+                var menucount = 5;
+                for (i = 0; i < menucount; i++) {
+                    var mrows = 5 + i;
+                    var index = mrows * cols;
+                    var item = {
+                        "name": entry[index].content["$t"],
+                        "gold": entry[index + 1].content["$t"],
+                        "twd": entry[index + 2].content["$t"],
+                        "img": entry[index + 3].content["$t"]
+                    };
+                    $scope.menus.push(item);
+                }
+
+            });
+            responsePromise.error(function(data, status, headers, config) {
+                console.log("AJAX failed!");
+            });
+        });
+    </script>
+</body>
+</html>
