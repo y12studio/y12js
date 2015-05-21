@@ -1,0 +1,40 @@
+<html lang="en" ng-app="StarterApp">
+
+<head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
+    <link rel="stylesheet" href="app.css">
+    <meta name="viewport" content="initial-scale=1" />
+</head>
+
+<body layout="column" ng-controller="AppCtrl">
+    <md-toolbar layout="row">
+        <button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button menuBtn">
+            <span class="md-visually-hidden">Menu</span>
+        </button>
+        <h1 class="md-toolbar-tools" layout-align-gt-sm="center">Hello Watch</h1>
+    </md-toolbar>
+    <div layout="row" flex>
+        <div layout="column" flex id="content">
+            <md-content layout="column" flex class="md-padding">
+                <h4>{{timeNow | date:'yyyy-M-d HH:mm:ss'}}</h4>
+                <div>
+                    <button ng-click="dialogDirectory()">Choose Directory</button>
+                </div>
+                <ul>
+                    <li ng-repeat="file in files">
+                        <span>{{ file }}</span>
+                    </li>
+                </ul>
+            </md-content>
+        </div>
+    </div>
+    <!-- Angular Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

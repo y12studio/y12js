@@ -1,0 +1,26 @@
+{
+    "name": "y12.nwjs.helloworld",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.html",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "directory-watcher":"",
+        "recursive-readdir": ""
+    },
+    "author": "",
+    "window": {
+        "title": "Y12TEST",
+        "width": 600,
+        "height": 520,
+        "min-width": 400,
+        "max-width": 800,
+        "min-height": 520,
+        "max-height": 520,
+        "toolbar": true,
+        "frame": true
+    },
+    "license": "MIT"
+}
