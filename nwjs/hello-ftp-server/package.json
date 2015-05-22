@@ -1,5 +1,5 @@
 {
-    "name": "y12.nwjs.helloworld",
+    "name": "y12.nwjs.pushftp",
     "version": "1.0.0",
     "description": "",
     "main": "index.html",
@@ -8,6 +8,8 @@
     },
     "dependencies": {
         "dateformat":"",
+        "ftp":"",
+        "winston":"",
         "recursive-readdir": ""
     },
     "author": "",
@@ -19,7 +21,7 @@
         "max-width": 800,
         "min-height": 520,
         "max-height": 520,
-        "toolbar": true,
+        "toolbar": false,
         "frame": true
     },
     "license": "MIT"

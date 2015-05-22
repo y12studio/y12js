@@ -1,6 +1,7 @@
-<html lang="en" ng-app="StarterApp">
+<html lang="zh-TW" ng-app="StarterApp">
 
 <head>
+    <meta charset="UTF-8">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.0/angular-material.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
     <link rel="stylesheet" href="app.css">
@@ -12,14 +13,16 @@
         <button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button menuBtn">
             <span class="md-visually-hidden">Menu</span>
         </button>
-        <h1 class="md-toolbar-tools" layout-align-gt-sm="center">Hello Watch</h1>
+        <h1 class="md-toolbar-tools" layout-align-gt-sm="center">FtpClient-FtpServer-HttpServer</h1>
     </md-toolbar>
     <div layout="row" flex>
         <div layout="column" flex id="content">
             <md-content layout="column" flex class="md-padding">
+                <p>ftp = 127.0.0.1:21 , user/pass=john/bar , http = 127.0.0.1:8000</p>
                 <h4>{{timeNow | date:'yyyy-M-d HH:mm:ss'}}</h4>
                 <div>
-                    <button ng-click="dialogDirectory()">Choose Directory</button>
+                    <button ng-click="onClickFtpClient()">Ftp發送測試檔案</button>
+                    <button ng-click="onClickGoHttpTest()">開啟測試HTTP網頁</button>
                 </div>
                 <ul>
                     <li ng-repeat="file in files">

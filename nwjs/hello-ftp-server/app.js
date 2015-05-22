@@ -1,7 +1,16 @@
 //angularjs - How to access/update $rootScope from outside Angular - Stack Overflow
 // http://stackoverflow.com/questions/24595460/how-to-access-update-rootscope-from-outside-angular
+var winston = require('winston');
+winston.level = 'debug';
 var rootScope;
 var recursive = require('recursive-readdir');
+var ftpClient = require('ftp');
+var path = require('path');
+var dateFormat = require('dateformat');
+//-----------------------
+// nwjs
+var gui = require('nw.gui');
+
 
 var GVAR1 = 999,
     GVAR2 = 199;
@@ -15,14 +24,20 @@ var app = angular.module('StarterApp', ['ngMaterial']);
 app.controller('AppCtrl', ['$scope', '$interval', function($scope, $interval) {
 
     $scope.timeNow = new Date();
+    $scope.files = [];
     // fps=1, repeat indefinitely.
     iter = $interval(function() {
         $scope.timeNow = new Date();
     }, 1000);
 
     $scope.$on('gvar2-update', function(event, args) {
-        console.log(args);
+        winston.debug(args);
         $scope.gvar2 = args;
+    });
+
+    $scope.$on('an:newfile', function(event, data) {
+        winston.debug(data);
+        $scope.files.push(data['file'] + '/' + data['eTime']);
     });
 
     $scope.stopIter = function() {
@@ -49,6 +64,29 @@ app.controller('AppCtrl', ['$scope', '$interval', function($scope, $interval) {
         });
     };
 
+    $scope.onClickGoHttpTest = function() {
+        gui.Shell.openExternal("http://127.0.0.1:8000/")
+    }
+
+    $scope.onClickFtpClient = function() {
+        var c = new ftpClient();
+        c.on('ready', function() {
+            c.put('README.md', 'README.md', function(err) {
+                if (err) throw err;
+                c.end();
+                //c.close();
+            });
+        });
+        // connect to localhost:21 as anonymous
+        c.connect({
+            'host': 'localhost',
+            'port': 21,
+            'user': 'john',
+            'password': 'bar'
+        });
+
+    }
+
     $scope.dialogDirectory = function() {
         // File dialogs · nwjs/nw.js Wiki
         // https://github.com/nwjs/nw.js/wiki/File-dialogs
@@ -67,23 +105,29 @@ app.controller('AppCtrl', ['$scope', '$interval', function($scope, $interval) {
 
 }]);
 
-//-----------------------
-// nwjs
 
-var gui = require('nw.gui');
 
 //----------------------
 // http
 var http = require('http');
-
+var LASTURLS = [];
 server = http.createServer(function(request, response) {
+    lastUrl = '';
     response.writeHead(200, {
-        'Content-Type': 'text/plain'
+        'Content-Type': 'text/html'
     });
     GVAR2 += 1;
-    console.log("GET " + request.url);
-    rootScope.$broadcast('gvar2-update', GVAR2);
-    response.end('Hello GVAR1 ' + GVAR1);
+    winston.debug("[HTTP] GET " + request.url);
+    if (request.url != '/favicon.ico') {
+        LASTURLS.push({
+            'time': dateFormat(new Date()),
+            'url': request.url
+        });
+    }
+    // rootScope.$broadcast('gvar2-update', GVAR2);
+    response.end('<h3>Request Urls</h3>' + LASTURLS.map(function(o) {
+        return '<p><span style="margin-right:30px"><b>' + o['time'] + '</b></span>' + o['url'] + '</p>\r\n';
+    }).join(''));
 }).listen(8000, '127.0.0.1');
 //----------------------
 // ftpd
@@ -129,6 +173,26 @@ server.on('client:connected', function(conn) {
     conn.on('command:pass', function(pass, success, failure) {
         // check the password
         (pass == 'bar') ? success(username): failure();
+    });
+    // save file
+    conn.on('file:stor', function(type, data) {
+        console.log(type);
+        if (type == 'close') {
+
+
+            data['filename'] = path.basename(data['file']);
+            winston.debug('[NEW FILE]');
+            winston.debug(data);
+
+            rootScope.$broadcast('an:newfile', data);
+
+            http.get("http://127.0.0.1:8000/" + data['filename'], function(res) {
+                console.log("Got response: " + res.statusCode);
+            }).on('error', function(e) {
+                console.log("Got error: " + e.message);
+            });
+
+        }
     });
 });
 
