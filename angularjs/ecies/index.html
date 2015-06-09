@@ -1,0 +1,90 @@
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=RobotoDraft:300,400,500,700,400italic">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <meta name="viewport" content="initial-scale=1" />
+    <meta charset="UTF-8">
+    <title>Bitcore ECIES - Y12STUDIO</title>
+    <style>
+        .menuBtn {
+            background-color: transparent;
+            border: none;
+            margin-left: 16px;
+        }
+
+        md-list .md-button {
+            color: inherit;
+            text-align: left;
+            width: 100%;
+        }
+
+        .inputdemoErrors .inputErrorsApp {
+            min-height: 48px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout="column" ng-controller="AppCtrl" ng-app="MyApp">
+        <md-toolbar layout="row">
+            <button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button menuBtn">
+                <span class="md-visually-hidden">Menu</span>
+            </button>
+            <h1 class="md-toolbar-tools" layout-align-gt-sm="center">Bitcore ECIES</h1>
+        </md-toolbar>
+
+        <md-content layout="column" flex class="md-padding">
+            <h3>Step 1</h3>
+            <form>
+                <md-input-container>
+                    <label>Alice Passcode</label>
+                    <input md-maxlength="30" required ng-model="alice.passcode">
+                </md-input-container>
+                <md-input-container>
+                    <label>Bob Passcode</label>
+                    <input md-maxlength="30" required ng-model="bob.passcode">
+                </md-input-container>
+            </form>
+            <section layout="row" layout-sm="column" layout-align="center center">
+                <md-button class="md-raised" ng-click="getKeys()">Get Keys</md-button>
+            </section>
+            <div>
+                <h4>Alice</h4>
+                {{alice.key | json}}
+                <h4>Bob</h4>
+                {{bob.key | json}}
+            </div>
+            <h3>Step 2</h3>
+            <form>
+                <md-input-container>
+                    <label>Alice Secret Message</label>
+                    <input md-maxlength="30" required ng-model="alice.secret">
+                </md-input-container>
+            </form>
+            <section layout="row" layout-sm="column" layout-align="center center">
+                <md-button class="md-raised" ng-click="encrypt()">encrypt</md-button>
+                <md-button class="md-raised" ng-click="decrypt()">decrypt</md-button>
+            </section>
+            <div>
+                <h4>Alice encrypt mesaage</h4>
+                {{alice.encrypt}}
+                <h4>Bob decrypt mesaage</h4>
+                {{bob.decrypt}}
+            </div>
+        </md-content>
+    </div>
+    <script src="http://0.y12.tw/js/bitcore/0.12.8/bitcore.min.js"></script>
+    <script src="http://0.y12.tw/js/bitcore-ecies/0.11.0/bitcore-ecies.min.js"></script>
+    <!-- Angular Material Dependencies -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-messages.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/0.9.4/angular-material.min.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
