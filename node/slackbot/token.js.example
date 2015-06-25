@@ -1,0 +1,4 @@
+module.exports = {
+    webhook : 'https://hooks.slack.com/services/XXX',
+    slackbot:'https://y12.slack.com/services/hooks/slackbot?token=XXXX'
+};
