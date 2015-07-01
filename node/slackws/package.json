@@ -12,6 +12,7 @@
         "cron-emitter": "*",
         "request": "*",
         "slackbotapi": "*",
+        "mathjs":"*",
         "moment-timezone":"*"
     },
     "license": "MIT"
