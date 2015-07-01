@@ -1,3 +1,10 @@
+/////////////////////////////////
+//     +-+-+-+-+-+-+-+-+-+     //
+//     |Y|1|2|S|T|U|D|I|O|     //
+//     +-+-+-+-+-+-+-+-+-+     //
+//     2015        y12.tw      //
+/////////////////////////////////
+
 var token = require('./token');
 // ------------------
 // cron-emitter
@@ -14,8 +21,8 @@ var slack = new Slack(token.webhook);
 
 console.log('emitter bit_survey and btc_xxx')
 
-emitter.add("15 */30 * * * *", "bit_survey");
-emitter.add("25 */20 * * * *", "btc_usd");
+emitter.add("15 30 */12 * * *", "bit_survey");
+emitter.add("25 */30 * * * *", "btc_usd");
 
 function post2webhook(msg) {
     slack.send({
