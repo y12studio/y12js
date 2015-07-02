@@ -5,15 +5,21 @@
     "main": "app.js",
     "scripts": {
         "start": "node app.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "gulp test"
     },
     "author": "",
     "dependencies": {
-        "cron-emitter": "*",
-        "request": "*",
-        "slackbotapi": "*",
-        "mathjs":"*",
-        "moment-timezone":"*"
+        "validator":"^3.40.1",
+        "cron-emitter": "^0.2.2",
+        "request": "^2.58.0",
+        "slackbotapi": "^1.3.1",
+        "mathjs": "^1.7.0",
+        "moment-timezone": "^0.4.0"
+    },
+    "devDependencies": {
+        "gulp": "^3.8.10",
+        "gulp-mocha": "^2.0.0",
+        "chai": "~1.10.0"
     },
     "license": "MIT"
 }

@@ -6,6 +6,7 @@
 /////////////////////////////////
 
 var token = require('./token');
+var bot = require('./lib/bot');
 // load math.js
 var math = require('mathjs');
 // ------------------
@@ -62,7 +63,7 @@ slack.on('message', function(data) {
     // If someone says 'cake!!' respond to their message with "@user OOH, CAKE!! :cake"
     if (data.text === 'cake!!') slack.sendMsg(data.channel, "@" + slack.getUser(data.user).name + " OOH, CAKE!! :cake:")
 
-    // If the first character starts with %, you can change this to your own prefix of course.
+    // If the first character starts with ?, you can change this to your own prefix of course.
     if (data.text.charAt(0) === '?') {
         // Split the command and it's arguments into an array
         var command = data.text.substring(1).split(' ');
@@ -88,14 +89,21 @@ slack.on('message', function(data) {
 
             case "mbtc":
                 var arr = data.text.split('?mbtc ');
-                var amount = parseFloat(arr[1]);
-                var result = (JSON.parse(JSON.stringify(btc_result)));
-                result.mbtc = amount;
-                //console.log(result);
-                ['twd', 'usd', 'cny'].forEach(function(e, index, arr) {
-                    result[e] = math.round(result[e] * amount / 1000, 2);
-                });
-                slack.sendMsg(data.channel, ['@' + slack.getUser(data.user).name + ' : ', JSON.stringify(result)].join())
+                var p = bot.parsembtc(data.text);
+                var target = {};
+                if (p.error) {
+                    target = p
+                } else {
+                    var amount = p.amount;
+                    var result = (JSON.parse(JSON.stringify(btc_result)));
+                    result.mbtc = amount;
+                    //console.log(result);
+                    ['twd', 'usd', 'cny'].forEach(function(e, index, arr) {
+                        result[e] = math.round(result[e] * amount / 1000, 2);
+                    });
+                    target = result;
+                }
+                slack.sendMsg(data.channel, '@' + slack.getUser(data.user).name + ' : '+ JSON.stringify(target);
                 break;
 
             case "hue":
