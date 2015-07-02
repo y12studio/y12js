@@ -3,6 +3,17 @@ var expect = chai.expect;
 var should = chai.should();
 var bot = require('../lib/bot.js');
 
+describe('bot ?coin', function() {
+    it('expect to equal', function() {
+        console.log(bot.usage)
+        bot.parsecmd('?coin -h').help.should.true;
+        bot.parsecmd('?coin -v').verbose.should.true;
+        bot.parsecmd('?coin --mbtc 100').mbtc.should.equal(100);
+        bot.parsecmd('?coin --mbtc 0.998').mbtc.should.equal(0.998);
+        bot.parsecmd('?coin --twd 15.0').twd.should.equal(15.0);
+    });
+});
+
 describe('bot utility', function() {
     it('expect to equal', function() {
         (bot.add(1, 100)).should.equal(101);

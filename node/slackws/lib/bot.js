@@ -1,5 +1,35 @@
 var validator = require('validator');
 
+var cliArgs = require("command-line-args");
+
+/* define the command-line options */
+var cli = cliArgs([{
+    name: "verbose",
+    alias: "v",
+    type: Boolean,
+    description: "Write plenty output"
+}, {
+    name: "help",
+    type: Boolean,
+    alias: "h",
+    description: "Print usage instructions"
+}, {
+    name: "mbtc",
+    type: Number
+}, {
+    name: "btc",
+    type: Number
+}, {
+    name: "twd",
+    type: Number
+}]);
+
+/* generate a usage guide */
+var usage = cli.getUsage({
+    header: "A slack RTM bankbot application.",
+    footer: "For more information, visit https://y12.slack.com/"
+});
+
 function res(result, msg) {
     return {
         error: !result,
@@ -8,6 +38,20 @@ function res(result, msg) {
 };
 
 module.exports = {
+
+    usage: cli.getUsage({
+        header: "A slack RTM bankbot application.",
+        footer: "For more information, visit https://y12.slack.com/"
+    }),
+
+    parsecmd: function(msg) {
+        if (msg.indexOf('?coin') != 0) {
+            return res(false, 'prefix error');
+        }
+        var argv = msg.substring(5).split(' ');
+        return cli.parse(argv);
+    },
+
     parsembtc: function(msg) {
         var r = res(true, 'ok')
         if (msg.charAt(0) != '?') {

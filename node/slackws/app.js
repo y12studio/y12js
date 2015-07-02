@@ -87,8 +87,32 @@ slack.on('message', function(data) {
                 slack.sendMsg(data.channel, "@" + slack.getUser(data.user).name + " : " + JSON.stringify(btc_result))
                 break;
 
+            case "coin":
+                var opt = bot.parsecmd(data.text);
+                if (opt.mbtc) {
+                    var result = (JSON.parse(JSON.stringify(btc_result)));
+                    //console.log(result);
+                    ['twd', 'usd', 'cny'].forEach(function(e, index, arr) {
+                        result[e] = math.round(result[e] * opt.mbtc / 1000, 2);
+                    });
+                    result.mbtc = opt.mbtc;
+                    slack.sendMsg(data.channel, JSON.stringify(result));
+                } else if (opt.twd) {
+                    var result = (JSON.parse(JSON.stringify(btc_result)));
+                    var mbtc =  math.round(opt.twd / result.twd * 1000, 2);
+                    result.mbtc = mbtc;
+                    ['usd', 'cny'].forEach(function(e, index, arr) {
+                        result[e] = math.round(result[e] * mbtc / 1000, 2);
+                    });
+                    result.twd = opt.twd;
+                    slack.sendMsg(data.channel, JSON.stringify(result));
+
+                } else {
+                    slack.sendMsg(data.channel, opt.help ? bot.usage : JSON.stringify(opt));
+                }
+                break;
+
             case "mbtc":
-                var arr = data.text.split('?mbtc ');
                 var p = bot.parsembtc(data.text);
                 var target = {};
                 if (p.error) {
@@ -103,7 +127,7 @@ slack.on('message', function(data) {
                     });
                     target = result;
                 }
-                slack.sendMsg(data.channel, '@' + slack.getUser(data.user).name + ' : '+ JSON.stringify(target);
+                slack.sendMsg(data.channel, '@' + slack.getUser(data.user).name + ' : ' + JSON.stringify(target));
                 break;
 
             case "hue":
