@@ -5,6 +5,33 @@ var bitcore = require('bitcore');
 var RpcClient = require('bitcoind-rpc');
 var math = require('mathjs');
 var request = require('request');
+var format = require('string-format');
+
+function reqdb(body) {
+    request({
+        uri: 'http://influx:8086/write?db=db1',
+        method: 'POST',
+        body: body
+    }, function(err, res, body) {
+        if (err) console.log(err)
+        console.log(body)
+    });
+}
+
+function push2influxdb(tx) {
+    console.log('push2influxdb : ' + JSON.stringify(tx, null, 2));
+    var txbody = format('tx,version={version},txid={txid} vin={vin.length},vout={vout.length}', tx);
+    console.log('push2influxdb : ' + txbody);
+    reqdb(txbody);
+
+    tx.vout.forEach(function(v, index, array) {
+        // console.log('address=' + v.scriptPubKey.addresses[0]);
+        var address = v.scriptPubKey.addresses[0];
+        var voutbody = format('vout,txid={0.txid},address={2} value={1.value},n={1.n}', tx, v , address);
+        console.log('vout:' + voutbody);
+        reqdb(voutbody);
+    });
+}
 
 var BRpc = function() {
 
@@ -54,9 +81,12 @@ var BRpc = function() {
                             console.log('getBlock tx:' + txid);
                             rpc.getRawTransaction(txid, function(error, tr) {
                                 txhex = tr.result;
-                                console.log('txhex=' + txhex);
+                                // console.log('txhex=' + txhex);
                                 rpc.decodeRawTransaction(txhex, function(error, dt) {
-                                    console.log(JSON.stringify(dt.result));
+                                    // console.log(JSON.stringify(dt.result));
+                                    if (dt.result) {
+                                        push2influxdb(dt.result);
+                                    }
                                 });
                             });
                         });

@@ -12,6 +12,7 @@
         "cron-emitter": "^0.2.2",
         "request": "^2.58.0",
         "bitcoind-rpc": "^0.2.1",
+        "string-format":"^0.5.0",
         "mathjs":"^1.7.0",
         "bitcore": "^0.12.11"
     },

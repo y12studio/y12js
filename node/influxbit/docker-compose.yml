@@ -19,6 +19,7 @@ cron:
     build: cron
     links:
         - keeper
+        - influx
     environment:
         - Y_KEEPER_HOST=keeper
         - Y_KEEPER_PORT=18332

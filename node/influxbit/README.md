@@ -19,5 +19,7 @@ $ dc build cron && dcup
 
 // influxdb web url(root/root) http://192.168.2.73:8083/
 
+// select * from vout
+// SHOW SERIES FROM vout
 
 ```
