@@ -1,0 +1,21 @@
+{
+    "dependencies": {
+       "request": "^2.58.0",
+       "string-format":"^0.5.0",
+       "mathjs":"^1.7.0",
+       "bitcore": "^0.12.11"
+   },
+    "devDependencies": {
+        "babel-jest": "*",
+        "jest-cli": "*"
+    },
+    "scripts": {
+        "test": "jest"
+    },
+    "jest": {
+        "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+        "testFileExtensions": ["js"],
+        "moduleFileExtensions": ["js", "json"],
+        "testDirectoryName": "test"
+    }
+}
