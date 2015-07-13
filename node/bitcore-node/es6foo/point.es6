@@ -1,3 +1,4 @@
+"use strict";
 class Point {
     constructor(x, y) {
         this.x = x;
@@ -23,4 +24,4 @@ cp.toString(); // '(25, 8) in green'
 
 console.log(cp instanceof ColorPoint); // true
 console.log(cp instanceof Point); // true
-console.log([1, 2, 3].map(x => x * x));
+// console.log([1, 2, 3].map(x => x * x));

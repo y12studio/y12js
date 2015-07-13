@@ -2,7 +2,11 @@ Using the ES6 transpiler Babel on Node.js
  http://www.2ality.com/2015/03/babel-on-node.html
 
 ```
-o$ npm test
+$ iojs --version
+v2.3.3
+$ node --version
+v2.3.3
+$ npm test
 
 > @ test /home/lin/git/y12js/node/bitcore-node/es6foo
 > jest
