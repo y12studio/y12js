@@ -5,11 +5,11 @@ BitcoreHTTP:
     LevelUp: ./regnet-db
     network: regnet
     NetworkMonitor:
-      host: localhost
+      host: seed
       port: 18333
     RPC:
       user: user
-      pass: password
+      pass: pass
       protocol: http
-      host: 127.0.0.1
+      host: seed
       port: 18332
