@@ -1,5 +1,10 @@
 bcnode:
     build: bcnode
+    links:
+        - seed
+    environment:
+        NODE_ENV: regnet
+    command: node app.js
 
 seed:
     image: y12docker/bitcoind:0.11.0

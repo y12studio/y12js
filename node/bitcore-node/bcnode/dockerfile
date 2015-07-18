@@ -1,10 +1,11 @@
 FROM node:0.12.6
-WORKDIR /napp
-RUN git clone --depth 1 https://github.com/bitpay/bitcore-node
-RUN cd bitcore-node && npm --verbose --production install
+RUN mkdir /napp
+RUN cd /napp && git clone --depth 1 https://github.com/bitpay/bitcore-node && \
+    cd bitcore-node && npm --verbose --production install
 ADD regnet.yml /napp/bitcore-node/config/
 ADD genesis.js /napp/bitcore-node/lib/data/
 ADD app.js /napp/bitcore-node/
+WORKDIR /napp/bitcore-node
 #
 # NODE_ENV=regnet node app.js
 EXPOSE 8888
