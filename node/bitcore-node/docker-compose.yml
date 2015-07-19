@@ -7,14 +7,14 @@ bcnode:
     command: node app.js
 
 seed:
-    image: y12docker/bitcoind:0.11.0
+    image: y12docker/bitcoind:0.10.2
     command: >
         bitcoind -regtest -txindex -disablewallet -port=18333
         -conf=/btc/bitcoin.conf -datadir=/btc/data
         -rpcallowip=172.17.0.0/16 -rpcport=18332
 
 keeper:
-    image: y12docker/bitcoind:0.11.0
+    image: y12docker/bitcoind:0.10.2
     links:
         - seed
     command: >
@@ -22,3 +22,13 @@ keeper:
         -conf=/btc/bitcoin.conf -datadir=/btc/data
         -addnode=seed:18333
         -rpcallowip=172.17.0.0/16 -rpcport=18332
+
+cron:
+    build: cron
+    links:
+        - keeper
+    environment:
+        - Y_KEEPER_HOST=keeper
+        - Y_KEEPER_PORT=18332
+        - Y_KEEPER_USER=user
+        - Y_KEEPER_PASS=pass
