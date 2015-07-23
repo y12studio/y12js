@@ -1,0 +1,11 @@
+DCP=bpnet0110
+alias dver='echo docker version: && docker version && docker-compose --version'
+alias nver='echo -e "\nnode version:" && npm version'
+alias ver='dver && nver'
+alias dc='docker-compose -p ${DCP}'
+alias seed2sh='docker exec -i -t ${DCP}_seed_1'
+alias keeper2sh='docker exec -i -t ${DCP}_keeper_1'
+alias seed='seed2sh bitcoin-cli -conf=/btc/bitcoin.conf -regtest'
+alias keeper='keeper2sh bitcoin-cli -conf=/btc/bitcoin.conf -regtest'
+alias dcrm='dc stop && dc rm'
+alias dcup='dc up -d --x-smart-recreate'
