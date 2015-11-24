@@ -1,0 +1,13 @@
+{
+    "name": "signji",
+    "version": "0.1.0",
+    "description": "signji",
+    "main": "app.js",
+    "author": "",
+    "dependencies": {
+        "bip38": "1.4.0",
+        "bitcore-lib": "0.13.10",
+        "bitcore-mnemonic":"1.0.1"
+    },
+    "license": "MIT"
+}
