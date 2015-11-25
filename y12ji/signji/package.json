@@ -12,8 +12,11 @@
     },
     "dependencies": {
         "minimist":"*",
-        "request":"*",
+        "request":"^2.67.0",
+        "inliner":"^1.5.0",
+        "moment":"^2.10.6",
         "async":"*",
+        "crypto-js":"^3.1.5",
         "mathjs":"^2.4.1",
         "bip38": "1.4.0",
         "bitcore-lib": "0.13.10",
