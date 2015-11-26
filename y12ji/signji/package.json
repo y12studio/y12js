@@ -18,6 +18,7 @@
         "async":"*",
         "crypto-js":"^3.1.5",
         "mathjs":"^2.4.1",
+        "web-resource-inliner":"^1.2.1",
         "bip38": "1.4.0",
         "bitcore-lib": "0.13.10",
         "bitcore-mnemonic": "1.0.1"
