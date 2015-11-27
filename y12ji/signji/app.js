@@ -9,7 +9,7 @@ var bitcoremnemonic = require('bitcore-mnemonic')
 var request = require('request')
 var HDPrivateKey = bitcorelib.HDPrivateKey
 var async = require("async")
-var Inliner = require('inliner')
+var inline = require('web-resource-inliner')
 var moment = require('moment');
 var SHA256 = require("crypto-js/sha256");
 var argv = require('minimist')(process.argv.slice(2))
@@ -28,15 +28,44 @@ class JiApp {
 
         var pc = pf.raw.conf
         var ver = pc.ver1 + '.0.' + pc.ver2
-        var tfile = pc.appname + '.' + ver + '.html'
+        var tfile = pc.appname + '-' + ver + '.html'
         pf.release = {
             version: ver,
+            path: pc.path,
+            tag: pc.rplacetag,
             src: pc.path + pc.file,
             url: pc.path + tfile,
             file: tfile,
             time: moment().format()
         }
         this._info = pf
+    }
+
+    reqWebInline(cb) {
+        var self = this;
+        var info = self._info
+        var ir = info.release
+            // replaceTag = Y12JI_RELEASE_INFO_TAG
+            // https://y12ji.com/p2015/hexcard/
+        request(ir.src, function(error, response, result) {
+            if (!error && response.statusCode == 200) {
+                inline.html({
+                    fileContent: result,
+                    relativeTo: ir.path,
+                    images: true
+                }, function(error, htmlFinal) {
+                    if (error) {
+                        return cb(error, null)
+                    }
+
+                    var htmlResult = htmlFinal.replace(ir.tag, ir.tagresult)
+                    var hash = SHA256(htmlResult).toString()
+                    fs.writeFileSync(ir.file, htmlResult, 'utf8')
+                    info.release.hash = hash
+                    return cb(null, "ok")
+                })
+            }
+        })
     }
 
     reqJsonCallback(url, cb) {
@@ -52,7 +81,7 @@ class JiApp {
         })
     }
 
-    reqinline() {
+    serInline() {
         var self = this;
         var info = self._info;
         async.series([
@@ -61,23 +90,7 @@ class JiApp {
                 return callback(null, "ok")
             },
             function(callback) {
-                // inliner
-                var savefile = info.release.file
-                var url = info.release.src
-                new Inliner(url, function(error, html) {
-                    // compressed and inlined HTML page
-                    // console.log(html);
-                    if (error) {
-                        return callback(error, null)
-                    } else {
-                        var htmlFinal = html.replace("Y12JI_RELEASE_INFO_TAG", info.releaseinfo);
-                        info.inline = {
-                            sha256: SHA256(htmlFinal).toString()
-                        }
-                        fs.writeFileSync(savefile, htmlFinal, 'utf8')
-                        return callback(null, "ok")
-                    }
-                });
+                self.reqWebInline(callback)
             }
         ], function(err, results) {
             if (err) {
@@ -111,18 +124,6 @@ class JiApp {
                     // https://api.blockcypher.com/v1/btc/main/addrs/[ADDR]
                     var url = 'https://api.blockcypher.com/v1/btc/main/addrs/' + info.opkey.input.address
                     self.reqJsonCallback(url, callback)
-                },
-                function(callback) {
-                    // inliner
-                    var savefile = info.release.file
-                    var url = info.release.src
-                    new Inliner(url, function(error, html) {
-                        // compressed and inlined HTML page
-                        // console.log(html);
-                        var sha256 = SHA256(html).toString()
-                        fs.writeFileSync(filename, html, 'utf8')
-                        return callback(null, sha256)
-                    });
                 }
             ],
             // optional callback
@@ -135,7 +136,7 @@ class JiApp {
                         bcnet: results[2],
                         bcinput: results[3]
                     }
-                    info.releaseinfo = self.buildReleaseInfo(info)
+                    info.release.tagresult = self.buildReleaseInfo(info)
                     console.log(info)
                 }
             })
@@ -219,9 +220,6 @@ class JiApp {
 }
 
 var jp = new JiApp('WoW')
-    // bitcore-lib/hash.js at master · bitpay/bitcore-lib
-    // https://github.com/bitpay/bitcore-lib/blob/master/lib/crypto/hash.js
-    // file2buffer?
 
 if (argv.buildopkey) {
     jp.buildopkey()
@@ -232,8 +230,8 @@ if (argv.reqbc) {
     jp.reqbc()
 }
 
-if (argv.reqinline) {
-    jp.reqinline()
+if (argv.serinline) {
+    jp.serInline()
 }
 
 if (argv.info) {

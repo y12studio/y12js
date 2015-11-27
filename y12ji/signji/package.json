@@ -11,17 +11,17 @@
         "listkey":"node app.js --listkey"
     },
     "dependencies": {
-        "minimist":"*",
+        "minimist":"^1.2.0",
         "request":"^2.67.0",
-        "inliner":"^1.5.0",
         "moment":"^2.10.6",
-        "async":"*",
+        "async":"^1.5.0",
         "crypto-js":"^3.1.5",
         "mathjs":"^2.4.1",
         "web-resource-inliner":"^1.2.1",
         "bip38": "1.4.0",
-        "bitcore-lib": "0.13.10",
-        "bitcore-mnemonic": "1.0.1"
+        "bitcore-lib": "^0.13.10",
+        "bitcore-explorers":"^1.0.1",
+        "bitcore-mnemonic": "^1.0.1"
     },
     "license": "MIT"
 }
