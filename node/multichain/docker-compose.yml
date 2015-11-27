@@ -1,0 +1,19 @@
+chain:
+  extends:
+    file: common.yml
+    service: multichain
+
+alice:
+  extends:
+    file: common.yml
+    service: multichain
+
+bob:
+  extends:
+    file: common.yml
+    service: multichain
+
+charlie:
+  extends:
+    file: common.yml
+    service: multichain
