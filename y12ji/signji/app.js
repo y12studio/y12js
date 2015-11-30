@@ -107,8 +107,10 @@ class JiApp {
         var info = self._info
         async.series([
                 function(callback) {
-                    var opkey = self.buildopkey()
-                    return callback(null, opkey)
+                    var account = info.raw.conf.ver1
+                    var id = info.raw.conf.ver2
+                    info.opkey = self.buildopkey(account, id)
+                    return callback(null, "ok")
                 },
                 function(callback) {
                     var url = 'https://api.bitcoinaverage.com/ticker/global/all'
@@ -150,7 +152,8 @@ class JiApp {
         return ["VERSION=" + rel.version,
             "TIME=" + rel.time,
             "URL=" + rel.url,
-            "BITCOIN_ADDRESS=" + opkey.output.address,
+            "ADDRESS_FROM=" + opkey.input.address,
+            "ADDRESS_TO=" + opkey.output.address,
             "BITCOIN_BLOCK=" + bcnet.height,
             "BTCTWD=" + btcavg.BTCTWD,
             "BTCUSD=" + btcavg.BTCUSD
@@ -167,18 +170,18 @@ class JiApp {
         }
     }
 
-    buildopkey() {
+    buildopkey(account, id) {
         // input m/[ver1]h/1/[ver2]-1
-        // output m/[ver1]h/0/1 never change ?
-        // change m/[ver1]h/1/[ver2]
-        var account = this._info.raw.conf.ver1
-        var id = this._info.raw.conf.ver2
+        // output m/[ver1]h/1/[ver2]
+        // change none
+        //var account = this._info.raw.conf.ver1
+        //var id = this._info.raw.conf.ver2
         var opkey = {
             output: this.dkey(account, 0, 1),
-            input: this.dkey(account, 1, id - 1),
-            change: this.dkey(account, 1, id)
+            input: this.dkey(account, 1, id - 1)
+            //change: this.dkey(account, 1, id)
         }
-        this._info.opkey = opkey
+        //this._info.opkey = opkey
         return opkey
     }
 
