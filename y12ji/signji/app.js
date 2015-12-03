@@ -1,5 +1,6 @@
 "use strict"
 var fs = require('fs')
+var insightsrv = require('./insightsrv')
 var hckeyjson = require('./hc1501.key.json')
 var hc1501conf = require('./hc1501.conf.json')
 var math = require('mathjs')
@@ -39,6 +40,30 @@ class JiApp {
             time: moment().format()
         }
         this._info = pf
+    }
+
+    reqSendData(cb){
+        var self = this;
+        var info = self._info
+        var opkey = info.opkey
+        var ir = info.release
+        var opt = {
+            pk: opkey.input.key,
+            addrChange: opkey.output.address,
+            prefix: info.raw.conf.HEX_Y12JIHC1,
+            hash: ir.hash,
+            fee: 8881,
+            broadcast: true
+        }
+
+        insightsrv.sendData(opt, function(err, result) {
+            if (err) {
+                return cb(err,null)
+            } else {
+                info.isrv = {opt:opt, result:result}
+                return cb(null,result)
+            }
+        })
     }
 
     reqWebInline(cb) {
@@ -91,6 +116,9 @@ class JiApp {
             },
             function(callback) {
                 self.reqWebInline(callback)
+            },
+            function(callback) {
+                self.reqSendData(callback)
             }
         ], function(err, results) {
             if (err) {
@@ -199,6 +227,7 @@ class JiApp {
             channel: channel,
             id: id,
             raw: exkey,
+            key: key,
             wif: key.toWIF(),
             address: key.toAddress().toString()
         }
@@ -223,11 +252,6 @@ class JiApp {
 }
 
 var jp = new JiApp('WoW')
-
-if (argv.buildopkey) {
-    jp.buildopkey()
-    console.log(jp.info)
-}
 
 if (argv.reqbc) {
     jp.reqbc()
