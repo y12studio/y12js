@@ -42,7 +42,7 @@ class JiApp {
         this._info = pf
     }
 
-    reqSendData(cb){
+    reqSendData(bout, fee, cb) {
         var self = this;
         var info = self._info
         var opkey = info.opkey
@@ -52,16 +52,19 @@ class JiApp {
             addrChange: opkey.output.address,
             prefix: info.raw.conf.HEX_Y12JIHC1,
             hash: ir.hash,
-            fee: 8881,
-            broadcast: true
+            fee: fee,
+            broadcast: bout
         }
 
         insightsrv.sendData(opt, function(err, result) {
             if (err) {
-                return cb(err,null)
+                return cb(err, null)
             } else {
-                info.isrv = {opt:opt, result:result}
-                return cb(null,result)
+                info.isrv = {
+                    opt: opt,
+                    result: result
+                }
+                return cb(null, result)
             }
         })
     }
@@ -106,7 +109,7 @@ class JiApp {
         })
     }
 
-    serInline() {
+    stamp(bout, fee) {
         var self = this;
         var info = self._info;
         async.series([
@@ -118,16 +121,27 @@ class JiApp {
                 self.reqWebInline(callback)
             },
             function(callback) {
-                self.reqSendData(callback)
+                self.reqSendData(bout, fee, callback)
             }
         ], function(err, results) {
             if (err) {
                 console.log(err)
             } else {
                 console.log(info)
+                console.log('------- RESULT ----------')
+                console.log(self.buildWebPageResult())
             }
         })
+    }
 
+    buildWebPageResult() {
+        var i = this._info
+        return {
+            ver: i.release.version,
+            txid: i.isrv.result.txid,
+            hash: i.release.hash,
+            prework: i.release.tagresult
+        }
     }
 
     reqbc() {
@@ -167,7 +181,7 @@ class JiApp {
                         bcinput: results[3]
                     }
                     info.release.tagresult = self.buildReleaseInfo(info)
-                    console.log(info)
+                        //console.log(info)
                 }
             })
     }
@@ -177,12 +191,12 @@ class JiApp {
         var opkey = info.opkey
         var bcnet = info.extreq.bcnet
         var btcavg = info.extreq.btcavg
-        return ["VERSION=" + rel.version,
+        return ["VER=" + rel.version,
             "TIME=" + rel.time,
             "URL=" + rel.url,
-            "ADDRESS_FROM=" + opkey.input.address,
-            "ADDRESS_TO=" + opkey.output.address,
-            "BITCOIN_BLOCK=" + bcnet.height,
+            "INPUT=" + opkey.input.address,
+            "OUTPUT=" + opkey.output.address,
+            "BLOCK=" + bcnet.height,
             "BTCTWD=" + btcavg.BTCTWD,
             "BTCUSD=" + btcavg.BTCUSD
         ].join(' , ')
@@ -205,11 +219,11 @@ class JiApp {
         //var account = this._info.raw.conf.ver1
         //var id = this._info.raw.conf.ver2
         var opkey = {
-            output: this.dkey(account, 0, 1),
-            input: this.dkey(account, 1, id - 1)
-            //change: this.dkey(account, 1, id)
-        }
-        //this._info.opkey = opkey
+                output: this.dkey(account, 0, id),
+                input: this.dkey(account, 0, id - 1)
+                    //change: this.dkey(account, 1, id)
+            }
+            //this._info.opkey = opkey
         return opkey
     }
 
@@ -257,8 +271,9 @@ if (argv.reqbc) {
     jp.reqbc()
 }
 
-if (argv.serinline) {
-    jp.serInline()
+if (argv.stamp) {
+    // app.js --stamp --fee 9988 --bout
+    jp.stamp(argv.bout, argv.fee || 9999)
 }
 
 if (argv.info) {

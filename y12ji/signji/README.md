@@ -12,6 +12,8 @@ $ curl https://www.blocktrail.com/BTC/tx/8dc7f5a1eca16d597e8d49867ccb8d4f7a12a1f
 OP_RETURN 5931324a494843314897a8acc3f474fa02c98f2194557f7bdd2255ccfbfd88f623ceebc5de25565f
 5931324a49 + 4843314897a8acc3f474fa02c98f2194557f7bdd2255ccfbfd88f623ceebc5de25565f
 Y12JIHC1 + sha256sum hc1501app-0.0.1.html
+
+$ node app.js --stamp --fee 9988 --bout
 ```
 
 ref
