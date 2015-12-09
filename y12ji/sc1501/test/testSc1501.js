@@ -2,6 +2,7 @@ var sc1501 = require('../app')
 var assert = require('chai').assert
 var scard = sc1501.scard
 var bip39 = sc1501.bip39
+var secrets = sc1501.secrets
 
 beforeEach(function() {
     //do something before testing
@@ -28,17 +29,9 @@ describe('SC1501', function() {
 
     describe('bitcorelib', function() {
         it('scard wrap', function() {
-            var hex256 = scard.ranHex(256)
+            var hex256 = secrets.random(256)
             assert.isString(hex256)
             assert.equal(64, hex256.length)
-            var hexstr = scard.stringToHex('123')
-            assert.equal('313233', hexstr)
-            var bcBuf = scard.bcBufFromHex(hexstr)
-            assert.equal(3, bcBuf.length)
-            var pk = scard.pkFromBcBuf(bcBuf)
-            assert.equal(52, pk.toWIF().length)
-            var sp160 = scard.bcBufSr160FromHex(hexstr)
-            assert.equal(20, sp160.length)
         })
     })
 

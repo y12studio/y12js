@@ -5,10 +5,6 @@ var ZH_TW_WORDLIST = require('./chinese_traditional.json')
 
 function scard() {}
 
-scard.ranHex = function(bits) {
-    return secrets.random(bits)
-}
-
 scard.shareToMshare = function(share, wordlist) {
     var id = share.substring(0, 3)
     var data = share.substring(3, share.length)
@@ -76,26 +72,6 @@ scard.split = function(seedStr, share, threshold) {
         mshareCombs: mshareCombs,
         shares: shares
     }
-}
-
-scard.stringToHex = function(str) {
-    return scard.bcBufFromString(str).toString('hex')
-}
-
-scard.bcBufSr160FromHex = function(hex) {
-    return bitcorelib.crypto.Hash.sha256ripemd160(scard.bcBufFromHex(hex))
-}
-
-scard.sr160hexFromStr = function(str) {
-    return bitcorelib.crypto.Hash.sha256ripemd160(scard.bcBufFromString(str)).toString('hex')
-}
-
-scard.bcBufFromString = function(str) {
-    return new bitcorelib.deps.Buffer(str)
-}
-
-scard.bcBufFromHex = function(hex) {
-    return new bitcorelib.deps.Buffer(hex, 'hex')
 }
 
 scard.pkFromBcBuf = function(buf) {
