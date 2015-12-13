@@ -2,7 +2,7 @@
 var fs = require('fs')
 var insightsrv = require('./insightsrv')
 var hckeyjson = require('./hc1501.key.json')
-var hc1501conf = require('./hc1501.conf.json')
+var hc1501conf = require('./sc1501.conf.json')
 var math = require('mathjs')
 var bip38 = require('bip38')
 var bitcorelib = require('bitcore-lib')
@@ -149,8 +149,8 @@ class JiApp {
         var info = self._info
         async.series([
                 function(callback) {
-                    var account = info.raw.conf.ver1
-                    var id = info.raw.conf.ver2
+                    var account = info.raw.conf.kaccount
+                    var id = info.raw.conf.kinputid
                     info.opkey = self.buildopkey(account, id)
                     return callback(null, "ok")
                 },
@@ -212,18 +212,11 @@ class JiApp {
         }
     }
 
-    buildopkey(account, id) {
-        // input m/[ver1]h/1/[ver2]-1
-        // output m/[ver1]h/1/[ver2]
-        // change none
-        //var account = this._info.raw.conf.ver1
-        //var id = this._info.raw.conf.ver2
+    buildopkey(account, inputid) {
         var opkey = {
-                output: this.dkey(account, 0, id),
-                input: this.dkey(account, 0, id - 1)
-                    //change: this.dkey(account, 1, id)
+                output: this.dkey(account, 0, inputid+1),
+                input: this.dkey(account, 0, inputid)
             }
-            //this._info.opkey = opkey
         return opkey
     }
 
