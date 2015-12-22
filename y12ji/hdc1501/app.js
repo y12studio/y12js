@@ -72,6 +72,65 @@ scard.derive = function(mcode, lang, account, channel, kid) {
     }
 }
 
+scard.fzcRedeemScript = function(year, month, day, hours, minutes, privKey) {
+    var tr = scard.getLockTime(year, month, day, hours, minutes);
+    var redeemScript = bitcorelib.Script.empty()
+        // useful generic way to get the minimal encoding of the locktime stack argument
+        .add(bitcorelib.crypto.BN.fromNumber(tr.locktime).toScriptNumBuffer())
+        .add('OP_NOP2').add('OP_DROP')
+        .add(bitcorelib.Script.buildPublicKeyHashOut(privKey.toAddress()));
+    var p2shAddress = bitcorelib.Address.payingTo(redeemScript);
+    return {
+        date: tr.date,
+        locktime: tr.locktime,
+        hex: redeemScript.toHex(),
+        asm: redeemScript.toASM(),
+        redeemScript: redeemScript,
+        scriptPubKey: redeemScript.toScriptHashOut(),
+        address: p2shAddress,
+        privKey: privKey
+    }
+}
+
+scard.getLockTime = function(year, month, day, hours, minutes) {
+    var d = new Date(year, month, day, hours, minutes, 0, 0)
+    var locktime = d.getTime() / 1000 | 0
+    return {
+        locktime: locktime,
+        data: d
+    }
+}
+
+scard.fzcGetSpendTransaction = function(fzcRedeemScript, utxo, addr2, satoshis) {
+    var privKey = fzcRedeemScript.privKey
+    var redeemScript = fzcRedeemScript.redeemScript
+    var locktime = fzcRedeemScript.locktime
+
+    var result = new bitcorelib.Transaction().from(utxo)
+        .to(addr2, Number(satoshis))
+        // CLTV requires the transaction nLockTime to be >= the stack argument in the redeem script
+        .lockUntilDate(locktime)
+    // the CLTV opcode requires that the input's sequence number not be finalized
+    result.inputs[0].sequenceNumber = 0
+        // sign(transaction, privateKey, sighashType, inputIndex, subscript)
+    var signature = bitcorelib.Transaction.sighash.sign(
+            result,
+            privKey,
+            bitcorelib.crypto.Signature.SIGHASH_ALL,
+            0,
+            redeemScript
+        )
+        // setup the scriptSig of the spending transaction to spend the p2sh-cltv-p2pkh redeem script
+    var script = bitcorelib.Script.empty()
+        .add(signature.toTxFormat())
+        .add(privKey.toPublicKey().toBuffer())
+        .add(redeemScript.toBuffer())
+    result.inputs[0].setScript(script)
+    return result
+};
+
+
+
 module.exports = {
     Mnemonic: Mnemonic,
     bitcorelib: bitcorelib,

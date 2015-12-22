@@ -1,8 +1,8 @@
 "use strict"
+var hcconf = require('./hdc1501.conf.json')
 var fs = require('fs')
 var insightsrv = require('./insightsrv')
 var hckeyjson = require('./hc1501.key.json')
-var hc1501conf = require('./sc1501.conf.json')
 var math = require('mathjs')
 var bip38 = require('bip38')
 var bitcorelib = require('bitcore-lib')
@@ -22,7 +22,7 @@ class JiApp {
         var pf = {
             raw: {
                 key: hckeyjson,
-                conf: hc1501conf
+                conf: hcconf
             },
             hckey: new HDPrivateKey(hckeyjson.hdkey)
         }
@@ -30,8 +30,10 @@ class JiApp {
         var pc = pf.raw.conf
         var ver = pc.ver1 + '.0.' + pc.ver2
         var tfile = pc.appname + '-' + ver + '.html'
+        //var Buffer = bitcorelib.deps.Buffer
         pf.release = {
             version: ver,
+            prehex: new Buffer(pc.pre).toString('hex'),
             path: pc.path,
             tag: pc.rplacetag,
             src: pc.path + pc.file,
@@ -39,6 +41,7 @@ class JiApp {
             file: tfile,
             time: moment().format()
         }
+
         this._info = pf
     }
 
@@ -50,12 +53,13 @@ class JiApp {
         var opt = {
             pk: opkey.input.key,
             addrChange: opkey.output.address,
-            prefix: info.raw.conf.HEX_Y12JIHC1,
+            prefix: ir.prehex,
             hash: ir.hash,
             fee: fee,
             broadcast: bout
         }
 
+        console.log(opt)
         insightsrv.sendData(opt, function(err, result) {
             if (err) {
                 return cb(err, null)
@@ -140,7 +144,9 @@ class JiApp {
             ver: i.release.version,
             txid: i.isrv.result.txid,
             hash: i.release.hash,
-            prework: i.release.tagresult
+            prework: i.release.tagresult,
+            pre:i.raw.conf.pre,
+            prehex : i.release.prehex
         }
     }
 
