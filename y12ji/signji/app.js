@@ -1,5 +1,5 @@
 "use strict"
-var hcconf = require('./hdc1501.conf.json')
+var hcconf = require('./bcp1501.conf.json')
 var fs = require('fs')
 var insightsrv = require('./insightsrv')
 var hckeyjson = require('./hc1501.key.json')

@@ -105,6 +105,7 @@ describe('FZC1501', function() {
             //console.log(rs)
             assert.isUndefined(rs.error)
             assert.equal(1454646600, rs.locktime)
+            assert.isDefined(rs.date)
                 // Chain Query: Bitcoin API: decodescript
                 // https://chainquery.com/bitcoin-api/decodescript
             assert.equal('044825b456b17576a91433b94b70bbd434f0ad01925669bedf3469832b5888ac', rs.hex)

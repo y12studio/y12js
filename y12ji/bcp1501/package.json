@@ -1,18 +1,17 @@
 {
-    "name": "y12ji-hdc1501",
-    "version": "0.0.2",
-    "description": "y12ji-hdc1501",
+    "name": "y12ji-bcp1501",
+    "version": "0.0.1",
+    "description": "y12ji-bcp1501",
     "main": "app.js",
     "author": "",
     "dependencies": {
-        "bitcore-mnemonic": "^1.0.1",
         "bitcore-explorers":"^1.0.1",
         "bitcore-lib": "^0.13.11"
     },
     "scripts": {
         "test": "mocha",
-        "build-js": "browserify app.js -s hdc1501 -o hdc1501.js",
-        "build-min": "minify hdc1501.js",
+        "build-js": "browserify app.js -s bcp1501 -o bcp1501.js",
+        "build-min": "minify bcp1501.js",
         "build": "npm run build-js && npm run build-min"
     },
     "devDependencies": {

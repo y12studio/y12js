@@ -1,5 +1,6 @@
 var bitcorelib = require('bitcore-lib')
 var Mnemonic = require('bitcore-mnemonic')
+var explorers = require('bitcore-explorers')
 var ZH_TW_WORDLIST = require('./chinese_traditional.json')
 Mnemonic.Words.CHINESE_TRADITIONAL = ZH_TW_WORDLIST
 
@@ -97,7 +98,7 @@ scard.getLockTime = function(year, month, day, hours, minutes) {
     var locktime = d.getTime() / 1000 | 0
     return {
         locktime: locktime,
-        data: d
+        date: d
     }
 }
 
@@ -110,7 +111,7 @@ scard.fzcGetSpendTransaction = function(fzcRedeemScript, utxo, addr2, satoshis) 
         .to(addr2, Number(satoshis))
         // CLTV requires the transaction nLockTime to be >= the stack argument in the redeem script
         .lockUntilDate(locktime)
-    // the CLTV opcode requires that the input's sequence number not be finalized
+        // the CLTV opcode requires that the input's sequence number not be finalized
     result.inputs[0].sequenceNumber = 0
         // sign(transaction, privateKey, sighashType, inputIndex, subscript)
     var signature = bitcorelib.Transaction.sighash.sign(
@@ -134,5 +135,6 @@ scard.fzcGetSpendTransaction = function(fzcRedeemScript, utxo, addr2, satoshis) 
 module.exports = {
     Mnemonic: Mnemonic,
     bitcorelib: bitcorelib,
+    explorers: explorers,
     scard: scard
 }
