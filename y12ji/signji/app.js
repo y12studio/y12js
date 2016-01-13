@@ -1,5 +1,5 @@
 "use strict"
-var hcconf = require('./bcp1501.conf.json')
+var hcconf = require('./fzc1501.conf.json')
 var fs = require('fs')
 var insightsrv = require('./insightsrv')
 var hckeyjson = require('./hc1501.key.json')
@@ -96,6 +96,9 @@ class JiApp {
                     info.release.hash = hash
                     return cb(null, "ok")
                 })
+            }else{
+                console.log(error)
+                console.log(response)
             }
         })
     }
@@ -118,13 +121,16 @@ class JiApp {
         var info = self._info;
         async.series([
             function(callback) {
+                console.log('stamp.reqbc()')
                 self.reqbc()
                 return callback(null, "ok")
             },
             function(callback) {
+                console.log('stamp.reqWebInline()')
                 self.reqWebInline(callback)
             },
             function(callback) {
+                console.log('stamp.reqSendData()')
                 self.reqSendData(bout, fee, callback)
             }
         ], function(err, results) {
@@ -272,6 +278,7 @@ if (argv.reqbc) {
 
 if (argv.stamp) {
     // app.js --stamp --fee 9988 --bout
+    console.log('timestamp...')
     jp.stamp(argv.bout, argv.fee || 9999)
 }
 

@@ -1,9 +1,11 @@
 {
     "ver1": 0,
-    "ver2": 4,
+    "ver2": 5,
+    "kaccount":0,
+    "kinputid":8,
     "path": "https://y12ji.com/p2015/hexcard/",
     "file": "index.html",
     "rplacetag":"Y12JI_RELEASE_INFO_TAG",
     "appname" : "hc1501app",
-    "HEX_Y12JIHC1":"5931324a49484331"
+    "pre" : "Y12JIHC1"
 }
