@@ -1,5 +1,5 @@
 "use strict"
-var hcconf = require('./fzc1501.conf.json')
+var hcconf = require('./hc1501.conf.json')
 var fs = require('fs')
 var insightsrv = require('./insightsrv')
 var hckeyjson = require('./hc1501.key.json')
@@ -77,6 +77,10 @@ class JiApp {
         var self = this;
         var info = self._info
         var ir = info.release
+        if(!ir.tagresult){
+            console.log(ir)
+            return cb('info.release.tagresult is null or undefined', null)
+        }
             // replaceTag = Y12JI_RELEASE_INFO_TAG
             // https://y12ji.com/p2015/hexcard/
         request(ir.src, function(error, response, result) {
@@ -97,8 +101,8 @@ class JiApp {
                     return cb(null, "ok")
                 })
             }else{
-                console.log(error)
                 console.log(response)
+                return cb(error, null)
             }
         })
     }
@@ -122,8 +126,7 @@ class JiApp {
         async.series([
             function(callback) {
                 console.log('stamp.reqbc()')
-                self.reqbc()
-                return callback(null, "ok")
+                self.reqbc(callback)
             },
             function(callback) {
                 console.log('stamp.reqWebInline()')
@@ -156,7 +159,7 @@ class JiApp {
         }
     }
 
-    reqbc() {
+    reqbc(ucb) {
         var self = this;
         var info = self._info
         async.series([
@@ -186,6 +189,7 @@ class JiApp {
             function(err, results) {
                 if (err) {
                     console.log(err)
+                    return ucb(err,null)
                 } else {
                     info.extreq = {
                         btcavg: self.convertBtcavg(results[1]),
@@ -193,7 +197,8 @@ class JiApp {
                         bcinput: results[3]
                     }
                     info.release.tagresult = self.buildReleaseInfo(info)
-                        //console.log(info)
+                    console.log(info.release)
+                    return ucb(null,'OK')
                 }
             })
     }
