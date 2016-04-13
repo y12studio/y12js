@@ -1,0 +1,25 @@
+{
+    "name": "y12ji-ybmc",
+    "version": "0.0.1",
+    "description": "y12ji-ybmc",
+    "main": "app.js",
+    "author": "",
+    "dependencies": {
+        "bitcore-mnemonic": "^1.0.1",
+        "bitcore-explorers":"^1.0.1",
+        "bitcore-lib": "^0.13.14"
+    },
+    "scripts": {
+        "test": "mocha",
+        "build-js": "browserify app.js -s YbmcJS -o ybmc.js",
+        "build-min": "minify ybmc.js",
+        "build": "npm run build-js && npm run build-min"
+    },
+    "devDependencies": {
+        "browserify": "^9.0.0",
+        "mocha": "^2.2.0",
+        "chai": "*",
+        "mock-require": "^1.0.5"
+    },
+    "license": "MIT"
+}
