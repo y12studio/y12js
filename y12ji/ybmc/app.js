@@ -1,5 +1,4 @@
 var bitcorelib = require('bitcore-lib')
-var network = bitcorelib.Networks.livenet
 var Mnemonic = require('bitcore-mnemonic')
 var explorers = require('bitcore-explorers')
 var ZH_TW_WORDLIST = require('./chinese_traditional.json')
@@ -35,6 +34,7 @@ scard.build = function(seedStr, lang, wordsize, _opt) {
     // 12,15,18,21,24=128~256
     var wsize = wordsize || 12
     var opt = _opt || {}
+    var network = opt.network||bitcorelib.Networks.testnet
     var wordlist = scard.langwordmap[lang] || Mnemonic.Words.CHINESE_TRADITIONAL
     var buf = new bitcorelib.deps.Buffer(seedStr)
     var buf256 = bitcorelib.crypto.Hash.sha256(buf)
@@ -67,6 +67,7 @@ scard.deriveByKey = function(xpriv, account, channel, kid) {
 
 scard.deriveByCodes = function(mcode, lang, account, channel, kid, _opt) {
     var opt = _opt || {}
+    var network = opt.network||bitcorelib.Networks.testnet
     var mspace = (mcode.match(/\s/g) || []).length
     if (mspace < 11 || mspace > 23) {
         return {
@@ -76,7 +77,6 @@ scard.deriveByCodes = function(mcode, lang, account, channel, kid, _opt) {
     }
     var wordlist = scard.langwordmap[lang] || Mnemonic.Words.CHINESE_TRADITIONAL
     var code = new Mnemonic(mcode, wordlist);
-    var pass = null
     var xpriv = code.toHDPrivateKey(opt.password, network)
     var dk = scard.deriveByKey(xpriv,account, channel,kid)
     return {

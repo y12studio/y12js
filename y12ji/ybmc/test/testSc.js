@@ -3,6 +3,7 @@ var assert = require('chai').assert
 var ybmc = app.ybmc
 var bitcorelib = app.bitcorelib
 var Mnemonic = app.Mnemonic
+var Networks = bitcorelib.Networks
 
 beforeEach(function() {
     //do something before testing
@@ -13,6 +14,16 @@ afterEach(function() {
 
 describe('YBMC', function() {
     describe('ybmc', function() {
+        it('default network is testnet', function() {
+            var rb = ybmc.build('helloabc', 'EN')
+            console.log(rb)
+            assert.equal(Networks.testnet.name, rb.xpriv.network.name)
+        })
+        it('set network to livenet', function() {
+            var rb = ybmc.build('helloabc', 'EN', 12, {network:Networks.livenet})
+            console.log(rb)
+            assert.equal(Networks.livenet.name, rb.xpriv.network.name)
+        })
         it('buildTw', function() {
             var rs = ybmc.buildTw('helloabc', 12)
             var mcode = "堡 興 扶 證 改 光 歸 闊 豪 庭 劉 化"
