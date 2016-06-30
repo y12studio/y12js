@@ -3,8 +3,6 @@ var tokenjson = require('./telegram.token.json')
 var token = tokenjson.token;
 var request = require('request');
 var telegram = require('telegram-bot-api');
-var util = require('util');
-var emoji = require('node-emoji');
 var btctwd = utils.btctwd
 
 var CronJob = require('cron').CronJob;
@@ -45,12 +43,15 @@ api.on('message', function(message) {
     var chat_type = message.chat.type; // private or group
     var username = message.from.username;
     // group privacy mode
-    // Messages that start with a slash ‘/’ (see Commands above)
+    // Messages that start with a slash ‘/’
     mtx = message.text
 
     if (mtx.startsWith('/y12')) {
-        var r = utils.parseCmd(mtx)
-        var result = utils.toTwd(r.btc)
+        var result = utils.handleCmd(mtx, {
+            chattype: chat_type,
+            username:username,
+            token:tokenjson.token
+        })
         console.log(result);
         api.sendMessage({
                 chat_id: chat_id,

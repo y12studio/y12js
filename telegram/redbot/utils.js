@@ -2,15 +2,64 @@ const util = require('util')
 const emoji = require('node-emoji')
 const minimist = require('minimist')
 var _ = require('lodash');
+var bitcorelib = require('bitcore-lib')
+var explorers = require('bitcore-explorers')
+var HDPrivateKey = bitcorelib.HDPrivateKey;
 
 module.exports = {
 
+    handleCmd: function handleCmd(messageTxt, _opt) {
+        var opt = _opt || {}
+        var r = this.parseCmd(messageTxt)
+        var result = "Hello"
+        switch (r.cmd) {
+            case "btctwd":
+                result = this.toTwd(r.btc)
+                break;
+            case "tbtc":
+                var username = opt.username || 'y12'
+                var token = opt.token || 'token'
+                var chattype = opt.chattype || 'group'
+                var hkey = this.getHDPrivateKey(username + 'haha:)' +token)
+                var dkey = this.getDeriveKey(hkey,r.kid)
+                var pk = dkey.privateKey
+                result = this.toTbtcUser(username, pk, chattype)
+                break;
+            default:
+                console.log("Sorry, we are out of " + expr + ".");
+        }
+        return result
+    },
+
+    getHDPrivateKey: function getHDPrivateKey(seedStr, _opt) {
+        var opt = _opt || {}
+        var network = opt.network || bitcorelib.Networks.testnet
+        var buf = new bitcorelib.deps.Buffer(seedStr)
+        var buf256 = bitcorelib.crypto.Hash.sha256sha256(buf)
+        return new HDPrivateKey.fromSeed(buf256, network)
+    },
+
+    getDeriveKey: function getDeriveKey(hdkey, id) {
+        return hdkey.derive("m/0'/0").derive(id)
+    },
+
     parseCmd: function parseCmd(args) {
         var r = minimist(args.split(' '))
-        return {
-            cmd: r._.length >= 2 ? r._[1] : 'btctwd',
-            btc: r._.length >= 3 ? r._[2] : 1.0,
+        var ra = r._
+        var result = {
+            cmd : ra.length >= 2 ? ra[1] : 'btctwd'
         }
+        switch (result.cmd) {
+            case "btctwd":
+                result.btc= ra.length >= 3 ? ra[2] : 1.0
+                break;
+            case "tbtc":
+                result.kid = ra.length >= 3 && _.isInteger(ra[2]) ? ra[2] : 1
+                break;
+            default:
+                console.log("Sorry, we are out of " + expr + ".");
+        }
+        return result
     },
 
     updateMaicoin: function(r) {
@@ -48,6 +97,19 @@ module.exports = {
             })
         }
         return r
+    },
+
+    toTbtcUser: function toTbtcUser(username,pk, chattype) {
+        var emoji1 = emoji.get('money_with_wings')
+        var emoji2 = emoji.get(_.sample(this.emojiarr))
+        var emoji3 = emoji.get(_.sample(this.emojiarr))
+        var addr = pk.toAddress().toString()
+        var note = "注意：比特幣測試幣只供測試之用。"
+        if(chattype == 'private'){
+            return util.format('%s %s KEY %s %s %s %s https://live.blockcypher.com/btc-testnet/address/%s %s %s', username, emoji1, pk.toWIF(), emoji1, addr, emoji2, addr, emoji3, note)
+        }else{
+            return util.format('%s %s %s %s https://live.blockcypher.com/btc-testnet/address/%s %s %s', username, emoji1, addr, emoji2, addr, emoji3, note)
+        }
     },
 
     toTwd: function toTwd(btc) {
