@@ -1,0 +1,24 @@
+{
+    "name": "y12odtw-taipower",
+    "version": "0.0.1",
+    "description": "y12odtw-taipower",
+    "main": "app.js",
+    "author": "",
+    "scripts": {
+        "start": "node app.js",
+        "test": "mocha"
+    },
+    "dependencies": {
+        "line-stream-util":"^1.2.0",
+        "fast-csv": "^2.0.0",
+        "request": "^2.67.0",
+        "minimist": "^1.2.0",
+        "lodash": "^4.13.1"
+    },
+    "devDependencies": {
+        "mocha": "^2.2.0",
+        "chai": "*",
+        "mock-require": "^1.0.5"
+    },
+    "license": "Apache-2.0"
+}
