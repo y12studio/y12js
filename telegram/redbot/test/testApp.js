@@ -45,17 +45,25 @@ describe('RedBot', function() {
         console.log(tbtc)
         assert.equal('tbtc', tbtc.cmd)
         assert.equal(1, tbtc.kid)
-        assert.equal(2,  utils.parseCmd('/y12 tbtc 2').kid)
-        assert.equal(1,  utils.parseCmd('/y12 tbtc 0.123').kid)
-        assert.equal(1,  utils.parseCmd('/y12 tbtc -1000').kid)
+        assert.equal(2, utils.parseCmd('/y12 tbtc 2').kid)
+        assert.equal(1, utils.parseCmd('/y12 tbtc 0.123').kid)
+        assert.equal(1, utils.parseCmd('/y12 tbtc -1000').kid)
         console.log(utils.handleCmd('/y12 btctwd 0.22222'))
 
-        var pchat = utils.handleCmd('/y12 tbtc 1', {username:'y12', token:'haha', chattype:'private'})
+        var pchat = utils.handleCmd('/y12 tbtc 1', {
+            username: 'y12',
+            token: 'haha',
+            chattype: 'private'
+        })
         console.log(pchat)
-        assert.isTrue(pchat.indexOf('KEY')>0)
-        var gchat = utils.handleCmd('/y12 tbtc 1', {username:'y12', token:'haha', chattype:'group'})
+        assert.isTrue(pchat.indexOf('KEY') > 0)
+        var gchat = utils.handleCmd('/y12 tbtc 1', {
+            username: 'y12',
+            token: 'haha',
+            chattype: 'group'
+        })
         console.log(gchat)
-        assert.isTrue(gchat.indexOf('KEY')<0)
+        assert.isTrue(gchat.indexOf('KEY') < 0)
 
     })
     it('bitcoinHdKeyTests', function() {
@@ -78,6 +86,15 @@ describe('RedBot', function() {
         var addr = pk.toAddress().toString()
         assert.equal('mhbb8V6ptAutyd2mwEnRDDPJ3cDYQgaSCu', addr)
     })
+
+    it('bitcoinUtxoTests', function(done) {
+
+        utils.getUtxos('mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD',6, function(err, res) {
+            console.log(JSON.stringify(res,null, 2))
+            done()
+        })
+    })
+
 
 
 })

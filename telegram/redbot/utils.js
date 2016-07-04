@@ -5,8 +5,33 @@ var _ = require('lodash');
 var bitcorelib = require('bitcore-lib')
 var explorers = require('bitcore-explorers')
 var HDPrivateKey = bitcorelib.HDPrivateKey;
+var insight = new explorers.Insight(bitcorelib.Networks.testnet);
+var UnspentOutput = bitcorelib.Transaction.UnspentOutput;
 
 module.exports = {
+
+    getUtxos: function getUtxos(addr, confirmations, cb) {
+        insight.getRawUnspentUtxos(addr, function(err, utxos) {
+            if (err) {
+                cb(err)
+            } else {
+                // mapping element >= confirmations
+                var fUtxos = _.filter(utxos, _.conforms({
+                    'confirmations': function(n) {
+                        return n >= confirmations;
+                    }
+                }))
+                cb(null, {
+                    raw: utxos,
+                    cfamount: _.reduce(fUtxos, function(sum, element) {
+                        return sum + element.amount;
+                    }, 0),
+                    cfutxos: _.map(fUtxos, UnspentOutput)
+                })
+            }
+        });
+
+    },
 
     handleCmd: function handleCmd(messageTxt, _opt) {
         var opt = _opt || {}
@@ -20,8 +45,8 @@ module.exports = {
                 var username = opt.username || 'y12'
                 var token = opt.token || 'token'
                 var chattype = opt.chattype || 'group'
-                var hkey = this.getHDPrivateKey(username + 'haha:)' +token)
-                var dkey = this.getDeriveKey(hkey,r.kid)
+                var hkey = this.getHDPrivateKey(username + 'haha:)' + token)
+                var dkey = this.getDeriveKey(hkey, r.kid)
                 var pk = dkey.privateKey
                 result = this.toTbtcUser(username, pk, chattype)
                 break;
@@ -47,11 +72,11 @@ module.exports = {
         var r = minimist(args.split(' '))
         var ra = r._
         var result = {
-            cmd : ra.length >= 2 ? ra[1] : 'btctwd'
+            cmd: ra.length >= 2 ? ra[1] : 'btctwd'
         }
         switch (result.cmd) {
             case "btctwd":
-                result.btc= ra.length >= 3 ? ra[2] : 1.0
+                result.btc = ra.length >= 3 ? ra[2] : 1.0
                 break;
             case "tbtc":
                 result.kid = ra.length >= 3 && _.isInteger(ra[2]) ? ra[2] : 1
@@ -99,15 +124,15 @@ module.exports = {
         return r
     },
 
-    toTbtcUser: function toTbtcUser(username,pk, chattype) {
+    toTbtcUser: function toTbtcUser(username, pk, chattype) {
         var emoji1 = emoji.get('money_with_wings')
         var emoji2 = emoji.get(_.sample(this.emojiarr))
         var emoji3 = emoji.get(_.sample(this.emojiarr))
         var addr = pk.toAddress().toString()
         var note = "注意：比特幣測試幣只供測試之用。"
-        if(chattype == 'private'){
+        if (chattype == 'private') {
             return util.format('%s %s KEY %s %s %s %s https://live.blockcypher.com/btc-testnet/address/%s %s %s', username, emoji1, pk.toWIF(), emoji1, addr, emoji2, addr, emoji3, note)
-        }else{
+        } else {
             return util.format('%s %s %s %s https://live.blockcypher.com/btc-testnet/address/%s %s %s', username, emoji1, addr, emoji2, addr, emoji3, note)
         }
     },

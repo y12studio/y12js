@@ -14,7 +14,7 @@
         "minimist": "^1.2.0",
         "lodash": "^4.13.1",
         "cron": "^1.1.0",
-        "bitcore-explorers": "^1.0.1",
+        "bitcore-explorers": "y12studio/bitcore-explorers",
         "bitcore-lib": "^0.13.16",
         "telegram-bot-api": "^1.1.0"
     },
@@ -23,5 +23,5 @@
         "chai": "*",
         "mock-require": "^1.0.5"
     },
-    "license": "Apache"
+    "license": "Apache-2.0"
 }
