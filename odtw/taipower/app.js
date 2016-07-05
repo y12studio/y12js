@@ -1,13 +1,8 @@
-var utils = require('./utils')
-var csv = require('fast-csv')
-var fs = require('fs')
-var _ = require('lodash')
+var Yoo = require('./yoo')
+var yoo = new Yoo()
 
-var inputPath = 'records-160704.csv'
-var outputPath = 'out.csv'
-
-var stream = utils.getFileHeadStream(inputPath, 30);
-utils.transformCsvStream(stream, outputPath, function(rowIndex, data) {
-    // console.log('TRANS', rowIndex, data)
-    return rowIndex > 1 ? utils.convert(data, 4) : data
-})
+var inPath = 'records-160704.csv'
+yoo.convertCsv(inPath,'records-origin30.csv',30, null)
+yoo.convertCsv(inPath,'records-wavg30.csv',30, Yoo.weightAvg)
+yoo.convertCsv(inPath,'records-avg30.csv',30, Yoo.avg)
+yoo.convertCsv(inPath,'records-160704-wavg.csv',0, Yoo.weightAvg)
