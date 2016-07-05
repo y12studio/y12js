@@ -2,6 +2,9 @@
 
 Join the CoinTalkTwGroup or https://telegram.me/joinchat/DIYNuQgNI_So_48UUnIUtQ
 
+/y12 help
+JLY12你好，使用方式: https://github.com/y12studio/y12js/tree/master/telegram/redbot ✈️ 水龍頭: https://testnet.manu.backend.hamburg/faucet
+
 /y12
 
 1 BTC = 20586 TWD 💸 bitoex 買21169賣19932平20551 ✌️ maicoin 買21399賣19841平20620 ❤️ 注意：價格非即時僅供參考，不宜做為買賣依據或諮詢之用。

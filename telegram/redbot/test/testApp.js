@@ -1,6 +1,7 @@
-var utils = require('../utils')
 var emoji = require('node-emoji');
 var bitcorelib = require('bitcore-lib')
+var Yoo = require('../yoo')
+var yoo = new Yoo()
 var assert = require('chai').assert
 
 beforeEach(function() {
@@ -13,73 +14,106 @@ afterEach(function() {
 describe('RedBot', function() {
     it('fooTest', function() {
 
-        utils.updateBitoex({
+        yoo.updateBitoex({
             sell: 10000,
             buy: 11000
         })
-        utils.updateMaicoin({
+        yoo.updateMaicoin({
             sell_price: "8000.00",
             buy_price: "10000.00"
         })
-        var r = utils.btctwd
+        var r = yoo.btctwd
         var b = r.bitoex
         var m = r.maicoin
         assert.equal(10500, b.avg)
         assert.equal(9000, m.avg)
         assert.equal(9750, r.avg)
-        var x = utils.toTwd(1.0)
+        var x = yoo.toTwd(1.0)
         console.log(x)
-        console.log(utils.toTwd(0.5))
+        console.log(yoo.toTwd(0.5))
     })
-    it('argsTest', function() {
-        var r = utils.parseCmd('/y12 btctwd 0.1234')
+    it('btctwdTest', function() {
+        var r = yoo.parseCmd('/y12 btctwd 0.1234')
         console.log(r)
         assert.equal('btctwd', r.cmd)
         assert.equal(0.1234, r.btc)
-        console.log(utils.toTwd(r.btc))
-        var r = utils.parseCmd('/y12')
+        console.log(yoo.toTwd(r.btc))
+        var r = yoo.parseCmd('/y12')
         console.log(r)
         assert.equal('btctwd', r.cmd)
+    })
 
-        var tbtc = utils.parseCmd('/y12 tbtc')
+    it('tbtcParseTest', function() {
+        var tbtc = yoo.parseCmd('/y12 tbtc')
         console.log(tbtc)
         assert.equal('tbtc', tbtc.cmd)
         assert.equal(1, tbtc.kid)
-        assert.equal(2, utils.parseCmd('/y12 tbtc 2').kid)
-        assert.equal(1, utils.parseCmd('/y12 tbtc 0.123').kid)
-        assert.equal(1, utils.parseCmd('/y12 tbtc -1000').kid)
-        console.log(utils.handleCmd('/y12 btctwd 0.22222'))
-
-        var pchat = utils.handleCmd('/y12 tbtc 1', {
-            username: 'y12',
-            token: 'haha',
-            chattype: 'private'
-        })
-        console.log(pchat)
-        assert.isTrue(pchat.indexOf('KEY') > 0)
-        var gchat = utils.handleCmd('/y12 tbtc 1', {
-            username: 'y12',
-            token: 'haha',
-            chattype: 'group'
-        })
-        console.log(gchat)
-        assert.isTrue(gchat.indexOf('KEY') < 0)
-
+        assert.equal(2, yoo.parseCmd('/y12 tbtc 2').kid)
+        assert.equal(1, yoo.parseCmd('/y12 tbtc 0.123').kid)
+        assert.equal(1, yoo.parseCmd('/y12 tbtc -1000').kid)
     })
+
+    it('tbtcPrivateTest', function(done) {
+        yoo.handleCmd('/y12 tbtc 1', {
+                username: 'y12',
+                token: 'haha',
+                chattype: 'private'
+            },
+            function(err, res) {
+                console.log(res)
+                assert.isTrue(res.indexOf('KEY') > 0)
+                done()
+            })
+    })
+
+    it('helpTest', function(done) {
+        yoo.handleCmd('/y12 help', {
+                username: 'y12',
+                token: 'haha',
+                chattype: 'private'
+            },
+            function(err, res) {
+                console.log(res)
+                assert.isTrue(res.indexOf('y12') >= 0)
+                done()
+            })
+    })
+
+    it('tbutxoTest', function(done) {
+        yoo.handleCmd('/y12 tbutxo 2', {
+                username: 'y12',
+                token: 'haha',
+                chattype: 'private'
+            },
+            function(err, res) {
+                console.log(res)
+                assert.isTrue(res.indexOf('amount') > 0)
+                done()
+            })
+    })
+
+    it('tbutxoTest', function() {
+        var pc = yoo.parseCmd('/y12 tbutxo')
+        console.log(pc)
+        assert.equal('tbutxo', pc.cmd)
+        assert.equal(1, pc.kid)
+        assert.equal(2, yoo.parseCmd('/y12 tbutxo 2').kid)
+    })
+
     it('bitcoinHdKeyTests', function() {
-        var hdkey = utils.getHDPrivateKey('Hello TestBot')
+        var hdkey = yoo.getHDPrivateKey('Hello TestBot')
         console.log(hdkey.toJSON())
         assert.equal('testnet', hdkey.network)
-        var hdkey2 = utils.getHDPrivateKey('Hello TestBot')
+        var hdkey2 = yoo.getHDPrivateKey('Hello TestBot')
         console.log(hdkey2)
         assert.equal(hdkey.toString(), hdkey2.toString())
-        var hdkey3 = utils.getHDPrivateKey('Hello TestBot3', {
+        var hdkey3 = yoo.getHDPrivateKey('Hello TestBot3', {
             network: bitcorelib.Networks.livenet
         })
         console.log(hdkey3.toJSON())
         assert.equal('livenet', hdkey3.network)
 
-        var dpk = utils.getDeriveKey(hdkey, 1)
+        var dpk = yoo.getDeriveKey(hdkey, 1)
         console.log(dpk.toJSON())
         var pk = dpk.privateKey
         assert.equal('tprv8gx25CZwYW93N5WqBqBtmtm5mchMHZhseePqZvc4jRZive54jtZEHxJ1CNTf26tQJtr4p6qfT88JHYSv4sEihWD9iTKPXNir1aGr6fbNnEF', dpk.xprivkey)
@@ -87,11 +121,50 @@ describe('RedBot', function() {
         assert.equal('mhbb8V6ptAutyd2mwEnRDDPJ3cDYQgaSCu', addr)
     })
 
+    it("createTxAsyc", function(done) {
+        var utxos = [{
+            "address": "mmDaX8jn8HkBJxHjcszytd5MU6C6FmNouV",
+            "txid": "c2edd7b1bfc02efdcf2b8450fd306022ffb03dae608475aa4a0c48d8a5c1f848",
+            "vout": 0,
+            "scriptPubKey": "76a9143e8781c650bc69cf1903935868f8ec2e929265cd88ac",
+            "amount": 27.5
+        }]
+        yoo.createTxAsyc("test").then(function(data) {
+            assert.deepEqual(data, [{
+                "account_id": 1725389
+            }]);
+            done();
+        }).catch(function(err) {
+            done(err);
+        });
+    });
+
     it('bitcoinUtxoTests', function(done) {
 
-        utils.getUtxos('mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD',6, function(err, res) {
-            console.log(JSON.stringify(res,null, 2))
+        var keyInfo = yoo.getAccountKeyInfo(1, {
+            username: 'y12testApp',
+            token: 'hahaToken'
+        })
+        console.log(keyInfo)
+        assert.equal(keyInfo.addr, 'mmDaX8jn8HkBJxHjcszytd5MU6C6FmNouV')
+            // https://live.blockcypher.com/btc-testnet/address/mmDaX8jn8HkBJxHjcszytd5MU6C6FmNouV/
+        yoo.getUtxos(keyInfo.addr, 1, function(err, res) {
+            console.log(JSON.stringify(res, null, 2))
+            assert.equal(res.confirmations, 1)
+
+            // mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD
+            var utxos = res.cfutxos
+            var addrTo = 'mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD'
+            var addrChange = keyInfo.addr
+            var amount = 1.8
+            var privateKey = keyInfo.pk
+            var tx = yoo.createTx(utxos, addrTo, addrChange, amount, privateKey)
+            console.log(tx)
             done()
+            // yoo.sendto(tx, function(err, res) {
+            //     console.log(res)
+            //     done()
+            // })
         })
     })
 
