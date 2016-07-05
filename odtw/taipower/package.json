@@ -16,6 +16,7 @@
         "lodash": "^4.13.1"
     },
     "devDependencies": {
+        "chokidar":"^1.6.0",
         "mocha": "^2.2.0",
         "chai": "*",
         "mock-require": "^1.0.5"

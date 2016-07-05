@@ -3,14 +3,11 @@ var csv = require('fast-csv')
 var fs = require('fs')
 var _ = require('lodash')
 
-var count = 0
+var inputPath = 'records-160704.csv'
+var outputPath = 'out.csv'
 
-var stream = utils.getFileHeadStream('records-160704.csv', 8);
-utils.transform(stream, 'out.csv', function(data) {
-    var r = data
-    if (data[0] != 'code') {
-        r = utils.convert(data, 4)
-    }
-    console.log('TRANS', count++, r)
-    return r
+var stream = utils.getFileHeadStream(inputPath, 30);
+utils.transformCsvStream(stream, outputPath, function(rowIndex, data) {
+    // console.log('TRANS', rowIndex, data)
+    return rowIndex > 1 ? utils.convert(data, 4) : data
 })
