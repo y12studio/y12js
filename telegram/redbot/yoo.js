@@ -1,33 +1,52 @@
 const util = require('util')
+var spf = require("sprintf-js").sprintf
 var Promise = require('bluebird')
 const emoji = require('node-emoji')
 const minimist = require('minimist')
-var _ = require('lodash');
+var _ = require('lodash')
 var bitcorelib = require('bitcore-lib')
 var explorers = require('bitcore-explorers')
-var HDPrivateKey = bitcorelib.HDPrivateKey;
-var insight = new explorers.Insight(bitcorelib.Networks.testnet);
-var UnspentOutput = bitcorelib.Transaction.UnspentOutput;
-var Unit = bitcorelib.Unit;
+var HDPrivateKey = bitcorelib.HDPrivateKey
+var insight = new explorers.Insight(bitcorelib.Networks.testnet)
+var UnspentOutput = bitcorelib.Transaction.UnspentOutput
+var Unit = bitcorelib.Unit
+var check = require('check-types')
 
 function Yoo() {}
 
-Yoo.prototype.createTxAsyc = function(foo){
-    return new Promise(function(resolve, reject){
-        // Get Account details
-        var sample_return = {
-            "accounts": [
-                {
-                    "account_id": 1725389
-                }
-            ],
-        };
-        var accounts = sample_return["accounts"];
-        if (accounts.length > 0) {
-            resolve(accounts);
+Yoo.prototype.fooPromise = function(intValue, strValue) {
+    return new Promise(function(resolve, reject) {
+        check.assert.string(strValue)
+        check.assert.greater(intValue, 100, 'intValue must greater than 100')
+        var result = 100 + intValue
+        if (result > 1000) {
+            resolve(result);
         } else {
-            reject('No Accounts');
+            reject(new Error('Result Error'));
         }
+    });
+}
+
+Yoo.BTC = {
+    fee: 0.001
+}
+Yoo.BTC.feeSatoshis = Unit.fromBTC(Yoo.BTC.fee).toSatoshis()
+
+Yoo.prototype.createSignTx = function(utxos, addrTo, addrChange, amountTo, privateKey) {
+    return new Promise(function(resolve, reject) {
+        check.assert.array(utxos, 'UTXOs Error : array')
+        check.assert.array.of.instance(utxos, UnspentOutput, 'UTXOs Error : instance')
+        var satoshisSrc = _.reduce(utxos, function(sum, e) {
+                return sum + e.satoshis;
+            }, 0)
+            //console.log(spf('Amount=%d, Fee=%d', satoshisSrc, Yoo.BTC.feeSatoshis))
+        check.assert.integer(satoshisSrc, spf('Total amount = %s', satoshisSrc))
+        check.assert.greaterOrEqual(satoshisSrc, Yoo.BTC.feeSatoshis, spf('Amount %d < Fee %d', satoshisSrc, Yoo.BTC.feeSatoshis))
+        var satoshisOut = Unit.fromBTC(amountTo).toSatoshis()
+        check.assert.greater(satoshisSrc + Yoo.BTC.feeSatoshis, satoshisOut, spf('AmountIn %d + Fee %d < AmountOut %d',
+            satoshisSrc, Yoo.BTC.feeSatoshis, satoshisOut))
+
+        resolve(100)
     });
 }
 
@@ -37,9 +56,9 @@ Yoo.prototype.createTx = function(utxos, addrTo, addrChange, amountTo, privateKe
         return sum + element.amount;
     }, 0)
 
-    var satoshisSrc =  Unit.fromBTC(amountSrc).toSatoshis()
+    var satoshisSrc = Unit.fromBTC(amountSrc).toSatoshis()
     var satoshisTo = Unit.fromBTC(amountTo).toSatoshis()
-    var satoshisFee =  Unit.fromBTC(amountFee).toSatoshis()
+    var satoshisFee = Unit.fromBTC(amountFee).toSatoshis()
 
     return new bitcorelib.Transaction()
         .fee(satoshisFee)
