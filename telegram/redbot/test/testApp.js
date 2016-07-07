@@ -1,9 +1,15 @@
 var bitcorelib = require('bitcore-lib')
 var UnspentOutput = bitcorelib.Transaction.UnspentOutput
 var _ = require('lodash')
-var Yoo = require('../yoo')
+var Yoo = require('../lib/yoo')
+var errors = Yoo.errors
 var yoo = new Yoo()
-var assert = require('chai').assert
+var chai = require('chai')
+var assert = chai.assert
+var expect = chai.expect
+chai.should()
+var chaiAsPromised = require("chai-as-promised")
+chai.use(chaiAsPromised)
 
 beforeEach(function() {
     //do something before testing
@@ -12,35 +18,40 @@ afterEach(function() {
     //do something after testing
 });
 
+function treject(promise, errType) {
+    promise.catch(errType, function(err) {
+        console.log(err.message)
+    })
+    return promise.should.be.rejectedWith(errType)
+}
 
 describe('FooPromise', function() {
 
-    it("fooPromiseStringErrorTest", function() {
-        return yoo.fooPromise(6000, 300).then(assert.fail).catch(function(err) {
-            console.log('err', err)
-            assert.equal(err.message, 'Invalid string');
-        })
-    })
-
-    _.forEach(['xxxxx', 50, 0, -19], function(v) {
-        it("fooPromiseIntErrorTest intValue=" + v, function() {
-            return yoo.fooPromise(v, 'xxxx').then(assert.fail).catch(function(err) {
-                assert.equal(err.message, 'intValue must greater than 100')
-            })
-        })
-    })
-
-    it("fooPromiseIntOkTest", function() {
-        return yoo.fooPromise(15000, 'xxxx').then(function(data) {
-            assert.equal(data, 15100)
-        }).catch(assert.fail)
-    })
-
     it("fooPromiseIntResultErrorTest", function() {
-        return yoo.fooPromise(200, 'xxxx').then(assert.fail).catch(function(err) {
-            console.log(err)
-            assert.equal(err.message, 'Result Error')
-        })
+        return yoo.fooPromise(200, 'xxxx').should.be.rejectedWith('Result Error')
+    })
+
+    it('RejectedWith BazErr', function() {
+        var p = yoo.fooPromise(1999, 'testBazErr')
+        return treject(p, errors.Baz)
+    })
+    it('RejectedWith FooErr', function() {
+        var p = yoo.fooPromise(1999, 'testFooErr')
+        // return expect(p).to.be.rejectedWith(errors.Foo.UnknownCode)
+        // assert.isRejected(p, errors.Foo.UnknownCode)
+        // return p.should.be.rejectedWith(errors.Foo.UnknownCode)
+        return treject(p, errors.Foo.UnknownCode)
+    })
+
+    // https://github.com/domenic/chai-as-promised
+
+    it('FooErr ok', function() {
+        var p = yoo.fooPromise(109, 'testFooErr')
+            // return assert.eventually.equal(p,9991)
+            // return assert.eventually.isNumber(p,9991)
+            // return assert.becomes(p,9991)
+            // return p.should.become(9991)
+        return p.should.become(9991)
     })
 })
 
@@ -133,6 +144,10 @@ describe('RedBot', function() {
         assert.equal(2, yoo.parseCmd('/y12 tbutxo 2').kid)
     })
 
+
+})
+
+describe('AccountKeyInfoTest', function() {
     it('bitcoinHdKeyTests', function() {
         var hdkey = yoo.getHDPrivateKey('Hello TestBot')
         console.log(hdkey.toJSON())
@@ -150,9 +165,28 @@ describe('RedBot', function() {
         console.log(dpk.toJSON())
         var pk = dpk.privateKey
         assert.equal('tprv8gx25CZwYW93N5WqBqBtmtm5mchMHZhseePqZvc4jRZive54jtZEHxJ1CNTf26tQJtr4p6qfT88JHYSv4sEihWD9iTKPXNir1aGr6fbNnEF', dpk.xprivkey)
-        var addr = pk.toAddress().toString()
-        assert.equal('mhbb8V6ptAutyd2mwEnRDDPJ3cDYQgaSCu', addr)
+        expect('mhbb8V6ptAutyd2mwEnRDDPJ3cDYQgaSCu').to.equal(pk.toAddress().toString())
     })
+
+    it('accountUsernameTests', function() {
+        var keyInfo1 = yoo.getAccountKeyInfo(1, {
+            username: 'JLY12',
+            token: '123456'
+        })
+        var keyInfo2 = yoo.getAccountKeyInfo(1, {
+            username: 'jLy12',
+            token: '123456'
+        })
+        var keyInfo3 = yoo.getAccountKeyInfo(199, {
+            username: 'jLy12',
+            token: '123456'
+        })
+        console.log(keyInfo1, keyInfo2)
+        expect(keyInfo2.seed).to.equal('JLY12haha:)123456')
+        expect(keyInfo1.addr).to.equal(keyInfo2.addr)
+        expect(keyInfo2.addr).to.not.equal(keyInfo3.addr)
+    })
+
 })
 
 describe('CreateSignTx', function() {
@@ -164,60 +198,49 @@ describe('CreateSignTx', function() {
         "amount": 27.5
     }
 
-    it("Utxos", function() {
+    var keyInfo = yoo.getAccountKeyInfo(1, {
+        username: 'Y12TestApp',
+        token: 'hahaToken'
+    })
+
+    var addrTo = 'mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD'
+    var amountTo = 1.5
+    var addrChange = keyInfo.addr
+    var amount = 22
+    var privateKey = keyInfo.pk
+
+    it("Utxos OK", function() {
         var utxos = _.map([utxo], UnspentOutput)
-        return yoo.createSignTx(utxos, null, null, null, null).then(function(data) {
-            assert.isNotNull(data)
-        }).catch(function(err) {
-            console.log(err)
-            assert.fail()
+        var p = yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey).then(function(v){
+            console.log(v.toJSON())
         })
+        return p.should.be.fulfiled
     })
 
     it("Utxos Total AmountIn < Fee", function() {
         utxo.amount = 0.00001
         var utxos = _.map([utxo], UnspentOutput)
-        return yoo.createSignTx(utxos, null, null, null, null).then(assert.fail).catch(function(err) {
-            console.log(err)
-            assert.include(err.message,'Amount 1000 < Fee 100000')
-        })
+        var p = yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey)
+        return treject(p, errors.Tx.Amount)
     })
 
     it("Utxos Total AmountOut + Fee >= AmountIn", function() {
         utxo.amount = 1.51
         var amountTo = 1.81
         var utxos = _.map([utxo], UnspentOutput)
-        return yoo.createSignTx(utxos, null, null, amountTo, null).then(assert.fail).catch(function(err) {
-            console.log(err)
-            assert.include(err.message,'AmountIn 151000000 + Fee 100000 < AmountOut 181000000')
-        })
+        var p = yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey)
+        return treject(p, errors.Tx.Amount)
     })
 
     it("Utxos Total AmountOut + Fee = AmountIn", function() {
         utxo.amount = 1.501
         var amountTo = 1.5
         var utxos = _.map([utxo], UnspentOutput)
-        return yoo.createSignTx(utxos, null, null, amountTo, null).then(function(r){
+        return yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey).then(function(r) {
             assert.isNotNull(r)
         }).catch(function(err) {
             console.log(err)
             assert.fail()
-        })
-    })
-
-    var testUtxosTarget = [100, 'xxx', ['xxx'],
-        [1],
-        [{
-            foo: 100
-        }]
-    ]
-
-    _.forEach(testUtxosTarget, function(v) {
-        it("createSignTxTest Utxos Error " + JSON.stringify(v), function() {
-            return yoo.createSignTx(v, null, null, null, null).then(assert.fail).catch(function(err) {
-                console.log(err)
-                assert.include(err.message, 'UTXOs Error')
-            })
         })
     })
 })
@@ -226,11 +249,10 @@ describe('ExternalDep', function() {
     it('bitcoinUtxoTests', function(done) {
 
         var keyInfo = yoo.getAccountKeyInfo(1, {
-            username: 'y12testApp',
+            username: 'Y12TestApp',
             token: 'hahaToken'
         })
-        //console.log(keyInfo)
-        assert.equal(keyInfo.addr, 'mmDaX8jn8HkBJxHjcszytd5MU6C6FmNouV')
+        expect(keyInfo).to.have.property('addr')
             // https://live.blockcypher.com/btc-testnet/address/mmDaX8jn8HkBJxHjcszytd5MU6C6FmNouV/
         var debugGetUtxos = false
         if (debugGetUtxos) {
@@ -242,7 +264,7 @@ describe('ExternalDep', function() {
                 var utxos = res.cfutxos
                 var addrTo = 'mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD'
                 var addrChange = keyInfo.addr
-                var amount = 1.8
+                var amount = 22
                 var privateKey = keyInfo.pk
                 var tx = yoo.createTx(utxos, addrTo, addrChange, amount, privateKey)
                 console.log(tx)
