@@ -2,7 +2,7 @@ var tokenjson = require('./telegram.token.json')
 var token = tokenjson.token;
 var request = require('request');
 var telegram = require('telegram-bot-api');
-var Yoo = require('./yoo')
+var Yoo = require('./lib/yoo')
 var yoo = new Yoo()
 
 var CronJob = require('cron').CronJob;
@@ -52,19 +52,18 @@ api.on('message', function(message) {
             username:username,
             token:tokenjson.token
         }
-        yoo.handleCmd(mtx, opt, function(err,res){
+
+        Yoo.handleCmd(yoo,mtx,opt).then(function(res){
             console.log(res)
-            api.sendMessage({
+            return api.sendMessage({
                 chat_id: chat_id,
                 text: res
             })
-            .then(function(message) {
-                console.log(message);
-            })
-            .catch(function(err) {
-                console.log(err);
-            });
-
+        }).then(function(sendResult){
+            console.log(sendResult)
+        }).catch(function(err){
+            console.log(err)
         })
+        
     }
 })

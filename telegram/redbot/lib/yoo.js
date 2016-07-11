@@ -52,14 +52,13 @@ Yoo.check = function(condition, errType, message) {
     }
 }
 
-Yoo.prototype.createSignTx = function(utxos, addrTo, addrChange, amountTo, privateKey) {
+Yoo.createSignTx = function(utxos, addrTo, addrChange, amountTo, privateKey) {
     return new Promise(function(resolve, reject) {
 
         var satoshisSrc = _.reduce(utxos, function(sum, e) {
                 return sum + e.satoshis;
             }, 0)
-        //console.log(spf('Amount=%d, Fee=%d', satoshisSrc, Yoo.BTC.feeSatoshis))
-
+            //console.log(spf('Amount=%d, Fee=%d', satoshisSrc, Yoo.BTC.feeSatoshis))
         Yoo.check(satoshisSrc > Yoo.BTC.feeSatoshis, errors.Tx.Amount, spf('Expect Amount %d > Fee %d', satoshisSrc, Yoo.BTC.feeSatoshis))
         var satoshisOut = Unit.fromBTC(amountTo).toSatoshis()
         Yoo.check(satoshisSrc + Yoo.BTC.feeSatoshis >= satoshisOut, errors.Tx.Amount, spf('Expect AmountIn %d + Fee %d >= AmountOut %d',
@@ -79,36 +78,39 @@ Yoo.prototype.sendto = function(tx, cb) {
     insight.broadcast(tx, cb)
 }
 
-Yoo.prototype.getUtxos = function(addr, confirmations, cb) {
-    insight.getRawUnspentUtxos(addr, function(err, utxos) {
-        if (err) {
-            cb(err)
-        } else {
-            // mapping element >= confirmations
-            var fUtxos = _.filter(utxos, _.conforms({
-                'confirmations': function(n) {
-                    return n >= confirmations;
-                }
-            }))
-            cb(null, {
-                raw: utxos,
-                confirmations: confirmations,
-                cfamount: _.reduce(fUtxos, function(sum, element) {
-                    return sum + element.amount;
-                }, 0),
-                cfutxos: _.map(fUtxos, UnspentOutput)
-            })
-        }
+Yoo.getUtxos = function(addr, confirmations) {
+    return new Promise(function(resolve, reject) {
+        insight.getRawUnspentUtxos(addr, function(err, utxos) {
+            if (err) {
+                reject(err)
+            } else {
+                // mapping element >= confirmations
+                var fUtxos = _.filter(utxos, _.conforms({
+                    'confirmations': function(n) {
+                        return n >= confirmations;
+                    }
+                }))
+                resolve({
+                    raw: utxos,
+                    confirmations: confirmations,
+                    cfamount: _.reduce(fUtxos, function(sum, element) {
+                        return sum + element.amount;
+                    }, 0),
+                    cfutxos: _.map(fUtxos, UnspentOutput)
+                })
+            }
+        })
     })
+
 }
 
-Yoo.prototype.getAccountKeyInfo = function(accountId, _opt) {
+Yoo.getAccountKeyInfo = function(accountId, _opt) {
     var opt = _opt || {}
     var username = opt.username || 'y12'
     var token = opt.token || 'token'
     var seedStr = username.toUpperCase() + 'haha:)' + token
-    var hkey = this.getHDPrivateKey(seedStr)
-    var dkey = this.getDeriveKey(hkey, accountId)
+    var hkey = Yoo.getHDPrivateKey(seedStr)
+    var dkey = Yoo.getDeriveKey(hkey, accountId)
     var pk = dkey.privateKey
     var addr = pk.toAddress().toString()
     return {
@@ -122,32 +124,38 @@ Yoo.prototype.getAccountKeyInfo = function(accountId, _opt) {
     }
 }
 
-Yoo.prototype.handleCmd = function(messageTxt, _opt, cb) {
-    var opt = _opt || {}
-    var r = this.parseCmd(messageTxt)
-    var result = "Hello"
-    var chattype = opt.chattype || 'group'
-    var username = opt.username || 'y12'
-    switch (r.cmd) {
-        case "btctwd":
-            cb(null, this.toTwd(r.btc))
-            break;
-        case "tbtc":
-            var accountKeyInfo = this.getAccountKeyInfo(r.kid, _opt)
-            result = this.toTbtcUser(accountKeyInfo, chattype)
-            cb(null, result)
-            break;
-        case "tbutxo":
-            var accountKeyInfo = this.getAccountKeyInfo(r.kid, _opt)
-            this.toTbutxo(accountKeyInfo, chattype, cb)
-            break;
-        case "help":
-            cb(null, this.toHelp(username))
-            break;
-    }
+Yoo.handleCmd = function(yobj, messageTxt, _opt) {
+    return new Promise(function(resolve, reject) {
+        var opt = _opt || {}
+        var r = Yoo.parseCmd(messageTxt)
+        var result = "Hello"
+        var chattype = opt.chattype || 'group'
+        var username = opt.username || 'y12'
+        switch (r.cmd) {
+            case "btctwd":
+                resolve(Yoo.toTwd(yobj.calcTwd(r.btc)))
+                break;
+            case "tbtc":
+                var accountKeyInfo = Yoo.getAccountKeyInfo(r.kid, _opt)
+                result = Yoo.toTbtcUser(accountKeyInfo, chattype)
+                resolve(result)
+                break;
+            case "tbutxo":
+                var accKeyInfo = Yoo.getAccountKeyInfo(r.kid, _opt)
+                var addr = accKeyInfo.addr
+                var confirmations = 1
+                Yoo.getUtxos(addr, confirmations).then(function(res) {
+                    resolve(Yoo.toTbutxo(accKeyInfo, chattype, res))
+                })
+                break;
+            case "help":
+                resolve(Yoo.toHelp(username))
+                break;
+        }
+    })
 }
 
-Yoo.prototype.getHDPrivateKey = function(seedStr, _opt) {
+Yoo.getHDPrivateKey = function(seedStr, _opt) {
     var opt = _opt || {}
     var network = opt.network || bitcorelib.Networks.testnet
     var buf = new bitcorelib.deps.Buffer(seedStr)
@@ -155,11 +163,11 @@ Yoo.prototype.getHDPrivateKey = function(seedStr, _opt) {
     return new HDPrivateKey.fromSeed(buf256, network)
 }
 
-Yoo.prototype.getDeriveKey = function(hdkey, id) {
+Yoo.getDeriveKey = function(hdkey, id) {
     return hdkey.derive("m/0'/0").derive(id)
 }
 
-Yoo.prototype.parseCmd = function(args) {
+Yoo.parseCmd = function(args) {
     var r = minimist(args.split(' '))
     var ra = r._
     var result = {
@@ -192,7 +200,7 @@ Yoo.prototype.updateBitoex = function(r) {
     this._postFormat()
 }
 
-Yoo.prototype._calcTwd = function(btc) {
+Yoo.prototype.calcTwd = function(btc) {
     var v = this.btctwd
     var b = v.bitoex
     var m = v.maicoin
@@ -221,7 +229,7 @@ Yoo.ranemoji = function() {
     return emoji.get(_.sample(Yoo.emojiarr))
 }
 
-Yoo.prototype.toTbtcUser = function(accountKeyInfo, chattype) {
+Yoo.toTbtcUser = function(accountKeyInfo, chattype) {
     var emoji1 = emoji.get('money_with_wings')
     var username = accountKeyInfo.username
     var pk = accountKeyInfo.pk
@@ -237,29 +245,25 @@ Yoo.prototype.toTbtcUser = function(accountKeyInfo, chattype) {
     }
 }
 
-Yoo.prototype.toHelp = function(username) {
+Yoo.toHelp = function(username) {
     return util.format('%s你好，使用方式: %s %s 水龍頭: %s',
         username, 'https://github.com/y12studio/y12js/tree/master/telegram/redbot', Yoo.ranemoji(), 'https://testnet.manu.backend.hamburg/faucet')
 }
 
-Yoo.prototype.toTbutxo = function(accKeyInfo, chattype, cb) {
+Yoo.toTbutxo = function(accKeyInfo, chattype, res) {
     var emoji1 = emoji.get('money_with_wings')
     var username = accKeyInfo.username
     var addr = accKeyInfo.addr
-    this.getUtxos(addr, 1, function(err, res) {
-        // console.log(JSON.stringify(res,null, 2))
-        var str = util.format('%s %s %s %s amount=%s %s utxos=%s %s https://live.blockcypher.com/btc-testnet/address/%s',
-            username, emoji1, addr, Yoo.ranemoji(), res.cfamount, Yoo.ranemoji(), res.cfutxos.length, Yoo.ranemoji(), addr)
-        cb(null, str)
-    })
+    return util.format('%s %s %s %s amount=%s %s utxos=%s %s https://live.blockcypher.com/btc-testnet/address/%s',
+        username, emoji1, addr, Yoo.ranemoji(), res.cfamount, Yoo.ranemoji(), res.cfutxos.length, Yoo.ranemoji(), addr)
 }
 
-Yoo.prototype.toTwd = function(btc) {
-    var r = this._calcTwd(btc)
+Yoo.toTwd = function(r) {
+    // var r = this._calcTwd(btc)
     var emoji1 = emoji.get('money_with_wings')
         // 計算方式參閱 https://github.com/y12studio/y12js/tree/master/telegram/redbot
     var note = "注意：價格非即時僅供參考，不宜做為買賣依據或諮詢之用。"
-    return util.format('%s BTC = %s TWD %s bitoex 買%s賣%s平%s %s maicoin 買%s賣%s平%s %s %s', btc, r.avg, emoji1, r.b.buy, r.b.sell, r.b.avg,
+    return util.format('%s BTC = %s TWD %s bitoex 買%s賣%s平%s %s maicoin 買%s賣%s平%s %s %s', r.btc, r.avg, emoji1, r.b.buy, r.b.sell, r.b.avg,
         Yoo.ranemoji(), r.m.buy, r.m.sell, r.m.avg, Yoo.ranemoji(), note)
 }
 
