@@ -1,0 +1,16 @@
+{
+    "name": "y12ts-hellodash",
+    "version": "0.0.1",
+    "description": "y12ts-hellodash",
+    "main": "app.js",
+    "author": "",
+    "scripts": {
+        "start": "node app.js",
+        "ts": "tsc index.ts && node index.js"
+    },
+    "dependencies": {
+        "request": "^2.67.0",
+        "lodash": "^4.13.1"
+    },
+    "license": "Apache-2.0"
+}

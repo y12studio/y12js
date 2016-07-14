@@ -31,10 +31,6 @@ describe('FooPromise', function() {
         return yoo.fooPromise(200, 'xxxx').should.be.rejectedWith('Result Error')
     })
 
-    it('RejectedWith BazErr', function() {
-        var p = yoo.fooPromise(1999, 'testBazErr')
-        return treject(p, errors.Baz)
-    })
     it('RejectedWith FooErr', function() {
         var p = yoo.fooPromise(1999, 'testFooErr')
             // return expect(p).to.be.rejectedWith(errors.Foo.UnknownCode)
@@ -69,32 +65,32 @@ describe('RedBot', function() {
         var r = yoo.btctwd
         var b = r.bitoex
         var m = r.maicoin
-        assert.equal(10500, b.avg)
-        assert.equal(9000, m.avg)
-        assert.equal(9750, r.avg)
-        var x = Yoo.toTwd(yoo.calcTwd(1.0))
-        console.log(x)
-        console.log(Yoo.toTwd(yoo.calcTwd(0.5)))
+        expect(b.avg).to.equal(10500)
+        expect(m.avg).to.equal(9000)
+        expect(r.avg).to.equal(9750)
+        //var x = Yoo.toTwd(yoo.calcTwd(1.0))
+        //console.log(x)
+        //console.log(Yoo.toTwd(yoo.calcTwd(0.5)))
     })
     it('btctwdTest', function() {
         var r = Yoo.parseCmd('/y12 btctwd 0.1234')
-        console.log(r)
-        assert.equal('btctwd', r.cmd)
-        assert.equal(0.1234, r.btc)
-        console.log(Yoo.toTwd(yoo.calcTwd(r.btc)))
+        //console.log(r)
+        expect(r.cmd).to.equal('btctwd')
+        expect(r.btc).to.equal(0.1234)
+        //console.log(Yoo.toTwd(yoo.calcTwd(r.btc)))
         var r = Yoo.parseCmd('/y12')
-        console.log(r)
-        assert.equal('btctwd', r.cmd)
+        expect(r.cmd).to.equal('btctwd')
     })
 
-    it('tbtcParseTest', function() {
+    it('tbtcParseCmdTest', function() {
         var tbtc = Yoo.parseCmd('/y12 tbtc')
         console.log(tbtc)
-        assert.equal('tbtc', tbtc.cmd)
-        assert.equal(1, tbtc.kid)
-        assert.equal(2, Yoo.parseCmd('/y12 tbtc 2').kid)
-        assert.equal(1, Yoo.parseCmd('/y12 tbtc 0.123').kid)
-        assert.equal(1, Yoo.parseCmd('/y12 tbtc -1000').kid)
+        expect(tbtc.cmd).to.equal('tbtc')
+        expect(tbtc.result).to.be.true
+        expect(tbtc.kid).to.equal(1)
+        expect(Yoo.parseCmd('/y12 tbtc 2').kid).to.equal(2)
+        expect(Yoo.parseCmd('/y12 tbtc 0.123').result).to.false
+        expect(Yoo.parseCmd('/y12 tbtc -1000').result).to.false
     })
 
     it('tbtcPrivateTest', function() {
@@ -103,9 +99,7 @@ describe('RedBot', function() {
             token: 'haha',
             chattype: 'private'
         }
-
         return expect(Yoo.handleCmd(new Yoo(), '/y12 tbtc 1', param)).to.eventually.contain('KEY')
-
     })
 
     it('helpTest', function() {
@@ -114,39 +108,93 @@ describe('RedBot', function() {
             token: 'haha',
             chattype: 'private'
         }
-
         return expect(Yoo.handleCmd(new Yoo(), '/y12 help', param)).to.eventually.contain('y12UserName')
     })
 
     it('tbutxoTest', function() {
         var pc = Yoo.parseCmd('/y12 tbutxo')
         console.log(pc)
-        assert.equal('tbutxo', pc.cmd)
-        assert.equal(1, pc.kid)
-        assert.equal(2, Yoo.parseCmd('/y12 tbutxo 2').kid)
+        expect(pc.cmd).to.equal('tbutxo')
+        expect(pc.kid).to.equal(1)
+        expect(Yoo.parseCmd('/y12 tbutxo 2').kid).to.equal(2)
+        expect(Yoo.parseCmd('/y12 tbutxo 2.99').result).to.false
+        expect(Yoo.parseCmd('/y12 tbutxo -1').result).to.false
+        expect(Yoo.parseCmd('/y12 tbutxo 2 xxx').result).to.false
     })
 
+    // /y12 tbsend 0.5/1 @Bob/1
+    // /y12 tbsend 0.5 @Bob
+
+    it('Yoo.checkPayerParam', function() {
+        var r = Yoo.checkPayerParam('1.2/2')
+        expect(r.result).to.be.true
+        expect(r.amount).to.equal(1.2)
+        expect(r.payerAid).to.equal(2)
+        expect(Yoo.checkPayerParam('0/1').result).to.be.false
+        expect(Yoo.checkPayerParam('-1.99').result).to.be.false
+        expect(Yoo.checkPayerParam('-1.99/6').result).to.be.false
+        expect(Yoo.checkPayerParam('Xxxx/9').result).to.be.false
+        expect(Yoo.checkPayerParam('1.999/9.1').result).to.be.false
+        expect(Yoo.checkPayerParam('1.2/').result).to.be.false
+        expect(Yoo.checkPayerParam('/1').result).to.be.false
+    })
+
+    it('Yoo.checkPayeeParam', function() {
+        var r = Yoo.checkPayeeParam('@Bob/9')
+        expect(r.result).to.be.true
+        expect(r.payee).to.equal('Bob')
+        expect(r.payeeAid).to.equal(9)
+        expect(Yoo.checkPayeeParam('Bob/9').result).to.be.false
+        expect(Yoo.checkPayeeParam('@Bob/9.9').result).to.be.false
+        expect(Yoo.checkPayeeParam('@Bob/').result).to.be.false
+        expect(Yoo.checkPayeeParam('/').result).to.be.false
+    })
+
+    var testArr = ['/y12 tbsend ', '/y12 tbsend 1', '/y12 tbsend xxx 2', '/y12 tbsend 1.4 xxxx', '/y12 tbsend 1 2 3']
+    testArr.forEach(function(e, i, a) {
+        it('tbsendTest ' + e, function() {
+            expect(Yoo.parseCmd(e).result).to.be.false
+        })
+    })
+
+    it('tbsendTest /y12 tbsend 1.2/2 @Bob/1', function() {
+        var r = Yoo.parseCmd('/y12 tbsend 1.2/2 @Bob/13')
+        expect(r.amount).to.equal(1.2)
+        expect(r.payerAid).to.equal(2)
+        expect(r.payeeAid).to.equal(13)
+        expect(r.payee).to.equal('Bob')
+    })
+
+    it('handleCmd tbsend error', function() {
+        var param = {
+            username: 'y12UserName',
+            token: 'haha',
+            chattype: 'private'
+        }
+        var p = Yoo.handleCmd(new Yoo(), '/y12 tbsend', param)
+        return treject(p, errors.InvalidArgument)
+    })
 
 })
 
 describe('AccountKeyInfoTest', function() {
     it('bitcoinHdKeyTests', function() {
         var hdkey = Yoo.getHDPrivateKey('Hello TestBot')
-        console.log(hdkey.toJSON())
-        assert.equal('testnet', hdkey.network)
+        //console.log(hdkey.toJSON())
+        expect(hdkey.network).to.equal(bitcorelib.Networks.testnet)
         var hdkey2 = Yoo.getHDPrivateKey('Hello TestBot')
-        console.log(hdkey2)
-        assert.equal(hdkey.toString(), hdkey2.toString())
+        //console.log(hdkey2)
+        expect(hdkey.toString()).to.equal(hdkey2.toString())
         var hdkey3 = Yoo.getHDPrivateKey('Hello TestBot3', {
             network: bitcorelib.Networks.livenet
         })
-        console.log(hdkey3.toJSON())
-        assert.equal('livenet', hdkey3.network)
+        //console.log(hdkey3.toJSON())
+        expect('livenet').to.equal(hdkey3.network.toString())
 
         var dpk = Yoo.getDeriveKey(hdkey, 1)
-        console.log(dpk.toJSON())
+        //console.log(dpk.toJSON())
         var pk = dpk.privateKey
-        assert.equal('tprv8gx25CZwYW93N5WqBqBtmtm5mchMHZhseePqZvc4jRZive54jtZEHxJ1CNTf26tQJtr4p6qfT88JHYSv4sEihWD9iTKPXNir1aGr6fbNnEF', dpk.xprivkey)
+        expect(dpk.xprivkey).to.equal('tprv8gx25CZwYW93N5WqBqBtmtm5mchMHZhseePqZvc4jRZive54jtZEHxJ1CNTf26tQJtr4p6qfT88JHYSv4sEihWD9iTKPXNir1aGr6fbNnEF')
         expect('mhbb8V6ptAutyd2mwEnRDDPJ3cDYQgaSCu').to.equal(pk.toAddress().toString())
     })
 
@@ -252,7 +300,7 @@ describe('ExternalDep', function() {
             // https://live.blockcypher.com/btc-testnet/address/mmDaX8jn8HkBJxHjcszytd5MU6C6FmNouV/
         var debugGetUtxos = false
         if (debugGetUtxos) {
-            return Yoo.getUtxos(keyInfo.addr, 1).then(function(res){
+            return Yoo.getUtxos(keyInfo.addr, 1).then(function(res) {
                 console.log(JSON.stringify(res, null, 2))
                 assert.equal(res.confirmations, 1)
 
@@ -262,7 +310,7 @@ describe('ExternalDep', function() {
                 var addrChange = keyInfo.addr
                 var amount = 22
                 var privateKey = keyInfo.pk
-                var p = Yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey).then(function(tx){
+                var p = Yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey).then(function(tx) {
                     console.log(tx.toJSON())
                 })
                 p.should.be.fulfiled

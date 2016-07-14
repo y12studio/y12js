@@ -25,13 +25,6 @@ Yoo.prototype.fooPromise = function(intValue, strValue) {
                 resolve(9991)
             }
         }
-        if (strValue == 'testBazErr') {
-            if (intValue >= 180) {
-                reject(new errors.Baz(intValue, strValue))
-            } else {
-                resolve(9991)
-            }
-        }
         var result = 100 + intValue
         if (result > 1000) {
             resolve(result);
@@ -127,32 +120,97 @@ Yoo.getAccountKeyInfo = function(accountId, _opt) {
 Yoo.handleCmd = function(yobj, messageTxt, _opt) {
     return new Promise(function(resolve, reject) {
         var opt = _opt || {}
-        var r = Yoo.parseCmd(messageTxt)
+        var pr = Yoo.parseCmd(messageTxt)
         var result = "Hello"
         var chattype = opt.chattype || 'group'
         var username = opt.username || 'y12'
-        switch (r.cmd) {
+        switch (pr.cmd) {
             case "btctwd":
-                resolve(Yoo.toTwd(yobj.calcTwd(r.btc)))
+                resolve(Yoo.toTwd(yobj.calcTwd(pr.btc)))
                 break;
             case "tbtc":
-                var accountKeyInfo = Yoo.getAccountKeyInfo(r.kid, _opt)
+                var accountKeyInfo = Yoo.getAccountKeyInfo(pr.kid, _opt)
                 result = Yoo.toTbtcUser(accountKeyInfo, chattype)
                 resolve(result)
                 break;
             case "tbutxo":
-                var accKeyInfo = Yoo.getAccountKeyInfo(r.kid, _opt)
+                var accKeyInfo = Yoo.getAccountKeyInfo(pr.kid, _opt)
                 var addr = accKeyInfo.addr
                 var confirmations = 1
                 Yoo.getUtxos(addr, confirmations).then(function(res) {
                     resolve(Yoo.toTbutxo(accKeyInfo, chattype, res))
                 })
                 break;
+            case "tbsend":
+                if (pr.result) {
+
+                } else {
+                    reject(new errors.InvalidArgument('tbsend', messageTxt))
+                }
+                break;
             case "help":
                 resolve(Yoo.toHelp(username))
                 break;
         }
     })
+}
+
+Yoo.checkPayerParam = function(str) {
+    var r = {
+        result: false
+    }
+
+    if (_.includes(str, '/')) {
+        var sarr = str.split('/')
+        if (sarr[0].length == 0 || sarr[1].length == 0) {
+            return r
+        }
+        var amount = _.toNumber(sarr[0])
+        var payerAid = _.toNumber(sarr[1])
+            //console.log(sarr, sarr.length, amount, payerAid)
+        if (sarr.length == 2 && _.isFinite(amount) && amount > 0 && _.isInteger(payerAid) && payerAid > 0) {
+            r.result = true
+            r.amount = amount
+            r.payerAid = payerAid
+        }
+    } else {
+        var amount = _.toNumber(str)
+        if (_.isFinite(amount) && _.isInteger(amount) && amount > 0) {
+            r.result = true
+            r.amount = amount
+            r.payerAid = 1
+        }
+    }
+    console.log(r, str)
+    return r
+}
+
+Yoo.checkPayeeParam = function(str) {
+    var r = {
+        result: false
+    }
+    if (!_.startsWith(str, '@')) {
+        return r
+    }
+
+    if (_.includes(str, '/')) {
+        var sarr = str.split('/')
+        if (sarr[0].length == 0 || sarr[1].length == 0) {
+            return r
+        }
+        var payee = sarr[0].replace('@', '')
+        var payeeAid = _.toNumber(sarr[1])
+        if (sarr.length == 2 && _.isInteger(payeeAid)) {
+            r.result = true
+            r.payee = payee
+            r.payeeAid = payeeAid
+        }
+    } else {
+        r.result = true
+        r.payee = str.replace('@', '')
+        r.payeeAid = 1
+    }
+    return r
 }
 
 Yoo.getHDPrivateKey = function(seedStr, _opt) {
@@ -167,24 +225,69 @@ Yoo.getDeriveKey = function(hdkey, id) {
     return hdkey.derive("m/0'/0").derive(id)
 }
 
+Yoo.checkAccountId = function(str) {
+    var aid = _.toNumber(str)
+    return {
+        aid: aid,
+        result: _.isFinite(aid) && _.isInteger(aid) && aid > 0
+    }
+}
+
 Yoo.parseCmd = function(args) {
-    var r = minimist(args.split(' '))
-    var ra = r._
-    var result = {
-        cmd: ra.length >= 2 ? ra[1] : 'btctwd'
+    var ra = args.split(' ')
+    var len = ra.length
+    var pr = {
+        result: false,
+        cmd: len >= 2 ? ra[1] : 'btctwd'
     }
-    switch (result.cmd) {
+    switch (pr.cmd) {
         case "btctwd":
-            result.btc = ra.length >= 3 ? ra[2] : 1.0
-            break;
+            if (len == 2) {
+                pr.btc = 1.0
+                pr.result = true
+            } else if (len == 3) {
+                var btc = _.toNumber(ra[2])
+                if (_.isFinite(btc) && btc > 0) {
+                    pr.result = true
+                    pr.btc = btc
+                }
+            }
+            break
         case "tbtc":
-            result.kid = ra.length >= 3 && _.isInteger(ra[2]) ? ra[2] : 1
-            break;
+            if (len == 2) {
+                pr.kid = 1
+                pr.result = true
+            } else if (len == 3) {
+                var cr = Yoo.checkAccountId(ra[2])
+                pr.kid = cr.aid
+                pr.result = cr.result
+            }
+            break
         case "tbutxo":
-            result.kid = ra.length >= 3 && _.isInteger(ra[2]) ? ra[2] : 1
-            break;
+            // console.log(ra)
+            if (len == 2) {
+                pr.kid = 1
+                pr.result = true
+            } else if (len == 3) {
+                var cr = Yoo.checkAccountId(ra[2])
+                pr.kid = cr.aid
+                pr.result = cr.result
+            }
+            break
+        case "tbsend":
+            var payerParam = Yoo.checkPayerParam(ra[2])
+            var payeeParam = Yoo.checkPayeeParam(ra[3])
+            if (len == 4 && payerParam.result && payeeParam.result) {
+                pr.amount = payerParam.amount
+                pr.payerAid = payerParam.payerAid
+                pr.payee = payeeParam.payee
+                pr.payeeAid = payeeParam.payeeAid
+                pr.result = true
+            }
+            break
     }
-    return result
+    console.log(pr, args)
+    return pr
 }
 
 
