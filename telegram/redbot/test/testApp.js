@@ -52,7 +52,7 @@ describe('FooPromise', function() {
 })
 
 describe('RedBot', function() {
-    it('fooTest', function() {
+    it('updateExchangeTest', function() {
 
         yoo.updateBitoex({
             sell: 10000,
@@ -68,16 +68,23 @@ describe('RedBot', function() {
         expect(b.avg).to.equal(10500)
         expect(m.avg).to.equal(9000)
         expect(r.avg).to.equal(9750)
-        //var x = Yoo.toTwd(yoo.calcTwd(1.0))
-        //console.log(x)
-        //console.log(Yoo.toTwd(yoo.calcTwd(0.5)))
+            //var x = Yoo.toTwd(yoo.calcTwd(1.0))
+            //console.log(x)
+            //console.log(Yoo.toTwd(yoo.calcTwd(0.5)))
+    })
+    it('defaultTest', function() {
+        var r = Yoo.parseCmd('/y12')
+            //console.log(r)
+        expect(r.result).to.be.true
+        expect(r.cmd).to.equal('btctwd')
+        expect(r.btc).to.equal(1)
     })
     it('btctwdTest', function() {
         var r = Yoo.parseCmd('/y12 btctwd 0.1234')
-        //console.log(r)
+            //console.log(r)
         expect(r.cmd).to.equal('btctwd')
         expect(r.btc).to.equal(0.1234)
-        //console.log(Yoo.toTwd(yoo.calcTwd(r.btc)))
+            //console.log(Yoo.toTwd(yoo.calcTwd(r.btc)))
         var r = Yoo.parseCmd('/y12')
         expect(r.cmd).to.equal('btctwd')
     })
@@ -113,7 +120,7 @@ describe('RedBot', function() {
 
     it('tbutxoTest', function() {
         var pc = Yoo.parseCmd('/y12 tbutxo')
-        console.log(pc)
+            //console.log(pc)
         expect(pc.cmd).to.equal('tbutxo')
         expect(pc.kid).to.equal(1)
         expect(Yoo.parseCmd('/y12 tbutxo 2').kid).to.equal(2)
@@ -130,13 +137,18 @@ describe('RedBot', function() {
         expect(r.result).to.be.true
         expect(r.amount).to.equal(1.2)
         expect(r.payerAid).to.equal(2)
-        expect(Yoo.checkPayerParam('0/1').result).to.be.false
-        expect(Yoo.checkPayerParam('-1.99').result).to.be.false
-        expect(Yoo.checkPayerParam('-1.99/6').result).to.be.false
-        expect(Yoo.checkPayerParam('Xxxx/9').result).to.be.false
-        expect(Yoo.checkPayerParam('1.999/9.1').result).to.be.false
-        expect(Yoo.checkPayerParam('1.2/').result).to.be.false
-        expect(Yoo.checkPayerParam('/1').result).to.be.false
+
+        expect(Yoo.checkPayerParam('1.999').result).to.be.true
+
+        var r2 = Yoo.checkPayerParam('a/6')
+        expect(r2.result).to.be.true
+        expect(r2.amount).to.equal(-1)
+        expect(r2.payerAid).to.equal(6)
+        expect(Yoo.checkPayerParam('a').amount).to.equal(-1)
+
+        _.map(['x-1.99', '0/1', '-1.99', '-1.99/6', 'xxx/9', '9/xxxx', '9/1.87', '1.2/', '/1'], function(v) {
+            expect(Yoo.checkPayerParam(v).result, 'checkPayerParam=' + v).to.be.false
+        })
     })
 
     it('Yoo.checkPayeeParam', function() {
@@ -144,20 +156,16 @@ describe('RedBot', function() {
         expect(r.result).to.be.true
         expect(r.payee).to.equal('Bob')
         expect(r.payeeAid).to.equal(9)
-        expect(Yoo.checkPayeeParam('Bob/9').result).to.be.false
-        expect(Yoo.checkPayeeParam('@Bob/9.9').result).to.be.false
-        expect(Yoo.checkPayeeParam('@Bob/').result).to.be.false
-        expect(Yoo.checkPayeeParam('/').result).to.be.false
-    })
-
-    var testArr = ['/y12 tbsend ', '/y12 tbsend 1', '/y12 tbsend xxx 2', '/y12 tbsend 1.4 xxxx', '/y12 tbsend 1 2 3']
-    testArr.forEach(function(e, i, a) {
-        it('tbsendTest ' + e, function() {
-            expect(Yoo.parseCmd(e).result).to.be.false
+        _.map(['Bob/9', 'Bob/', '@Bob/9.9', '@Bob/', '/', '/1'], function(v) {
+            expect(Yoo.checkPayeeParam(v).result, 'checkPayeeParam:' + v).to.be.false
         })
     })
 
-    it('tbsendTest /y12 tbsend 1.2/2 @Bob/1', function() {
+    it('Yoo.parseCmd(tbsend)', function() {
+        _.map(['/y12 tbsend ', '/y12 tbsend 1', '/y12 tbsend xxx 2', '/y12 tbsend 1.4 xxxx', '/y12 tbsend 1 2 3'], function(v) {
+            expect(Yoo.parseCmd(v).result, 'parseCmd:' + v).to.be.false
+        })
+
         var r = Yoo.parseCmd('/y12 tbsend 1.2/2 @Bob/13')
         expect(r.amount).to.equal(1.2)
         expect(r.payerAid).to.equal(2)
@@ -180,19 +188,19 @@ describe('RedBot', function() {
 describe('AccountKeyInfoTest', function() {
     it('bitcoinHdKeyTests', function() {
         var hdkey = Yoo.getHDPrivateKey('Hello TestBot')
-        //console.log(hdkey.toJSON())
+            //console.log(hdkey.toJSON())
         expect(hdkey.network).to.equal(bitcorelib.Networks.testnet)
         var hdkey2 = Yoo.getHDPrivateKey('Hello TestBot')
-        //console.log(hdkey2)
+            //console.log(hdkey2)
         expect(hdkey.toString()).to.equal(hdkey2.toString())
         var hdkey3 = Yoo.getHDPrivateKey('Hello TestBot3', {
-            network: bitcorelib.Networks.livenet
-        })
-        //console.log(hdkey3.toJSON())
+                network: bitcorelib.Networks.livenet
+            })
+            //console.log(hdkey3.toJSON())
         expect('livenet').to.equal(hdkey3.network.toString())
 
         var dpk = Yoo.getDeriveKey(hdkey, 1)
-        //console.log(dpk.toJSON())
+            //console.log(dpk.toJSON())
         var pk = dpk.privateKey
         expect(dpk.xprivkey).to.equal('tprv8gx25CZwYW93N5WqBqBtmtm5mchMHZhseePqZvc4jRZive54jtZEHxJ1CNTf26tQJtr4p6qfT88JHYSv4sEihWD9iTKPXNir1aGr6fbNnEF')
         expect('mhbb8V6ptAutyd2mwEnRDDPJ3cDYQgaSCu').to.equal(pk.toAddress().toString())
@@ -208,15 +216,32 @@ describe('AccountKeyInfoTest', function() {
             token: '123456'
         })
         var keyInfo3 = Yoo.getAccountKeyInfo(199, {
-            username: 'jLy12',
-            token: '123456'
-        })
-        console.log(keyInfo1, keyInfo2)
+                username: 'jLy12',
+                token: '123456'
+            })
+            //console.log(keyInfo1, keyInfo2)
         expect(keyInfo2.seed).to.equal('JLY12haha:)123456')
         expect(keyInfo1.addr).to.equal(keyInfo2.addr)
         expect(keyInfo2.addr).to.not.equal(keyInfo3.addr)
     })
 
+})
+
+describe('getTbsendAddress Test', function() {
+    it("getTbsendAddress", function() {
+        var parseResult = Yoo.parseCmd('/y12 tbsend 1.2/2 @Bob/13')
+        var r = Yoo.getTbsendAddress(parseResult, {
+                username: 'Y12TestApp',
+                token: 'hahaToken'
+            })
+            // console.log(r)
+        expect(r.payerKeyInfo.username).to.equal('Y12TestApp')
+        expect(r.payeeKeyInfo.username).to.equal('Bob')
+        expect(r.result.amountTo).to.equal(1.2)
+        expect(r.result.addrTo).to.be.ok
+        expect(r.result.addrChange).to.be.ok
+        expect(r.result.privateKey).to.be.ok
+    })
 })
 
 describe('CreateSignTx', function() {
@@ -233,16 +258,17 @@ describe('CreateSignTx', function() {
         token: 'hahaToken'
     })
 
-    var addrTo = 'mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD'
-    var amountTo = 1.5
-    var addrChange = keyInfo.addr
-    var amount = 22
-    var privateKey = keyInfo.pk
+    var opt = {
+        addrTo: 'mr5zAVwqpFUVu6vVdoAZq7SzFM1wedbSuD',
+        amountTo: 1.5,
+        addrChange: keyInfo.addr,
+        privateKey: keyInfo.pk
+    }
 
     it("Utxos OK", function() {
         var utxos = _.map([utxo], UnspentOutput)
-        var p = Yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey).then(function(v) {
-            console.log(v.toJSON())
+        var p = Yoo.createSignTx(utxos, opt).then(function(v) {
+            //console.log(v.toJSON())
         })
         return p.should.be.fulfiled
     })
@@ -250,26 +276,28 @@ describe('CreateSignTx', function() {
     it("Utxos Total AmountIn < Fee", function() {
         utxo.amount = 0.00001
         var utxos = _.map([utxo], UnspentOutput)
-        var p = Yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey)
+        var p = Yoo.createSignTx(utxos, opt)
         return treject(p, errors.Tx.Amount)
     })
 
     it("Utxos Total AmountOut + Fee >= AmountIn", function() {
         utxo.amount = 1.51
-        var amountTo = 1.81
         var utxos = _.map([utxo], UnspentOutput)
-        var p = Yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey)
+        var p = Yoo.createSignTx(utxos, _.assign({}, opt, {
+            amountTo: 1.81
+        }))
         return treject(p, errors.Tx.Amount)
     })
 
     it("Utxos Total AmountOut + Fee = AmountIn", function() {
         utxo.amount = 1.501
-        var amountTo = 1.5
         var utxos = _.map([utxo], UnspentOutput)
-        return Yoo.createSignTx(utxos, addrTo, addrChange, amountTo, privateKey).then(function(r) {
+        return Yoo.createSignTx(utxos, _.assign({}, opt, {
+            amountTo: 1.5
+        })).then(function(r) {
             assert.isNotNull(r)
         }).catch(function(err) {
-            console.log(err)
+            //console.log(err)
             assert.fail()
         })
     })

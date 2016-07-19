@@ -17,7 +17,7 @@ function Yoo() {}
 Yoo.errors = errors
 Yoo.prototype.fooPromise = function(intValue, strValue) {
     return new Promise(function(resolve, reject) {
-        console.log(intValue, strValue)
+        //console.log(intValue, strValue)
         if (strValue == 'testFooErr') {
             if (intValue >= 180) {
                 reject(new errors.Foo.UnknownCode(spf('expected less than %d but got %d', 180, intValue)))
@@ -39,36 +39,32 @@ Yoo.BTC = {
 }
 Yoo.BTC.feeSatoshis = Unit.fromBTC(Yoo.BTC.fee).toSatoshis()
 
-Yoo.check = function(condition, errType, message) {
+Yoo.assert = function(condition, errType, message) {
     if (!condition) {
         throw new errType(message);
     }
 }
 
-Yoo.createSignTx = function(utxos, addrTo, addrChange, amountTo, privateKey) {
+Yoo.createSignTx = function(utxos, opt) {
     return new Promise(function(resolve, reject) {
 
         var satoshisSrc = _.reduce(utxos, function(sum, e) {
                 return sum + e.satoshis;
             }, 0)
             //console.log(spf('Amount=%d, Fee=%d', satoshisSrc, Yoo.BTC.feeSatoshis))
-        Yoo.check(satoshisSrc > Yoo.BTC.feeSatoshis, errors.Tx.Amount, spf('Expect Amount %d > Fee %d', satoshisSrc, Yoo.BTC.feeSatoshis))
-        var satoshisOut = Unit.fromBTC(amountTo).toSatoshis()
-        Yoo.check(satoshisSrc + Yoo.BTC.feeSatoshis >= satoshisOut, errors.Tx.Amount, spf('Expect AmountIn %d + Fee %d >= AmountOut %d',
+        Yoo.assert(satoshisSrc > Yoo.BTC.feeSatoshis, errors.Tx.Amount, spf('Expect Amount %d > Fee %d', satoshisSrc, Yoo.BTC.feeSatoshis))
+        var satoshisOut = Unit.fromBTC(opt.amountTo).toSatoshis()
+        Yoo.assert(satoshisSrc + Yoo.BTC.feeSatoshis >= satoshisOut, errors.Tx.Amount, spf('Expect AmountIn %d + Fee %d >= AmountOut %d',
             satoshisSrc, Yoo.BTC.feeSatoshis, satoshisOut))
 
         var tx = new bitcorelib.Transaction()
             .fee(Yoo.BTC.feeSatoshis)
             .from(utxos)
-            .to(addrTo, satoshisOut)
-            .change(addrChange)
-            .sign(privateKey)
+            .to(opt.addrTo, satoshisOut)
+            .change(opt.addrChange)
+            .sign(opt.privateKey)
         resolve(tx)
     });
-}
-
-Yoo.prototype.sendto = function(tx, cb) {
-    insight.broadcast(tx, cb)
 }
 
 Yoo.getUtxos = function(addr, confirmations) {
@@ -135,15 +131,29 @@ Yoo.handleCmd = function(yobj, messageTxt, _opt) {
                 break;
             case "tbutxo":
                 var accKeyInfo = Yoo.getAccountKeyInfo(pr.kid, _opt)
-                var addr = accKeyInfo.addr
                 var confirmations = 1
-                Yoo.getUtxos(addr, confirmations).then(function(res) {
+                Yoo.getUtxos(accKeyInfo.addr, confirmations).then(function(res) {
                     resolve(Yoo.toTbutxo(accKeyInfo, chattype, res))
                 })
                 break;
             case "tbsend":
                 if (pr.result) {
-
+                    var tbsendResult = Yoo.getTbsendAddress(pr,_opt)
+                    var addr = tbsendResult.payerKeyInfo.addr
+                    var confirmations = 1
+                    Yoo.getUtxos(addr, confirmations).then(function(res) {
+                        var utxos = res.cfutxos
+                        return Yoo.createSignTx(utxos,tbsendResult.result)
+                    }).then(function(tx){
+                        console.log('tbsend:broadcast', tx.toJSON())
+                        insight.broadcast(tx, function(err,res){
+                            if(err){
+                                reject(err)
+                            }else{
+                                resolve(Yoo.msgTbSendOk(username, addr))
+                            }
+                        })
+                    })
                 } else {
                     reject(new errors.InvalidArgument('tbsend', messageTxt))
                 }
@@ -153,6 +163,22 @@ Yoo.handleCmd = function(yobj, messageTxt, _opt) {
                 break;
         }
     })
+}
+
+Yoo.getTbsendAddress = function(parseResult, payerKeyOpt){
+    var payeeKeyOpt = _.assign({},payerKeyOpt,{'username':parseResult.payee})
+    var payerKeyInfo = Yoo.getAccountKeyInfo(parseResult.payerAid, payerKeyOpt)
+    var payeeKeyInfo = Yoo.getAccountKeyInfo(parseResult.payeeAid, payeeKeyOpt)
+    return {
+        payerKeyInfo: payerKeyInfo,
+        payeeKeyInfo : payeeKeyInfo,
+        result :{
+            addrTo : payeeKeyInfo.addr,
+            addrChange : payerKeyInfo.addr,
+            amountTo: parseResult.amount,
+            privateKey: payerKeyInfo.pk
+        }
+    }
 }
 
 Yoo.checkPayerParam = function(str) {
@@ -165,23 +191,23 @@ Yoo.checkPayerParam = function(str) {
         if (sarr[0].length == 0 || sarr[1].length == 0) {
             return r
         }
-        var amount = _.toNumber(sarr[0])
-        var payerAid = _.toNumber(sarr[1])
+        var ca = Yoo.checkAmount(sarr[0])
+        var cr = Yoo.checkAccountId(sarr[1])
             //console.log(sarr, sarr.length, amount, payerAid)
-        if (sarr.length == 2 && _.isFinite(amount) && amount > 0 && _.isInteger(payerAid) && payerAid > 0) {
+        if (sarr.length == 2 && ca.result && cr.result) {
             r.result = true
-            r.amount = amount
-            r.payerAid = payerAid
+            r.amount = ca.amount
+            r.payerAid = cr.aid
         }
     } else {
-        var amount = _.toNumber(str)
-        if (_.isFinite(amount) && _.isInteger(amount) && amount > 0) {
+        var ca = Yoo.checkAmount(str)
+        if (ca.result) {
             r.result = true
-            r.amount = amount
+            r.amount = ca.amount
             r.payerAid = 1
         }
     }
-    console.log(r, str)
+    //console.log(r, str)
     return r
 }
 
@@ -192,18 +218,17 @@ Yoo.checkPayeeParam = function(str) {
     if (!_.startsWith(str, '@')) {
         return r
     }
-
     if (_.includes(str, '/')) {
         var sarr = str.split('/')
         if (sarr[0].length == 0 || sarr[1].length == 0) {
             return r
         }
         var payee = sarr[0].replace('@', '')
-        var payeeAid = _.toNumber(sarr[1])
-        if (sarr.length == 2 && _.isInteger(payeeAid)) {
+        var cr = Yoo.checkAccountId(sarr[1])
+        if (sarr.length == 2 && cr.result) {
             r.result = true
             r.payee = payee
-            r.payeeAid = payeeAid
+            r.payeeAid = cr.aid
         }
     } else {
         r.result = true
@@ -233,6 +258,23 @@ Yoo.checkAccountId = function(str) {
     }
 }
 
+Yoo.checkAmount = function(str) {
+    var r = {
+        result: false
+    }
+    if (str == 'a') {
+        r.amount = -1
+        r.result = true
+    } else {
+        var amount = _.toNumber(str)
+        if (_.isFinite(amount) && _.isNumber(amount) && amount > 0) {
+            r.result = true
+            r.amount = amount
+        }
+    }
+    return r
+}
+
 Yoo.parseCmd = function(args) {
     var ra = args.split(' ')
     var len = ra.length
@@ -242,7 +284,7 @@ Yoo.parseCmd = function(args) {
     }
     switch (pr.cmd) {
         case "btctwd":
-            if (len == 2) {
+            if (len <= 2) {
                 pr.btc = 1.0
                 pr.result = true
             } else if (len == 3) {
@@ -286,7 +328,7 @@ Yoo.parseCmd = function(args) {
             }
             break
     }
-    console.log(pr, args)
+    //console.log(pr, args)
     return pr
 }
 
@@ -330,6 +372,12 @@ Yoo.prototype.calcTwd = function(btc) {
 
 Yoo.ranemoji = function() {
     return emoji.get(_.sample(Yoo.emojiarr))
+}
+
+Yoo.msgTbSendOk = function(username ,addr){
+    var emoji1 = emoji.get('money_with_wings')
+    return util.format('%s %s %s %s https://live.blockcypher.com/btc-testnet/address/%s',
+            username, emoji1, addr,Yoo.ranemoji(), addr)
 }
 
 Yoo.toTbtcUser = function(accountKeyInfo, chattype) {
