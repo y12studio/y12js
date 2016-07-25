@@ -1,0 +1,23 @@
+{
+    "name": "y12gij2016",
+    "version": "0.0.1",
+    "description": "y12gij2016",
+    "main": "app.js",
+    "author": "",
+    "scripts": {
+        "start": "node app.js",
+        "test": "mocha"
+    },
+    "dependencies": {
+        "request": "^2.67.0",
+        "bitcore-lib": "^0.13.16",
+        "lodash": "^4.13.1"
+    },
+    "devDependencies": {
+        "chokidar":"^1.6.0",
+        "mocha": "^2.2.0",
+        "chai": "*",
+        "mock-require": "^1.0.5"
+    },
+    "license": "Apache-2.0"
+}

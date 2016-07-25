@@ -6,18 +6,24 @@ var SolidityFunction = require('web3/lib/web3/function.js')
 
 function app() {}
 
-app.ethCallRpcResult = function(contract,functionName, rpcResultHex) {
-    var web3 = new Web3()
-    var functionAbi = contract.abi.find(function(element, index, array) {return element.name==functionName})
-    var solidityFunction = new SolidityFunction(web3.eth, functionAbi, contract.address)
-    return solidityFunction.unpackOutput(rpcResultHex)
+
+app.getSolidityFuncion = function(abi,functionName){
+    var functionAbi = abi.find(function(element, index, array) {
+        return element.name == functionName
+    })
+    return new SolidityFunction('', functionAbi, '')
+}
+
+app.ethCallRpcResult = function(abi, functionName, rpcResultHex) {
+    var sfun = app.getSolidityFuncion(abi.functionName)
+    return sfun.unpackOutput(rpcResultHex)
 }
 
 module.exports = {
     Web3: Web3,
     yeth: app,
     Tx: Tx,
-    coder : coder,
+    coder: coder,
     SolidityFunction: SolidityFunction,
     Util: Util
 }
