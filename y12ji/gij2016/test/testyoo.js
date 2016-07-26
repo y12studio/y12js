@@ -22,5 +22,10 @@ describe('FooTest', function() {
         expect(Yoo.getAddress('1Ghost2o16o7o1','X').toString()).to.equal('1Ghost2o16o7o1XXXXXXXXXXXXXXSFWcmQ')
         expect(Yoo.getAddress('1Ghost2o16o715','Y').toString()).to.equal('1Ghost2o16o715YYYYYYYYYYYYYYYPTsAA')
         expect(Yoo.getAddress('1Ghost2o16o729','Z').toString()).to.equal('1Ghost2o16o729ZZZZZZZZZZZZZZZsH3Pp')
+        // testnet prefix mv.
+        // https://github.com/CounterpartyXCP/counterparty-lib/blob/master/counterpartylib/lib/config.py
+        expect(Yoo.getAddress('mvGhost2o16o7o1','X').toString()).to.equal('mvGhost2o16o7o1XXXXXXXXXXXXXaaZZUk')
+        expect(Yoo.getAddress('mvGhost2o16o715','Y').toString()).to.equal('mvGhost2o16o715YYYYYYYYYYYYYZ5uFYJ')
+        expect(Yoo.getAddress('mvGhost2o16o729','Z').toString()).to.equal('mvGhost2o16o729ZZZZZZZZZZZZZXQEf1j')
     })
 })
