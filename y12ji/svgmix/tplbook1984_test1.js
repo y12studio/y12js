@@ -9,7 +9,7 @@ var wif = 'xP3voGKJHVSrUsEdrj8HnrpwLNgNngrgijMyyyRowRo15ZattbHm'
 sed('-i', tplAddr, addr, 'Book1984Front.svg')
 sed('-i', tplWif, wif, 'Book1984Front.svg')
 //  sudo apt-get install libcairo2-dev libqrencode-dev
-//https://www.npmjs.com/package/qr-cairo
+// https://www.npmjs.com/package/qr-cairo
 var options = {'box_size': '20'}
 // size 740x740
 qr_cairo.save(addr, 'qr_address.png', options)

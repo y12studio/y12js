@@ -12,6 +12,8 @@
         "pixl-xml":"1.0.9",
         "qr-cairo":"0.0.8",
         "shelljs":"0.7.4",
+        "moment":"2.15.1",
+        "lodash": "=3.10.1",
         "bitcore-lib": "^0.13.11"
     },
     "scripts": {
