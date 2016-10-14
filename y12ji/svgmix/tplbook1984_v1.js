@@ -4,19 +4,35 @@ var qr_cairo = require('qr-cairo')
 var moment = require('moment')
 var bitcorelib = require('bitcore-lib')
 var Mnemonic = require('bitcore-mnemonic')
+var generator = require('generate-password')
 var ZH_TW_WORDLIST = require('./chinese_traditional.json')
 Mnemonic.Words.CHINESE_TRADITIONAL = ZH_TW_WORDLIST
 var Networks = bitcorelib.Networks
 
 require('shelljs/global')
 
-var bookId = {
-    ver: 'B1984-A01',
-    printedDate: '1984',
-    password: 'PassY12JIBook',
-    seed: 'HelloY12JIBookLive',
-    btc: 0.00568
-}
+var bookId = require('./bookid.local.json')
+
+bookId.password = generator.generate({
+    length: 16,
+    numbers: true
+});
+
+bookId.seed = generator.generate({
+    length: 32,
+    numbers: true
+}) + bookId.seed + generator.generate({
+    length: 32,
+    numbers: true
+})
+
+//var bookId = {
+//    ver: 'B1984-A01',
+//    printedDate: '1984',
+//    password: 'PassY12JIBook',
+//    seed: 'HelloY12JIBookLive',
+//    btc: 0.00568
+//}
 
 const tplAddr1 = 'm1ESjLZW66TmHhiFX81CaBjrhZ543PPh9a'
 const tplAddr2 = 'm2ESjLZW66TmHhiFX81CaBjrhZ543PPh9a'
@@ -195,7 +211,6 @@ function replaceSvgFile(keys) {
             var btcTwd = res.btctwd
             var usdTwd = res.usdtwd
             var twd = Math.round(res.btctwd * bookId.btc)
-
             sed('-i', tplBtc, bookId.btc, svgFile)
             sed('-i', tplBtcUsd, btcUsd, svgFile)
             sed('-i', tplBtcTwd, btcTwd, svgFile)
@@ -223,13 +238,13 @@ function replaceSvgFile(keys) {
     var wif2url = prefixBack + wif2
 
     qrsave(address1, 'qraddr1.png')
-    qrsave(address2,  'qraddr2.png')
+    qrsave(address2, 'qraddr2.png')
     qrsave(addr1url, 'qraddrurl1.png')
-    qrsave(addr2url,  'qraddrurl2.png')
-    qrsave(wif1,  'qrwif1.png')
-    qrsave(wif2,  'qrwif2.png')
-    qrsave(wif1url,  'qrwifurl1.png')
-    qrsave(wif2url,  'qrwifurl2.png')
+    qrsave(addr2url, 'qraddrurl2.png')
+    qrsave(wif1, 'qrwif1.png')
+    qrsave(wif2, 'qrwif2.png')
+    qrsave(wif1url, 'qrwifurl1.png')
+    qrsave(wif2url, 'qrwifurl2.png')
     qrsave('https://y12ji.com/book/', 'qry12ji.png')
 }
 

@@ -6,14 +6,16 @@
     "author": "",
     "dependencies": {
         "bitcore-mnemonic": "^1.0.1",
-        "bitcore-explorers":"^1.0.1",
-        "qr-image":"3.1.0",
-        "pdfkit":"0.8.0",
-        "pixl-xml":"1.0.9",
-        "qr-cairo":"0.0.8",
-        "shelljs":"0.7.4",
-        "moment":"2.15.1",
+        "bitcore-explorers": "^1.0.1",
+        "qr-image": "3.1.0",
+        "pdfkit": "0.8.0",
+        "pixl-xml": "1.0.9",
+        "qr-cairo": "0.0.8",
+        "shelljs": "0.7.4",
+        "moment": "2.15.1",
         "lodash": "=3.10.1",
+        "request": "^2.67.0",
+        "generate-password":"1.2.0",
         "bitcore-lib": "^0.13.11"
     },
     "scripts": {
