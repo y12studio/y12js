@@ -1,7 +1,4 @@
-var bitcorelib = require('bitcore-lib')
 var _ = require('lodash')
-var stringify = require('json-stable-stringify')
-var merkletools = require('merkle-tools')
 var jsonld = require('jsonld')
 
 function yapp() {}
@@ -22,9 +19,6 @@ yapp.newReceipt = function() {
     return _.cloneDeep(yapp.cptemplate)
 }
 
-//
-// normalize timeout 5000 ms
-//
 yapp.normalize = function(doc, cb) {
     jsonld.normalize(doc, {
         algorithm: 'URDNA2015',
@@ -38,30 +32,37 @@ yapp.normalize = function(doc, cb) {
     })
 }
 
-yapp.buildProof = function(cparray) {
-    var merkleTools = new merkletools()
-    cparray.forEach(function(r) {
-        merkleTools.addLeaf(r.targetHash)
-    })
-    merkleTools.makeTree()
-    var rootValue = merkleTools.getMerkleRoot().toString('Hex')
-        // console.log(rootValue.toString('Hex'))
-    cparray.forEach(function(e, i, a) {
-        var proof = merkleTools.getProof(i)
-        e.proof = proof
-        e.merkleRoot = rootValue
-    })
-    return cparray
-}
-
 yapp.foo = function(t) {
     return t
 }
 
-module.exports = {
-    bitcorelib: bitcorelib,
-    _: _,
-    jsonld: jsonld,
-    stringify: stringify,
-    yapp: yapp
+var doc1 = {
+    "http://schema.org/name": "Manu Sporny",
+    "http://schema.org/url": {
+        "@id": "http://manu.sporny.org/"
+    },
+    "http://schema.org/image": {
+        "@id": "http://manu.sporny.org/images/manu.png"
+    }
+};
+
+var docp = {
+    "@context": "http://schema.org/",
+    "type": "Person",
+    "name": "Jane Doe",
+    "jobTitle": "Professor",
+    "telephone": "(425) 123-4567"
 }
+
+yapp.normalize(doc1, function(err,res){
+    console.log(res)
+})
+
+//
+yapp.normalize(docp, function(err,res){
+    console.log(res)
+})
+
+yapp.normalize(yapp.cptemplate, function(err,res){
+    console.log(res)
+})

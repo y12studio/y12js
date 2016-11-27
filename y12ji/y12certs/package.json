@@ -1,6 +1,6 @@
 {
     "name": "y12certs",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "y12certs",
     "main": "app.js",
     "author": "",
@@ -8,6 +8,7 @@
         "lodash": "=3.10.1",
         "json-stable-stringify": "~1.0.1",
         "merkle-tools":"^1.1.0",
+        "jsonld":"^0.4.11",
         "bitcore-lib": "^0.13.14"
     },
     "scripts": {

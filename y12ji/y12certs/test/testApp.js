@@ -26,7 +26,15 @@ describe('App', function() {
             r3.targetHash = 'cb4c46e8ebbc1d646f07a8ff00561a92c83cc1f40ea27d85b1e90c3f858b3815'
             var rarr = yapp.buildProof([r1,r2,r3])
             console.log(JSON.stringify(rarr, null, 4))
-            //assert.equal('foo', yapp.foo('foo'))
+        })
+
+        it('buildProof', function(done) {
+            this.timeout(5000)
+            var r1 = yapp.newReceipt()
+            yapp.normalize(r1,function(err,res){
+                console.log(res)
+                done()
+            })
         })
     })
 })
