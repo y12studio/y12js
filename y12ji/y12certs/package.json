@@ -9,7 +9,7 @@
         "json-stable-stringify": "~1.0.1",
         "merkle-tools":"^1.1.0",
         "jsonld":"^0.4.11",
-        "bitcore-lib": "^0.13.14"
+        "bitcore-lib": "^0.13.19"
     },
     "scripts": {
         "test": "mocha",
@@ -18,7 +18,7 @@
         "build": "npm run build-js && npm run build-min"
     },
     "devDependencies": {
-        "browserify": "^9.0.0",
+        "browserify": "^13.1.1",
         "mocha": "^2.2.0",
         "chai": "*",
         "mock-require": "^1.0.5"
