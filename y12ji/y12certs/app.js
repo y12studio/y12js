@@ -1,9 +1,14 @@
 var bitcorelib = require('bitcore-lib')
+var Message = require('bitcore-message')
 var Hash = bitcorelib.crypto.Hash
 var _ = require('lodash')
 var stringify = require('json-stable-stringify')
 var merkletools = require('merkle-tools')
 var jsonld = require('jsonld')
+
+// Generate a v4 UUID (random)
+const uuidV4 = require('uuid/v4')
+
 
 function yapp() {}
 
@@ -21,7 +26,7 @@ yapp.cptemplate = {
 
 yapp.bctemplate = {
     "document": {
-        "signature": "IBWesnPz0m+4SfrhLsRYjF4GmwaA4QmAxAEpIBqVQIrPTNdXO3nA01ZGYF7ALfNSXgor8bfZxKyJDxnqfuj5NOM=",
+        "signature": "",
         "certificate": {
             "language": "en-US",
             "type": "Certificate",
@@ -52,13 +57,13 @@ yapp.bctemplate = {
         "verify": {
             "attribute-signed": "uid",
             "type": "ECDSA(secp256k1)",
-            "signer": "http://www.blockcerts.org/mockissuer/keys/got_public_key.asc"
+            "signer": "https://y12ji.com/mockissuer/keys/bc1601_public_key.asc"
         },
         "assertion": {
             "image:signature": "data:image/png;base64,",
             "type": "Assertion",
             "uid": "f813349f-1385-487f-8d89-38a092411fa5",
-            "id": "http://certificates.gamoeofthronesxyz.org/f813349f-1385-487f-8d89-38a092411fa5",
+            "id": "https://y12ji.com/f813349f-1385-487f-8d89-38a092411fa5",
             "issuedOn": "2016-09-29"
         }
     },
@@ -72,7 +77,21 @@ yapp.newReceipt = function() {
 }
 
 yapp.newBlockcert = function() {
-    return _.cloneDeep(yapp.bctemplate)
+    var r =  _.cloneDeep(yapp.bctemplate)
+    var uid =  uuidV4()
+    var assertion = r.document.assertion
+    assertion.uid = uid
+    assertion.id = "https://y12ji.com/certs/"+uid
+    return r
+}
+
+yapp.sign = function(wif, msg){
+    var privateKey = bitcorelib.PrivateKey.fromWIF(wif)
+    return Message(msg).sign(privateKey)
+}
+
+yapp.verify = function(address, signature, msg){
+    return Message(msg).verify(address, signature);
 }
 
 yapp.sha256 = function(targetStr) {
@@ -128,6 +147,7 @@ yapp.foo = function(t) {
 
 module.exports = {
     bitcorelib: bitcorelib,
+    bitcoremessage:Message,
     _: _,
     jsonld: jsonld,
     stringify: stringify,

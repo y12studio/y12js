@@ -30,11 +30,6 @@ describe('App', function() {
             console.log(JSON.stringify(rarr, null, 4))
         })
 
-        it('newBlockcert', function() {
-            var bc1 = yapp.newBlockcert()
-            var bc2 = yapp.newBlockcert()
-            assert.isTrue(bc1!=bc2)
-        })
 
         it('sha256', function() {
             var hash = yapp.sha256('hello world')
@@ -45,8 +40,8 @@ describe('App', function() {
             this.timeout(5000)
             var r1 = yapp.newReceipt()
             yapp.normalize(r1, function(err, res) {
-                console.log(res)
-                console.log(typeof res)
+                //console.log(res)
+                //console.log(typeof res)
                 assert.isString(res)
                 done()
             })
@@ -57,11 +52,33 @@ describe('App', function() {
             var bc = blockCertsSample
             yapp.buildCpTargetHash(bc, function(err, res) {
                 console.log(res)
-                console.log(typeof res)
+                    //console.log(typeof res)
                 assert.isString(res)
                 assert.equal(bc.receipt.targetHash, res)
                 done()
             })
+        })
+
+        it('sign blockcerts', function() {
+            // https://github.com/bitcoin/bitcoin/blob/master/qa/rpc-tests/signmessages.py
+            var wif = 'cUeKHd5orzT3mz8P9pxyREHfsWtVfgsfDjiZZBcjUBAaGk1BTj7N'
+            var address = 'mpLQjfK79b7CCV4VMJWEWAj5Mpx8Up5zxB'
+            var msg = 'This is just a test message'
+            var sign = yapp.sign(wif, msg)
+            console.log(sign)
+            assert.isString(sign)
+            assert.isOk(yapp.verify(address, sign, msg))
+        })
+
+
+        it('newBlockcert', function() {
+            var bc1 = yapp.newBlockcert()
+            var bc2 = yapp.newBlockcert()
+            assert.isTrue(bc1 != bc2)
+            var assertion1 = bc1.document.assertion
+            var assertion2 = bc2.document.assertion
+            console.log(assertion1, assertion2)
+            assert.notEqual(assertion1.uid,assertion2.uid)
         })
 
     })

@@ -1,6 +1,6 @@
 {
     "name": "y12certs",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "y12certs",
     "main": "app.js",
     "author": "",
@@ -9,6 +9,8 @@
         "json-stable-stringify": "~1.0.1",
         "merkle-tools":"^1.1.0",
         "jsonld":"^0.4.11",
+        "bitcore-message":"^1.0.2",
+        "uuid":"^3.0.1",
         "bitcore-lib": "^0.13.19"
     },
     "scripts": {
