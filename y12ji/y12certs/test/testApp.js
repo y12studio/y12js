@@ -37,7 +37,7 @@ describe('App', function() {
         })
 
         it('buildProof', function(done) {
-            this.timeout(5000)
+            this.timeout(8000)
             var r1 = yapp.newReceipt()
             yapp.normalize(r1, function(err, res) {
                 //console.log(res)
@@ -72,9 +72,11 @@ describe('App', function() {
 
 
         it('newBlockcert', function() {
-            var bc1 = yapp.newBlockcert()
-            var bc2 = yapp.newBlockcert()
+            var bc1 = yapp.newBlockcert('https://w3id.org/blockcerts/v1','FakeCert A')
+            var bc2 = yapp.newBlockcert('https://www.blockcerts.org/schema/1.2/context.json','FakeCert B')
             assert.isTrue(bc1 != bc2)
+            assert.equal('FakeCert A', bc1.document.certificate.name)
+            assert.equal('https://www.blockcerts.org/schema/1.2/context.json', bc2.document['@context'])
             var assertion1 = bc1.document.assertion
             var assertion2 = bc2.document.assertion
             console.log(assertion1, assertion2)

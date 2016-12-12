@@ -32,14 +32,14 @@ yapp.bctemplate = {
             "type": "Certificate",
             "image": "data:image/png;base64",
             "issuer": {
-                "url": "http://www.blockcerts.org/mockissuer/",
+                "url": "https://y12ji.com/y12certs/mockissuer/",
                 "type": "Issuer",
                 "image": "data:image/png;base64,",
-                "name": "Game of thrones issuer",
-                "email": "fakeEmail@gamoeofthronesxyz.org",
-                "id": "http://www.blockcerts.org/mockissuer/issuer/got-issuer.json"
+                "name": "Y12Certs issuer",
+                "email": "fakeEmail@y12ji.com",
+                "id": "https://y12ji.com/y12certs/mockissuer/issuer/got-issuer.json"
             },
-            "id": "http://certificates.gamoeofthronesxyz.org/criteria/2016/08/got.json",
+            "id": "https://y12ji.com/y12cers/criteria/2016/12/certificate-type.json",
             "description": "This certifies that the named character is an official Game of Thrones character.",
             "name": "Game of Thrones Character"
         },
@@ -76,21 +76,33 @@ yapp.newReceipt = function() {
     return _.cloneDeep(yapp.cptemplate)
 }
 
-yapp.newBlockcert = function() {
-    var r =  _.cloneDeep(yapp.bctemplate)
-    var uid =  uuidV4()
-    var assertion = r.document.assertion
+yapp.newBlockcert = function(context, certname) {
+    // https://w3id.org/blockcerts/v1 rewrite to http://www.blockcerts.org/schema/1.2/context.json
+    // trigger the Browser Error
+    // Mixed Content:
+    // The page at 'https://y12ji.com/p/bcert1601/' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint
+    // 'http://www.blockcerts.org/schema/1.2/context.json'. This request has been blocked; the content must be served over HTTPS.
+    //
+    // https://github.com/blockchain-certificates/w3id.org/blob/master/blockcerts/.htaccess
+    var r = _.cloneDeep(yapp.bctemplate)
+    r['@context'] = context
+    var doc = r.document
+    doc['@context'] = context
+    var cert = doc.certificate
+    cert.name = certname
+    var uid = uuidV4()
+    var assertion = doc.assertion
     assertion.uid = uid
-    assertion.id = "https://y12ji.com/certs/"+uid
+    assertion.id = "https://y12ji.com/certs/" + uid
     return r
 }
 
-yapp.sign = function(wif, msg){
+yapp.sign = function(wif, msg) {
     var privateKey = bitcorelib.PrivateKey.fromWIF(wif)
     return Message(msg).sign(privateKey)
 }
 
-yapp.verify = function(address, signature, msg){
+yapp.verify = function(address, signature, msg) {
     return Message(msg).verify(address, signature);
 }
 
@@ -147,7 +159,7 @@ yapp.foo = function(t) {
 
 module.exports = {
     bitcorelib: bitcorelib,
-    bitcoremessage:Message,
+    bitcoremessage: Message,
     _: _,
     jsonld: jsonld,
     stringify: stringify,
