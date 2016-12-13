@@ -1,0 +1,20 @@
+{
+    "name": "y12firebase-poc-hello",
+    "version": "0.0.1",
+    "main": "app.js",
+    "author": "",
+    "dependencies": {
+        "lodash": "=3.10.1",
+        "firebase":"^3.6.3"
+    },
+    "scripts": {
+        "test": "mocha"
+    },
+    "devDependencies": {
+        "browserify": "^13.1.1",
+        "mocha": "^2.2.0",
+        "chai": "*",
+        "mock-require": "^1.0.5"
+    },
+    "license": "MIT"
+}
