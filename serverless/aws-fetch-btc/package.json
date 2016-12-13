@@ -1,0 +1,11 @@
+{
+  "name": "aws-fetch-btc",
+  "description": "Fetch btc price from remote source (URL).",
+  "version": "1.0.0",
+  "author": "Joye Lin",
+  "license": "MIT",
+  "dependencies": {
+     "shuffle-array":"^1.0.0",
+    "node-fetch": "^1.6.3"
+  }
+}
