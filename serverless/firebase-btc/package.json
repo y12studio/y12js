@@ -1,0 +1,23 @@
+{
+  "name": "firebase-btc",
+  "description": "Fetch btc price from remote source (URL).",
+  "version": "1.0.0",
+  "author": "Joye Lin",
+  "license": "MIT",
+  "scripts": {
+     "start": "node app.js",
+     "test": "mocha"
+ },
+  "dependencies": {
+     "shuffle-array":"^1.0.0",
+     "bluebird":"^3.4.1",
+     "bitcore-lib": "^0.13.16",
+     "firebase": "^3.6.4",
+     "node-fetch": "^1.6.3"
+ },
+ "devDependencies": {
+       "mocha": "^2.2.0",
+       "chai": "*",
+       "mock-require": "^1.0.5"
+   }
+}

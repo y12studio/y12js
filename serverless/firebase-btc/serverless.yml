@@ -1,0 +1,15 @@
+service: firebase-btc
+provider:
+  name: aws
+  runtime: nodejs4.3
+  memorySize: 512 # optional, default is 1024
+  timeout: 10 # optional, default is 6
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - http:
+          path: hello
+          method: get
+          cors: true
