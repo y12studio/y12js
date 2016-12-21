@@ -9,7 +9,6 @@ module.exports.hello = (event, context, callback) => {
     const arr2 = shuffle.pick(collection, {
         'picks': 2
     })
-
     fetch(url).then(function(res) {
         return res.json()
     }).then(function(json) {

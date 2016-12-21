@@ -6,6 +6,6 @@
   "license": "MIT",
   "dependencies": {
      "shuffle-array":"^1.0.0",
-    "node-fetch": "^1.6.3"
+     "node-fetch": "^1.6.3"
   }
 }

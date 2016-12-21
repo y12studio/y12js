@@ -1,0 +1,21 @@
+{
+  "name": "aws-fetch-btc2",
+  "description": "Fetch btc price from remote source (URL).",
+  "version": "1.0.0",
+  "author": "Joye Lin",
+  "license": "MIT",
+  "scripts": {
+     "start": "node app.js",
+     "test": "mocha"
+ },
+  "dependencies": {
+     "shuffle-array":"^1.0.0",
+     "node-fetch": "^1.6.3"
+ },
+ "devDependencies": {
+       "mocha": "^2.2.0",
+       "chai-as-promised":"^5.3.0",
+       "chai": "*",
+       "mock-require": "^1.0.5"
+   }
+}

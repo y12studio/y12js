@@ -1,0 +1,22 @@
+{
+    "time": {
+        "updated": "Dec 21, 2016 04:08:00 UTC",
+        "updatedISO": "2016-12-21T04:08:00+00:00",
+        "updateduk": "Dec 21, 2016 at 04:08 GMT"
+    },
+    "disclaimer": "This data was produced from the CoinDesk Bitcoin Price Index (USD). Non-USD currency data converted using hourly conversion rate from openexchangerates.org",
+    "bpi": {
+        "USD": {
+            "code": "USD",
+            "rate": "806.3588",
+            "description": "United States Dollar",
+            "rate_float": 806.3588
+        },
+        "TWD": {
+            "code": "TWD",
+            "rate": "25,824.1078",
+            "description": "New Taiwan Dollar",
+            "rate_float": 25824.1078
+        }
+    }
+}
