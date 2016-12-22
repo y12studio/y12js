@@ -1,8 +1,10 @@
 var chai = require('chai')
 var assert = chai.assert
+var chaiAsPromised = require("chai-as-promised")
+chai.use(chaiAsPromised)
 var MyApp = require('../myapp')
 var testTWD = require('./testTWD')
-var myapp = new MyApp()
+var TEST_REMOTE = true
 
 beforeEach(function() {
     //do something before testing
@@ -13,7 +15,7 @@ afterEach(function() {
 
 describe('hello Test', function() {
     it("hello", function() {
-        var r = myapp.hello()
+        var r = MyApp.hello()
         assert.equal(r, 'hello world')
     })
 })
@@ -27,12 +29,59 @@ describe('format twd output', function() {
         assert.equal(r.btctwd, 25824)
         assert.equal(r.usdtwd, 32.03)
     })
-    it("buildResponse", function(done) {
-        myapp.buildResponse().then(function(r) {
-            console.log(r)
-            assert.isTrue(r.btctwd>1000)
-            done()
+
+    it("validateParams", function() {
+        assert.becomes(MyApp.validateParams({
+            twd: '1989',
+            foo: 'YES'
+        }), {
+            twd: 1989,
+            foo: 'YES'
         })
+
+        assert.becomes(MyApp.validateParams({
+        }), {
+            twd: MyApp.ValidationSchema.twd.default,
+            foo: MyApp.ValidationSchema.foo.default
+        })
+
+        assert.isRejected(MyApp.validateParams({
+            twd: '1x989x'
+        }))
+
+        assert.isRejected(MyApp.validateParams({
+            haha: 'TAICHUNG'
+        }))
+
+    })
+
+    // it("buildResponse", function(done) {
+    //     if (TEST_REMOTE) {
+    //         var myapp = new MyApp()
+    //         myapp.buildResponse({twd:58000}).then(function(r) {
+    //             console.log(r)
+    //             assert.isTrue(r.btctwd > 1000)
+    //             assert.equal(58000, r.twd)
+    //             assert.isTrue(r.btc > 1)
+    //             done()
+    //         }).catch(function(err){
+    //             console.log(err)
+    //             assert.fail()
+    //             done()
+    //         })
+    //     } else {
+    //         done()
+    //     }
+    // })
+
+    it("process", function(done) {
+        if (TEST_REMOTE) {
+            var myapp = new MyApp()
+            myapp.process({twd:19999}).then(function(res){
+                console.log(res)
+                done()
+            })
+        }
     })
 
 })
