@@ -9,7 +9,6 @@ var Buffer = bitcore.deps.Buffer
 const apiurl = 'https://api.coindesk.com/v1/bpi/currentprice/TWD.json'
 const token = require('./token.json')
 
-
 function MyApp() {
     this.init()
 }
@@ -83,6 +82,17 @@ MyApp.fetchJson = function(url) {
     })
 }
 
+MyApp.toRespTemplate = function(code, res) {
+    // Required for CORS support to work
+    return {
+        statusCode: code,
+        headers: {
+            "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify(res)
+    }
+}
+
 MyApp.prototype.process = function(eventQueryStringParameters) {
     var that = this
     var r = {}
@@ -105,7 +115,7 @@ MyApp.prototype.saveToFb = function(json, param) {
     var that = this
     var r = {}
     var fmtObj = MyApp.formatTwd(json)
-    console.log(fmtObj)
+    // console.log(fmtObj)
     r.btcusd = fmtObj.btcusd
     r.btctwd = fmtObj.btctwd
     r.usdtwd = fmtObj.usdtwd
@@ -122,12 +132,13 @@ MyApp.prototype.saveToFb = function(json, param) {
         // https://github.com/serverless/serverless/issues/2769
         return that.fbclose()
     }).then(function() {
-        return {
+        var res = {
             result: 'ok',
             btctwd: r.btctwd,
             twd: r.twd,
             btc: r.btc
         }
+        return MyApp.toRespTemplate(200, res)
     })
 }
 module.exports = MyApp

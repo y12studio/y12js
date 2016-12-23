@@ -14,3 +14,10 @@ functions:
           path: hello
           method: get
           cors: true
+  btctwd:
+    handler: handler.btctwd
+    events:
+      - http:
+          path: btctwd
+          method: get
+          cors: true

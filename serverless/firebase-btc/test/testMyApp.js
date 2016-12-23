@@ -55,25 +55,6 @@ describe('format twd output', function() {
 
     })
 
-    // it("buildResponse", function(done) {
-    //     if (TEST_REMOTE) {
-    //         var myapp = new MyApp()
-    //         myapp.buildResponse({twd:58000}).then(function(r) {
-    //             console.log(r)
-    //             assert.isTrue(r.btctwd > 1000)
-    //             assert.equal(58000, r.twd)
-    //             assert.isTrue(r.btc > 1)
-    //             done()
-    //         }).catch(function(err){
-    //             console.log(err)
-    //             assert.fail()
-    //             done()
-    //         })
-    //     } else {
-    //         done()
-    //     }
-    // })
-
     it("process", function(done) {
         if (TEST_REMOTE) {
             var myapp = new MyApp()

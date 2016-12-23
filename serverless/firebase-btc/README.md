@@ -1,6 +1,8 @@
 examples/aws-node-fetch-file-and-store-in-s3 at master · serverless/examples
  https://github.com/serverless/examples/tree/master/aws-node-fetch-file-and-store-in-s3
 
+http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-set-up-simple-proxy.html#api-gateway-simple-proxy-for-lambda-input-format
+
 ```
 $ cp aws-fetch-btc
 $ npm test
