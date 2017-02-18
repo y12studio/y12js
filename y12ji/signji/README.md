@@ -16,6 +16,14 @@ Y12JIHC1 + sha256sum hc1501app-0.0.1.html
 $ node app.js --stamp --fee 9988 --bout
 ```
 
+Update
+
+```
+$ nano comm1601.conf.json
+$ node app.js --stamp --fee 9988
+$ node app.js --stamp --fee 9988 --bout
+```
+
 ref
 
 remy/inliner https://github.com/remy/inliner

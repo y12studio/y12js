@@ -3,8 +3,9 @@ var assert = chai.assert
 var chaiAsPromised = require("chai-as-promised")
 chai.use(chaiAsPromised)
 var MyApp = require('../myapp')
+var BcLib = require('../bclib')
 var testTWD = require('./testTWD')
-var TEST_REMOTE = true
+var TEST_REMOTE = false
 
 beforeEach(function() {
     //do something before testing
@@ -39,8 +40,7 @@ describe('format twd output', function() {
             foo: 'YES'
         })
 
-        assert.becomes(MyApp.validateParams({
-        }), {
+        assert.becomes(MyApp.validateParams({}), {
             twd: MyApp.ValidationSchema.twd.default,
             foo: MyApp.ValidationSchema.foo.default
         })
@@ -56,13 +56,13 @@ describe('format twd output', function() {
     })
 
     it("process", function(done) {
-        if (TEST_REMOTE) {
-            var myapp = new MyApp()
-            myapp.process({twd:19999}).then(function(res){
-                console.log(res)
-                done()
-            })
-        }
+        if(!TEST_REMOTE) done()
+        var myapp = new MyApp()
+        myapp.process({
+            twd: 19999
+        }).then(function(res) {
+            console.log(res)
+            done()
+        })
     })
-
 })

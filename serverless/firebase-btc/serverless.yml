@@ -21,3 +21,10 @@ functions:
           path: btctwd
           method: get
           cors: true
+  nquiz:
+    handler: handler.nquiz
+    events:
+      - http:
+          path: nquiz
+          method: get
+          cors: true

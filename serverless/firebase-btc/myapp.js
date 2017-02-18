@@ -1,11 +1,9 @@
 var Promise = require('bluebird')
 var isvalid = require('isvalid')
 const fetch = require('node-fetch')
+const BcLib = require('./bclib')
 var bitcore = require('bitcore-lib')
 var Unit = bitcore.Unit
-var HDPrivateKey = bitcore.HDPrivateKey
-var Hash = bitcore.crypto.Hash
-var Buffer = bitcore.deps.Buffer
 const apiurl = 'https://api.coindesk.com/v1/bpi/currentprice/TWD.json'
 const token = require('./token.json')
 
@@ -51,16 +49,6 @@ MyApp.formatTwd = function(json) {
         btctwd: Math.round(btctwd),
         usdtwd: Math.round(usdtwd * 100) / 100,
         time: new Date().toTimeString()
-    }
-}
-
-MyApp.rankey = function() {
-    var hd = new HDPrivateKey()
-    var key = hd.privateKey
-    return {
-        key: key,
-        keyhex: key.toString('Hex'),
-        address: key.toAddress().toString()
     }
 }
 
@@ -120,8 +108,8 @@ MyApp.prototype.saveToFb = function(json, param) {
     r.btctwd = fmtObj.btctwd
     r.usdtwd = fmtObj.usdtwd
     r.twd = param.twd
-    r.btc = Unit.fromBTC(r.twd / r.btctwd).BTC
-    var keyobj = MyApp.rankey()
+    r.btc = Unit.fromFiat(r.twd,r.btctwd).BTC
+    var keyobj = BcLib.rankey()
     r.key = keyobj.keyhex
     r.address = keyobj.address
     return that.signin().then(function(user) {
