@@ -4,11 +4,13 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host 0.0.0.0",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "bitcorelib": "browserify BitcoreLibExport.js -s BitcoreLib -o src/bitcore-lib.js",
+    "inline": "ng build -prod && html-inline dist/index.html > dist/app.html"
   },
   "private": true,
   "dependencies": {
@@ -32,6 +34,7 @@
     "@types/jasmine": "2.5.38",
     "@types/lodash": "^4.14.54",
     "@types/node": "~6.0.60",
+    "bitcore-lib": "^0.13.19",
     "codelyzer": "~2.0.0",
     "jasmine-core": "~2.5.2",
     "jasmine-spec-reporter": "~3.2.0",

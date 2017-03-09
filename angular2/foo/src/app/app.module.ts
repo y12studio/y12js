@@ -4,10 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
+import { FoonumComponent } from './foonum/foonum.component';
+import { BitcoreComponent } from './bitcore/bitcore.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FoonumComponent,
+    BitcoreComponent
   ],
   imports: [
     BrowserModule,

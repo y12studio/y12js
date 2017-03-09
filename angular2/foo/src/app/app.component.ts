@@ -8,5 +8,4 @@ import * as _ from 'lodash';
 })
 export class AppComponent {
   title = 'app works!';
-  foo = _.random(5,89);
 }
