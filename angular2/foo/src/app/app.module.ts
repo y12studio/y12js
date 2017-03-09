@@ -6,12 +6,14 @@ import { HttpModule } from '@angular/http';
 import { AppComponent } from './app.component';
 import { FoonumComponent } from './foonum/foonum.component';
 import { BitcoreComponent } from './bitcore/bitcore.component';
+import { AmockComponent } from './amock/amock.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     FoonumComponent,
-    BitcoreComponent
+    BitcoreComponent,
+    AmockComponent
   ],
   imports: [
     BrowserModule,

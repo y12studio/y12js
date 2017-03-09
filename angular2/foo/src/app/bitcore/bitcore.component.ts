@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-declare var BitcoreLib:any;
+import * as _ from 'lodash';
+declare var BitcoreLib: any;
 const bitcorelib = BitcoreLib.bitcorelib;
 const PrivateKey = bitcorelib.PrivateKey;
 
@@ -10,8 +11,8 @@ const PrivateKey = bitcorelib.PrivateKey;
 })
 export class BitcoreComponent implements OnInit {
 
-  address = '0x0002';
-  key='0x00';
+  address = '0x0006';
+  key = '0x00';
 
   constructor() { }
 
