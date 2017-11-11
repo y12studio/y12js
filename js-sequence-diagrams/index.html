@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Page Title</title>
+<title>Sequence-diagrams Page</title>
 </head>
 <body>
-
 <h1>This is a Heading</h1>
-<p>This is a paragraph.</p>
+<div class="diagram">A->B: Message</div>
+<p><a href="https://bramp.github.io/js-sequence-diagrams/">js-sequence-diagrams by bramp</a></p>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="https://rawgit.com/adobe-webplatform/Snap.svg/master/dist/snap.svg-min.js"></script>
+<script src="https://rawgit.com/bramp/js-sequence-diagrams/master/dist/sequence-diagram-snap-min.js"></script>
+<script>
+  var options = {};
+  $(".diagram").sequenceDiagram(options);
+</script>
 </body>
 </html>
