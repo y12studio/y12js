@@ -1,25 +1,76 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Sequence-diagrams Page</title>
+  <title>Sequence-diagrams Page</title>
+  <meta charset="UTF-8" />
 </head>
+
 <body>
-<h1>This is a Heading</h1>
-<div class="diagram">Title: WebService
-User->/webservice: POST
-/webservice->db: createUser
-db-->/webservice: OK
+    <h3>
+        <a href="https://bramp.github.io/js-sequence-diagrams/">js-sequence-diagrams by bramp</a>
+    </h3>
+
+  <div id="demo1">
+    <pre class="editor">Title: WebService 
+User->/webservice: POST 
+/webservice->db: createUser 
+db-->/webservice: OK 
 /webservice-->User: result page
-</div>
-<p><a href="https://bramp.github.io/js-sequence-diagrams/">js-sequence-diagrams by bramp</a></p>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
-<script src="https://rawgit.com/adobe-webplatform/Snap.svg/master/dist/snap.svg-min.js"></script>
-<script src="https://rawgit.com/bramp/js-sequence-diagrams/master/dist/sequence-diagram-snap-min.js"></script>
-<script>
-  var options = {};
-  $(".diagram").sequenceDiagram(options);
-</script>
+  </pre>
+    <div class="diagram">
+    </div>
+    <h3>
+      <a href="#" class="download">Download as SVG</a>
+    </h3>
+  </div>
+  <div id="demo2">
+    <pre class="editor">Title: WebService2 
+User->/webservice2: POST 
+/webservice2->/ext/api: check username 
+/ext/api-->/webservice2: username OK
+/webservice2->db: createUser 
+db-->/webservice2: 正確無誤 
+/webservice2->/webservice2: setting cookie 
+/webservice2-->User: result page</pre>
+    <div class="diagram">
+    </div>
+    <h3>
+      <a href="#" class="download">Download as SVG</a>
+    </h3>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="https://rawgit.com/adobe-webplatform/Snap.svg/master/dist/snap.svg-min.js"></script>
+  <script src="https://rawgit.com/bramp/js-sequence-diagrams/master/dist/sequence-diagram-snap-min.js"></script>
+  <script>
+    function setup(div) {
+      var options = { theme: 'simple' };
+      var editor_div = div.find(".editor");
+      var diagram_div = div.find(".diagram");
+      var download_link = div.find('.download');
+      var diagram = Diagram.parse(editor_div.text());
+      // Draw
+      diagram.drawSVG(diagram_div.get(0), options);
+
+      download_link.click(function (ev) {
+        var svg = diagram_div.find('svg')[0];
+        var width = parseInt(svg.width.baseVal.value);
+        var height = parseInt(svg.height.baseVal.value);
+        var data = editor_div.text();
+        var xml = '<?xml version="1.0" encoding="utf-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"><svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" xmlns:xlink="http://www.w3.org/1999/xlink"><source><![CDATA[' + data + ']]></source>' + svg.innerHTML + '</svg>';
+
+        var a = $(this);
+        a.attr("download", "diagram.svg"); // TODO I could put title here
+        a.attr("href", "data:image/svg+xml," + encodeURIComponent(xml));
+      });
+    }
+    $(document).ready(function () {
+      setup($('#demo1'));
+      setup($('#demo2'));
+    });
+  </script>
 </body>
+
 </html>
