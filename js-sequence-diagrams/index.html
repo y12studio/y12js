@@ -5,7 +5,12 @@
 </head>
 <body>
 <h1>This is a Heading</h1>
-<div class="diagram">A->B: Message</div>
+<div class="diagram">Title: WebService
+User->/webservice: POST
+/webservice->db: createUser
+db-->/webservice: OK
+/webservice-->User: result page
+</div>
 <p><a href="https://bramp.github.io/js-sequence-diagrams/">js-sequence-diagrams by bramp</a></p>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
