@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>博祖克序列圖 Buurtzorg Model</title>
+  <meta charset="UTF-8" />
+</head>
+
+<body>
+
+  <h1>博祖克</h1>
+    <div id="seqdig1">
+        <h3>Buurtzorg Model ( Nurses<=12 + BuurtzorgWeb + The Omaha System )</h3>
+       <pre class="editor">Title: The Problems to solve
+客戶->醫療院所: 1 有醫療需求
+醫療院所->組織甲: 2 分類
+組織甲->護士甲: 3 分派
+護士甲-->客戶: 4 提供服務
+客戶->護士甲: 5 不只一個問題
+護士甲->醫療院所: 6 回報需求
+客戶->醫療院所: 7 再提需求
+醫療院所->組織乙: 8 分類
+組織乙->護士乙: 9 分派
+護士乙-->客戶: 10 提供服務
+  </pre>
+    <div class="diagram">
+    </div>
+    <h3>
+      <a href="#" class="download">Download as SVG</a>
+    </h3>
+  </div>
+  <div id="seqdig2">
+      <h3>Buurtzorg Model </h3>
+     <pre class="editor">Title: Buurtzorg Model 
+客戶->BuurtzorgWeb: 需求
+BuurtzorgWeb->最高12個不能再多護理團: 分派
+最高12個不能再多護理團-->客戶: 提供服務
+客戶->最高12個不能再多護理團: 需求一二三
+最高12個不能再多護理團->最高12個不能再多護理團: The Omaha System \n Standardized Nursing Language
+最高12個不能再多護理團-->BuurtzorgWeb: Omaha System Language
+最高12個不能再多護理團-->客戶: 提供服務
+最高12個不能再多護理團->最高12個不能再多護理團: Omaha System Language
+最高12個不能再多護理團-->客戶: 提供服務
+</pre>
+  <div class="diagram">
+  </div>
+  <h3>
+    <a href="#" class="download">Download as SVG</a>
+  </h3>
+</div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+  <script src="https://rawgit.com/adobe-webplatform/Snap.svg/master/dist/snap.svg-min.js"></script>
+  <script src="https://rawgit.com/bramp/js-sequence-diagrams/master/dist/sequence-diagram-snap-min.js"></script>
+  <script>
+    function setup(div) {
+      var options = { theme: 'simple' };
+      var editor_div = div.find(".editor");
+      var diagram_div = div.find(".diagram");
+      var download_link = div.find('.download');
+      var diagram = Diagram.parse(editor_div.text());
+      // Draw
+      diagram.drawSVG(diagram_div.get(0), options);
+
+      download_link.click(function (ev) {
+        var svg = diagram_div.find('svg')[0];
+        var width = parseInt(svg.width.baseVal.value);
+        var height = parseInt(svg.height.baseVal.value);
+        var data = editor_div.text();
+        var xml = '<?xml version="1.0" encoding="utf-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"><svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" xmlns:xlink="http://www.w3.org/1999/xlink"><source><![CDATA[' + data + ']]></source>' + svg.innerHTML + '</svg>';
+
+        var a = $(this);
+        a.attr("download", "diagram.svg"); // TODO I could put title here
+        a.attr("href", "data:image/svg+xml," + encodeURIComponent(xml));
+      });
+    }
+    $(document).ready(function () {
+      setup($('#seqdig1'));
+      setup($('#seqdig2'));
+    });
+  </script>
+</body>
+
+</html>
