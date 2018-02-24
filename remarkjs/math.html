@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>mathjax</title>
+    <meta charset="utf-8">
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+        @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+        @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+        body {
+            font-family: 'Droid Serif';
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Yanone Kaffeesatz';
+            font-weight: normal;
+        }
+
+        .remark-code,
+        .remark-inline-code {
+            font-family: 'Ubuntu Mono';
+        }
+
+        .remark-slide-container {
+            visibility: hidden;
+            display: initial;
+        }
+
+        .remark-visible {
+            visibility: visible;
+        }
+
+        /* Two-column layout */
+
+        .left-column {
+            width: 50%;
+            float: left;
+        }
+
+        .img95 img {
+            max-width: 95%;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .right-column {
+            width: 50%;
+            float: right;
+            padding-top: 4em;
+        }
+
+        div.my-footer {
+            position: absolute;
+            bottom: 0.5em;
+            left: 0px;
+            height: 20px;
+            width: 100%;
+        }
+
+        div.mynetwork {
+            width: 90%;
+            height: 60%;
+        }
+
+        div.my-footer span {
+            font-size: 10pt;
+            position: absolute;
+            left: 15px;
+            bottom: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea id="source">
+layout: true
+<div class="my-footer"><span>JOYELIN, DLTDOJO, 2017-12@Taichung</span></div>
+---
+
+class: center, middle
+
+# mathjax
+# .em.em-door[]
+
+---
+
+# Activity 
+
+#### `\(A = \displaystyle\sum_{i,j} CB(i,j) + \displaystyle\sum_{i,k} CM(i,k)\)`
+#### `\(i \in [1,3], j \in [0,10], k \in [0,2]\)`
+
+* 不求精確定位，只關切活動度。
+* A: activity function
+* i: Fixed BLE Central
+* j: Fixed iBeacon
+* k: Moving iBeacon
+---
+
+# TODO
+    </textarea>
+
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML&delayStartupUntil=configured"
+        type="text/javascript"></script>
+
+    <script>
+        var slideshow = remark.create();
+        // Setup MathJax
+        MathJax.Hub.Config({
+            tex2jax: {
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        });
+        MathJax.Hub.Configured();
+    </script>
+</body>
+
+</html>
